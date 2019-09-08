@@ -124,7 +124,6 @@ methods.checkCard = function(req, res){
                 cantMove.push(checkResult);
             }*/
             if((canMoveGroup.length + cantMove.length - countGeneral) == allGroup.length){
-                console.log(canMoveGroup);
                 res.send(canMoveGroup);
             }
         });
