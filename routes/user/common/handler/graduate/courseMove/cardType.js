@@ -239,7 +239,16 @@ cardsets.General.prototype.check = function(callback){
         for(let i = 0; i < res.length; i++){
             if(checkCode == res[i].cos_code){
                 if(res[i].brief){
-                    callback('通識(舊制)-' + res[i].brief + '|通識(新制)-' + res[i].brief_new);
+                    switch(res[i].brief_new[0]){
+                        case '核':
+                        case '校':
+                        case '跨':
+                            callback('通識(舊制)-' + res[i].brief + '|通識(新制)-' + res[i].brief_new);
+                            break;
+                        default:
+                            callback('');
+                            break;
+                    }
                     return;
                 }
                 else{
