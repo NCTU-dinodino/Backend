@@ -901,13 +901,15 @@ table.researchProfessorList = function(req, res, next) {
                                 	id: '',
                                 	name: '',
                                 	program: '',
-                                	first_second:'',
+                                    first_second:'',
+                                    semester:'',
                                 	status: null	
                             	}
                             	student.id = result[j].student_id;
                             	student.name = result[j].sname;
                             	student.program = result[j].program;
-                            	student.first_second = result[j].first_second;
+                                student.first_second = result[j].first_second;
+                                student.semester = result[j].semester;
                             	student.status = result[j].status;
                             	var id = index[result[j].research_title];
                             	var Id = Index[result[j].teacher_id];
