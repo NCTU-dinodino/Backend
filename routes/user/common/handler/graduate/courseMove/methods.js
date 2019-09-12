@@ -103,6 +103,7 @@ methods.checkCard = function(req, res){
                         for(let i = 0; i < new_one.length; i++){
                             let one = new_one[i];
                             one = one.substring(0, one.length-5);
+                            if(i != 0) one = "通識(新制)-" + one;
                             canMoveGroup.push({title: one});
                             //countGeneral++;
                             allGroup.push({title: one});
