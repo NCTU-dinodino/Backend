@@ -177,6 +177,8 @@ Othercourse.processOther = function(req, res, next){
                     general.course.push(cosInfo);
                     var temp_cosInfo = Object.assign({}, cosInfo);
                     temp_cosInfo.dimension = offset[i].brief_new.substring(0,5);
+                    if (temp_cosInfo.dimension == "跨院基本素")
+                        temp_cosInfo.dimension = "跨院基本素養";
                     general_new.course.push(temp_cosInfo);
                     general.credit += parseFloat(offset[i].credit);
                     general_new.credit.total += parseFloat(offset[i].credit);
@@ -329,6 +331,8 @@ Othercourse.processOther = function(req, res, next){
                                 general.course.push(cosInfo);
                                 var temp_cosInfo = Object.assign({}, cosInfo);
                                 temp_cosInfo.dimension = offset[i].brief_new.substring(0,5);
+                                if (temp_cosInfo.dimension == "跨院基本素")
+                                    temp_cosInfo.dimension = "跨院基本素養";
                                 general_new.course.push(temp_cosInfo);
                                 general.credit += parseFloat(offset[i].credit);
                                 general_new.credit.total += parseFloat(offset[i].credit);
@@ -577,6 +581,8 @@ Othercourse.processOther = function(req, res, next){
                             cosInfo.dimension = brief;
                             var temp_cosInfo = Object.assign({}, cosInfo);
                             temp_cosInfo.dimension = brief_new;
+                            if (temp_cosInfo.dimension == "跨院基本素")
+                                temp_cosInfo.dimension = "跨院基本素養";
                             for(var z = 0; z< general.course.length; z++){
                                 if(general.course[z].cn == pass[q].cos_cname){
                                     if(pass[q].score >= general.course[z].score){
