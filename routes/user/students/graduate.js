@@ -11,8 +11,10 @@ var nowOther = require('../common/handler/graduate/course/currentOther');
 var nowCS = require('../common/handler/graduate/course/currentCS');
 var result = require('../common/handler/graduate/course/courseResult');
 var restore = require('../common/handler/graduate/course/restore');
-var methods = require('../common/handler/graduate/courseMove/methods');
-var checkCard = methods.method.checkCard;
+//var methods = require('../common/handler/graduate/courseMove/methods');
+var methods = require('../common/handler/graduate/courseMove/legalMoveDestination.js');
+//var checkCard = methods.method.checkCard;
+var checkCard = methods.getLegalDestination;
 
 var StudentId = getStudentId.getStudentId.studentId;
 var StudentProfile = table.table.queryProfile;

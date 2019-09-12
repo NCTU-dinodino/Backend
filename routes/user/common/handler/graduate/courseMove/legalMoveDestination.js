@@ -1,0 +1,53 @@
+var course = require('./course.js');
+var flow = require('asynchronous-flow');
+
+const getLegalDestination = (req, res, next) => {
+	var legal_destinations = [];
+
+	var probable_destinations = [
+		course.Elective,	//專業選修
+		course.Course,		//其他選修(Any course can be changed to this type.)
+		course.Language,	//外語
+		course.General,		//通識
+		course.PE,		//體育
+		course.Service,		//服務學習
+		course.Art,		//藝文賞析
+		course.Graduate,	//抵免研究所課程
+		course.AdditionProgram	//雙主修、輔系、學分學程
+	];
+
+	var course_info = req.body;
+	var course_name = course_info.cn;
+	var course_code = course_info.code;
+	var course_type = course_info.type;
+	var student_id = course_inof.sId;
+
+	var validation_functions = [];
+	for(course_class in probable_destinations){
+		let validation_function = (next) => {
+			let changed_course_type = new course_class(course_name, course_code, course_type);
+			changed_course_type.isValid(student_id, (type_name) => {
+				if(type_name){
+					if(Array.isArray(type_name))
+						for(let type in type_name)
+							legal_destinations.push({title: type});
+					else
+						legal_destinations.push({title: type_name});
+				}
+				next();
+			});
+		};
+		validation_functions.push(validation_function);
+	}
+	
+	var flow_func = new flow();
+	flow_func.setArgs()
+		.setErrorHandler()
+		.flow(...validation_functions, () => {
+			res.send(legal_destinations);
+		});
+}
+
+module.exports = {
+	getLegalDestination: getLegalDestination
+}
