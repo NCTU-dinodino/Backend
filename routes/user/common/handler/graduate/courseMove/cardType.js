@@ -33,7 +33,7 @@ cardsets.Card.prototype.check = function(callback){
                 }
             }
         }
-        if(checkType === "軍訓" || checkCode === "PYY" || checkName === "藝文賞析教育")  // Eng, Repeat
+        if(checkType === "軍訓" || checkCode === "PYY" || checkName === "藝文賞析教育" || checkType == "通識" || checkCode == "MIN" || checkName == "服務學習(一)" || checkName == "服務學習(二)")  // Eng, Repeat
             callback('');
         else callback('其他選修'); // can move if have not defined
     });

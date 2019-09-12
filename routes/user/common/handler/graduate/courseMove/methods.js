@@ -88,7 +88,7 @@ methods.checkCard = function(req, res){
         }
         //let checkResult = {title: ''};
         //checkResult.title = allGroup[i];
-        let countGeneral = 0;
+        let countGeneral = [];
         theCard.check(function(flag){
             if (cardCode === '') {
                 cantMove.push({title: flag});
@@ -104,7 +104,8 @@ methods.checkCard = function(req, res){
                             let one = new_one[i];
                             one = one.substring(0, one.length-5);
                             canMoveGroup.push({title: one});
-                            countGeneral++;
+                            //countGeneral++;
+                            allGroup.push({title: one});
                         }
                         old = old.substring(0, old.length);
                         canMoveGroup.push({title: old});
@@ -123,9 +124,15 @@ methods.checkCard = function(req, res){
             else{            
                 cantMove.push(checkResult);
             }*/
-            if((canMoveGroup.length + cantMove.length - countGeneral) == allGroup.length){
+            if(canMoveGroup.length + cantMove.length  == allGroup.length){
+                allGroup = [/*"共同必修", */"專業選修", "其他選修", "外語", "通識", "體育", "服務學習", "藝文賞析", "抵免研究所課程", "雙主修、輔系、學分學程"]; 
                 res.send(canMoveGroup);
-            }
+            }/*else{
+                res.send([]);
+            }*/
+            /*setTimeout(function(){
+                res.send(canMoveGroup);
+            }, 2000);*/
         });
     }
 }
