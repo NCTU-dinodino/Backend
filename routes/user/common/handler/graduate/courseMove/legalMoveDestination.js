@@ -24,7 +24,7 @@ const getLegalDestination = (req, res, next) => {
 	var student_id = course_info.studentId;
 
 	var validation_functions = [];
-	for(let course_type in probable_destinations){
+	probable_destinations.forEach((course_type) => {
 		let validation_function = (next) => {
 			course_type.isValid(course_code, course_name, course_type, student_id, (type_names) => {
 				for(let type in type_names)
@@ -33,7 +33,7 @@ const getLegalDestination = (req, res, next) => {
 			});
 		};
 		validation_functions.push(validation_function);
-	}
+	});
 	
 	var flow_func = new flow();
 	flow_func.setArgs()
