@@ -119,7 +119,7 @@ var General = {
 					case '校':case '核':case'跨':
 						destination = [];
 						destination.push('通識(舊制)-' + course.brief.split('/')[0]);
-						console.log(course.brief_new);
+						console.log(course.brief_new.split(','));
 						for(let dim in course.brief_new.split(','))
 							destination.push('通識(新制)-' + dim.substring(0, dim.length - 5));
 						//destination = '通識(舊制)-' + course.brief + '|通識(新制)-' + course.brief_new;
