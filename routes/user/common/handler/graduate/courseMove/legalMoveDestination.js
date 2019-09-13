@@ -1,4 +1,5 @@
 var course = require('./course.js');
+var query = require('../../../../../../db/msql');
 var flow = require('asynchronous-flow');
 
 const getLegalDestination = (req, res, next) => {
@@ -25,7 +26,7 @@ const getLegalDestination = (req, res, next) => {
 	/*var validation_functions = [];
 	for(let course_type in probable_destinations){
 		let validation_function = (next) => {
-			course_type.isValid(course_name, course_code, course_type, student_id, (type_names) => {
+			course_type.isValid(course_code, course_name, course_type, student_id, (type_names) => {
 				for(let type in type_names)
 					legal_destinations.push({title: type});
 				next();
@@ -41,12 +42,12 @@ const getLegalDestination = (req, res, next) => {
 			res.send(legal_destinations);
 		});
 	*/
-	course.Elective.isValid(course_code, course_name, course_type, student_id, (type_names) => {
-		console.log(type_names);
-	});
-	/*probable_destinations[0].isValid(course_name, course_code, course_type, student_id, (type_names) => {
+	/*course.Elective.isValid(course_code, course_name, course_type, student_id, (type_names) => {
 		console.log(type_names);
 	});*/
+	query.ShowCosGroup(student_id, (err, result) => {
+		console.log(result);
+	});
 }
 
 module.exports = {
