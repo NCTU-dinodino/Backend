@@ -11,14 +11,14 @@ var Course = {
 			let course_groups = JSON.parse(result);
 
 			course_groups.forEach((course_group) => {
-				if(course_group.cos_codes.some((cos_code) => (cos_code + '_one' == this.code)))
+				if(course_group.cos_codes.some((cos_code) => (cos_code + '_one' == code)))
 					destination = ['其他選修'];
-				else if(course_group.cos_codes.some((cos_code) => (this.code.startsWith(cos_code))) && course_group.type == '必修')
+				else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修')
 					destination = [];
 			});
 
 
-			if(this.type == '軍訓' || this.code.startsWith('PYY') || this.name == '藝文賞析教育')
+			if(type == '軍訓' || code.startsWith('PYY') || name == '藝文賞析教育')
 				destination = [];
 
 			if(destination == null)
@@ -41,13 +41,13 @@ var Elective = {
 			let course_groups = JSON.parse(result);
 
 			course_groups.forEach((course_group) => {
-				if(course_group.cos_codes.some((cos_code) => (this.code == cos_code + '_one')))
+				if(course_group.cos_codes.some((cos_code) => (code == cos_code + '_one')))
 					destination = ['專業選修'];
 				else if(course_group.cos_cname.startsWith('物化生三選一')
-					&& course_group.cos_codes.some((cos_code) => (this.code.startsWith(cos_code))))
+					&& course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))))
 					destination = ['專業選修'];
-				else if(course_group.cos_codes.some((cos_code) => (this.code.startsWith(cos_code)))
-					&& this.type == '必修')
+				else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code)))
+					&& type == '必修')
 					destination = [];
 			});
 			
@@ -58,7 +58,7 @@ var Elective = {
 				'UEE2601',
 				'UEE4605'
 			];
-			if(EE_cos_codes.some((cos_code) => (this.code.startsWith(cos_code))))
+			if(EE_cos_codes.some((cos_code) => (code.startsWith(cos_code))))
 				destination = ['專業選修'];
 		
 			let CS_cos_codes_prefix = [
@@ -68,7 +68,7 @@ var Elective = {
 				'ILE',
 				'IDS'
 			];
-			if(CS_cos_codes_prefix.some((cos_code) => (this.code.startsWith(cos_code)))){
+			if(CS_cos_codes_prefix.some((cos_code) => (code.startsWith(cos_code)))){
 				let invalid_course = [
 					'服務學習(一)',
 					'服務學習(二)',
@@ -76,7 +76,7 @@ var Elective = {
 					'教學實務',
 					'個別研究'
 				];
-				if(invalid_course.some((cos_name) => (this.name == cos_name)))
+				if(invalid_course.some((cos_name) => (name == cos_name)))
 					destination = [];
 				else
 					destination = ['專業選修'];
@@ -94,7 +94,7 @@ var Language = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
 
-		if(this.type == '外語')
+		if(type == '外語')
 			destination = ['外語'];
 		else 
 			destination = [];
@@ -113,7 +113,7 @@ var General = {
 			}
 
 			let courses = JSON.parse(result);
-			let course = courses.find((cos) => (this.code == cos.cos_code));
+			let course = courses.find((cos) => (code == cos.cos_code));
 			if(course.brief)
 				switch(course.brief_new[0]){
 					case '校':case '核':case'跨':
@@ -134,7 +134,7 @@ var General = {
 var PE = {	
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
-		if(this.code.startsWith('PYY'))
+		if(code.startsWith('PYY'))
 			destination = ['體育'];
 		else
 			destination = [];
@@ -146,7 +146,7 @@ var PE = {
 var Service = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
-		if(this.type === "服務學習" || this.type === "通識服務學習")
+		if(type === "服務學習" || type === "通識服務學習")
 			destination = ['服務學習'];
 		else
 			destination = [];
@@ -158,7 +158,7 @@ var Service = {
 var Art = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
-		if(this.name == '藝文賞析教育')
+		if(name == '藝文賞析教育')
 			destination = ['藝文賞析'];
 		else
 			destination = [];
@@ -176,7 +176,7 @@ var Graduate = {
 			'ILE',
 			'IDS'
 		];
-		if(graduate_cos_codes_prefix.some((cos_code) => (this.code.startsWith(cos_code))) || this.type == '大學部修研究所課程')
+		if(graduate_cos_codes_prefix.some((cos_code) => (code.startsWith(cos_code))) || type == '大學部修研究所課程')
 			destination = ['抵免研究所課程'];
 		else 
 			destination = [];
@@ -188,7 +188,7 @@ var Graduate = {
 var AdditionProgram = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
-		if(this.type == '必修')
+		if(type == '必修')
 			destination = [];
 		else 
 			destination = ['雙主修、輔系、學分學程'];
