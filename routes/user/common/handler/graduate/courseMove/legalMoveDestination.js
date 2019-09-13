@@ -26,7 +26,7 @@ const getLegalDestination = (req, res, next) => {
 	for(let course_type in probable_destinations){
 		let validation_function = (next) => {
 			course_type.isValid(course_name, course_code, course_type, student_id, (type_names) => {
-				for(let type in type_name)
+				for(let type in type_names)
 					legal_destinations.push({title: type});
 				next();
 			});
