@@ -32,13 +32,13 @@ var Course = {
 var Elective = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
+		console.log('Elective');
 
 		query.ShowCosGroup(student_id, (err, result) => {
 			if(err){
 				callback([]);
 				return;
 			}
-			console.log('Elective');
 
 			let course_groups = JSON.parse(result);
 
