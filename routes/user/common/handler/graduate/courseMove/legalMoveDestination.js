@@ -22,7 +22,7 @@ const getLegalDestination = (req, res, next) => {
 	var course_type = course_info.type;
 	var student_id = course_info.sId;
 
-	var validation_functions = [];
+	/*var validation_functions = [];
 	for(let course_type in probable_destinations){
 		let validation_function = (next) => {
 			course_type.isValid(course_name, course_code, course_type, student_id, (type_names) => {
@@ -32,7 +32,7 @@ const getLegalDestination = (req, res, next) => {
 			});
 		};
 		validation_functions.push(validation_function);
-	}
+	}*/
 	
 	/*var flow_func = new flow();
 	flow_func.setArgs()
@@ -41,6 +41,7 @@ const getLegalDestination = (req, res, next) => {
 			res.send(legal_destinations);
 		});
 	*/
+	console.log(probable_destinations);
 	probable_destinations[0].isValid(course_name, course_code, course_type, student_id, (type_names) => {
 		console.log(type_names);
 	});
