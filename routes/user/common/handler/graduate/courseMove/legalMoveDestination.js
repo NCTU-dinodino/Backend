@@ -27,8 +27,9 @@ const getLegalDestination = (req, res, next) => {
 	probable_destinations.forEach((course_type) => {
 		let validation_function = (next) => {
 			course_type.isValid(course_code, course_name, course_type, student_id, (type_names) => {
-				for(let type in type_names)
+				type_names.forEach((type) => {
 					legal_destinations.push({title: type});
+				});
 				next();
 			});
 		};
