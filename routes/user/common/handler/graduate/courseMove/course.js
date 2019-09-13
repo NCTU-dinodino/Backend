@@ -38,6 +38,7 @@ var Elective = {
 				callback([]);
 				return;
 			}
+			console.log('Elective');
 
 			let course_groups = JSON.parse(result);
 
