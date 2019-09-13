@@ -1,12 +1,6 @@
 var query = require('../../../../../../db/msql');
-class Course{
-	constructor(code, name, type){
-		this.code = code;
-		this.name = name;
-		this.type = type;
-	}
-
-	isValid(student_id, callback){
+var Course = {
+	isValid : function(code, name, type, student_id, callback){
 		let destination = null;
 		query.ShowCosGroup(student_id, (err, result) => {
 			if(err){
@@ -35,12 +29,8 @@ class Course{
 	}
 }
 
-class Elective extends Course{
-	constructor(code, name, type){
-		super(code, name, type);
-	}
-
-	isValid(student_id, callback){
+var Elective = {
+	isValid(code, name, type, student_id, callback){
 		let destination = null;
 
 		query.ShowCosGroup(student_id, (err, result) => {
@@ -101,12 +91,8 @@ class Elective extends Course{
 	}
 }
 
-class Language extends Course{
-	constructor(code, name, type){
-		super(code, name, type);
-	}
-
-	isValid(student_id, callback){
+var Language = {
+	isValid(code, name, type, student_id, callback){
 		let destination = null;
 
 		if(this.type == '外語')
@@ -118,12 +104,8 @@ class Language extends Course{
 	}
 }
 
-class General extends Course{
-	constructor(code, name, type){
-		super(code, name, type);
-	}
-
-	isValid(student_id, callback){
+var General = {
+	isValid(code, name, type, student_id, callback){
 		let destination = null;
 		query.ShowUserAllScore(student_id, (err, result) => {
 			if(err){
@@ -150,12 +132,8 @@ class General extends Course{
 	}
 }
 
-class PE extends Course{
-	constructor(code, name, type){
-		super(code, name, type);
-	}
-	
-	isValid(student_id, callback){
+var PE = {	
+	isValid(code, name, type, student_id, callback){
 		let destination = null;
 		if(this.code.startsWith('PYY'))
 			destination = ['體育'];
@@ -166,12 +144,8 @@ class PE extends Course{
 	}
 }
 
-class Service extends Course{
-	constructor(code, name, type){
-		super(code, name, type);
-	}
-
-	isValid(student_id, callback){
+var Service = {
+	isValid(code, name, type, student_id, callback){
 		let destination = null;
 		if(this.type === "服務學習" || this.type === "通識服務學習")
 			destination = ['服務學習'];
@@ -182,12 +156,8 @@ class Service extends Course{
 	}
 }
 
-class Art extends Course{
-	constructor(code, name, type){
-		super(code, name, type);
-	}
-
-	isValid(student_id, callback){
+var Art = {
+	isValid(code, name, type, student_id, callback){
 		let destination = null;
 		if(this.name == '藝文賞析教育')
 			destination = ['藝文賞析'];
@@ -198,12 +168,8 @@ class Art extends Course{
 	}
 }
 
-class Graduate extends Course{
-	constructor(code, name, type){
-		super(code, name, type);
-	}
-
-	isValid(student_id, callback){
+var Graduate = {
+	isValid(code, name, type, student_id, callback){
 		let destination = null;
 		let graduate_cos_codes_prefix = [
 			'IOC',
@@ -220,12 +186,8 @@ class Graduate extends Course{
 	}
 }
 
-class AdditionProgram extends Course{
-	constructor(code, name, type){
-		super(code, name, type);
-	}
-
-	isValid(student_id, callback){
+var AdditionProgram = {
+	isValid(code, name, type, student_id, callback){
 		let destination = null;
 		if(this.type == '必修')
 			destination = [];
