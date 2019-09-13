@@ -41,7 +41,9 @@ const getLegalDestination = (req, res, next) => {
 			res.send(legal_destinations);
 		});
 	*/
-	console.log(probable_destinations[0].isValid);
+	course.Elective.isValid(course_code, course_name, course_type, student_id, (type_names) => {
+		console.log(type_names);
+	});
 	/*probable_destinations[0].isValid(course_name, course_code, course_type, student_id, (type_names) => {
 		console.log(type_names);
 	});*/
