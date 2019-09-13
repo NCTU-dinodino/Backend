@@ -21,7 +21,7 @@ const getLegalDestination = (req, res, next) => {
 	var course_name = course_info.cn;
 	var course_code = course_info.code;
 	var course_type = course_info.type;
-	var student_id = course_info.sId;
+	var student_id = course_info.studentId;
 
 	/*var validation_functions = [];
 	for(let course_type in probable_destinations){
@@ -45,6 +45,7 @@ const getLegalDestination = (req, res, next) => {
 	/*course.Elective.isValid(course_code, course_name, course_type, student_id, (type_names) => {
 		console.log(type_names);
 	});*/
+	console.log(student_id);
 	query.ShowCosGroup(student_id, (err, result) => {
 		console.log(result);
 	});
