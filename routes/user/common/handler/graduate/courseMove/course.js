@@ -120,7 +120,8 @@ var General = {
 						destination = [];
 						destination.push('通識(舊制)-' + course.brief.split('/')[0]);
 						//console.log(course.brief_new.split(','));
-						for(let dim in course.brief_new.split(',')){
+						let brief_new_list = course.brief_new.split(',');
+						for(let dim in brief_new_list){
 							console.log('raw' + dim);
 							console.log('processed' + dim.substring(0, dim.length - 5));
 						}
