@@ -41,10 +41,10 @@ const getLegalDestination = (req, res, next) => {
 			res.send(legal_destinations);
 		});
 	*/
-	console.log(probable_destinations);
-	probable_destinations[0].isValid(course_name, course_code, course_type, student_id, (type_names) => {
+	console.log(probable_destinations[0].isValid);
+	/*probable_destinations[0].isValid(course_name, course_code, course_type, student_id, (type_names) => {
 		console.log(type_names);
-	});
+	});*/
 }
 
 module.exports = {
