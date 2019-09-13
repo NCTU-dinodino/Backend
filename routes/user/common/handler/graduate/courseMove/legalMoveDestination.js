@@ -23,7 +23,7 @@ const getLegalDestination = (req, res, next) => {
 	var course_type = course_info.type;
 	var student_id = course_info.studentId;
 
-	/*var validation_functions = [];
+	var validation_functions = [];
 	for(let course_type in probable_destinations){
 		let validation_function = (next) => {
 			course_type.isValid(course_code, course_name, course_type, student_id, (type_names) => {
@@ -33,22 +33,22 @@ const getLegalDestination = (req, res, next) => {
 			});
 		};
 		validation_functions.push(validation_function);
-	}*/
+	}
 	
-	/*var flow_func = new flow();
+	var flow_func = new flow();
 	flow_func.setArgs()
 		.setErrorHandler()
 		.flow(...validation_functions, () => {
 			res.send(legal_destinations);
 		});
-	*/
+	
 	/*course.Elective.isValid(course_code, course_name, course_type, student_id, (type_names) => {
 		console.log(type_names);
 	});*/
-	console.log(student_id);
-	query.ShowCosGroup(student_id, (err, result) => {
+	//console.log(student_id);
+	/*query.ShowCosGroup(student_id, (err, result) => {
 		console.log(result);
-	});
+	});*/
 }
 
 module.exports = {
