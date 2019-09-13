@@ -23,7 +23,7 @@ const getLegalDestination = (req, res, next) => {
 	var student_id = course_info.sId;
 
 	var validation_functions = [];
-	for(course_class in probable_destinations){
+	for(let course_class in probable_destinations){
 		let validation_function = (next) => {
 			let changed_course_type = new course_class(course_name, course_code, course_type);
 			changed_course_type.isValid(student_id, (type_names) => {
