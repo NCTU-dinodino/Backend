@@ -34,12 +34,16 @@ const getLegalDestination = (req, res, next) => {
 		validation_functions.push(validation_function);
 	}
 	
-	var flow_func = new flow();
+	/*var flow_func = new flow();
 	flow_func.setArgs()
 		.setErrorHandler()
 		.flow(...validation_functions, () => {
 			res.send(legal_destinations);
 		});
+	*/
+	probable_destinations[0].isValid(course_name, course_code, course_type, student_id, (type_names) => {
+		console.log(type_names);
+	});
 }
 
 module.exports = {
