@@ -20,20 +20,15 @@ const getLegalDestination = (req, res, next) => {
 	var course_name = course_info.cn;
 	var course_code = course_info.code;
 	var course_type = course_info.type;
-	var student_id = course_inof.sId;
+	var student_id = course_info.sId;
 
 	var validation_functions = [];
 	for(course_class in probable_destinations){
 		let validation_function = (next) => {
 			let changed_course_type = new course_class(course_name, course_code, course_type);
-			changed_course_type.isValid(student_id, (type_name) => {
-				if(type_name){
-					if(Array.isArray(type_name))
-						for(let type in type_name)
-							legal_destinations.push({title: type});
-					else
-						legal_destinations.push({title: type_name});
-				}
+			changed_course_type.isValid(student_id, (type_names) => {
+				for(let type in type_name)
+					legal_destinations.push({title: type});
 				next();
 			});
 		};
