@@ -18,7 +18,7 @@ var Course = {
 			});
 
 
-			if(type == '軍訓' || code.startsWith('PYY') || name == '藝文賞析教育')
+			if(type == '軍訓' || code.startsWith('PYY') || name == '藝文賞析教育' || type == '通識' || code.startsWith('MIN') || name == '服務學習(一)' || name == '服務學習(二)')	//Only for restriction of 09
 				destination = [];
 
 			if(destination == null)
