@@ -114,6 +114,10 @@ var General = {
 
 			let courses = JSON.parse(result);
 			let course = courses.find((cos) => (code == cos.cos_code));
+			if(course == null){
+				callback([]);
+				return;
+			}
 			if(course.brief)
 				switch(course.brief_new[0]){
 					case '校':case '核':case'跨':
