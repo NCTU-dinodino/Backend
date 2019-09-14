@@ -143,8 +143,10 @@ restore.processRestore = function(req, res, next){
                     if(cosName == allScore[j].cos_cname){
                         if(allScore[j].brief)
                             general_old_dim[cosName] = allScore[j].brief.substring(0,2);
-                        if(allScore[j].brief_new)
-                            general_new_dim[cosName] = allScore[j].brief_new.substring(0, allScore[j].brief_new.length-5);
+                        if(allScore[j].brief_new){
+                            general_new_dim[cosName] = allScore[j].brief_new.substring(0,5);
+                            if(general_new_dim[cosName] == '跨院基本素') general_new_dim[cosName] = '跨院基本素養';
+                        }
                     }
                }
                 // Move from old general

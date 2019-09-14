@@ -882,7 +882,7 @@ table.researchProfessorList = function(req, res, next) {
                         	var index = [];
                         	var count = 0;
                         	for (var j = 0; j<result.length; j++) {
-                            	if (index[result[j].research_title] == null) {
+                            	if (index[result[j].research_title] == null && (result[j].semester == /*req.body.semester*/ year_semester) && (result[j].first_second == req.body.first_second)) {
                                 	var project = {
                                         title: '',
                                         students : [],
@@ -897,22 +897,25 @@ table.researchProfessorList = function(req, res, next) {
                             	}  
                         	}
                         	for (var j = 0; j<result.length; j++) {	
-                            	var student = {
-                                	id: '',
-                                	name: '',
-                                	program: '',
-                                	first_second:'',
-                                	status: null	
-                            	}
-                            	student.id = result[j].student_id;
-                            	student.name = result[j].sname;
-                            	student.program = result[j].program;
-                            	student.first_second = result[j].first_second;
-                            	student.status = result[j].status;
-                            	var id = index[result[j].research_title];
-                            	var Id = Index[result[j].teacher_id];
-                            	group[Id].pending.projects[id].students.push(student);
-                                    
+                                if((result[j].semester == /*req.body.semester*/ year_semester) && (result[j].first_second == req.body.first_second)) {
+                                    var student = {
+                                        id: '',
+                                        name: '',
+                                        program: '',
+                                        first_second:'',
+                                        semester:'',
+                                        status: null	
+                                    }
+                                    student.id = result[j].student_id;
+                                    student.name = result[j].sname;
+                                    student.program = result[j].program;
+                                    student.first_second = result[j].first_second;
+                                    student.semester = result[j].semester;
+                                    student.status = result[j].status;
+                                    var id = index[result[j].research_title];
+                                    var Id = Index[result[j].teacher_id];
+                                    group[Id].pending.projects[id].students.push(student);
+                                }
                         	}	
                     	}
                 	});
