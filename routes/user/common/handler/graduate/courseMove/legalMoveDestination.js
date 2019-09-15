@@ -24,9 +24,9 @@ const getLegalDestination = (req, res, next) => {
 	var student_id = course_info.studentId;
 
 	var validation_functions = [];
-	probable_destinations.forEach((course_type) => {
+	probable_destinations.forEach((cos_type) => {
 		let validation_function = (next) => {
-			course_type.isValid(course_code, course_name, course_type, student_id, (type_names) => {
+			cos_type.isValid(course_code, course_name, course_type, student_id, (type_names) => {
 				type_names.forEach((type) => {
 					legal_destinations.push({title: type});
 				});
