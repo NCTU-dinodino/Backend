@@ -45,7 +45,7 @@ table.queryPass = function(req, res, next){
                 else
                     return; 
             }
-            console.log(JSON.parse(pass));
+            //console.log(JSON.parse(pass));
         });
     } 
     else 

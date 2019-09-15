@@ -196,7 +196,6 @@ var Graduate = {
 var AdditionProgram = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
-		console.log(code, name, type);
 		if(type == '必修')
 			destination = [];
 		else 
