@@ -58,7 +58,7 @@ var Elective = {
 				'UEE2601',
 				'UEE4605'
 			];
-			if(EE_cos_codes.some((cos_code) => (code.startsWith(cos_code))))
+			if(destination == null && EE_cos_codes.some((cos_code) => (code.startsWith(cos_code))))
 				destination = ['專業選修'];
 		
 			let CS_cos_codes_prefix = [
@@ -68,7 +68,7 @@ var Elective = {
 				'ILE',
 				'IDS'
 			];
-			if(CS_cos_codes_prefix.some((cos_code) => (code.startsWith(cos_code)))){
+			if(destination == null && CS_cos_codes_prefix.some((cos_code) => (code.startsWith(cos_code)))){
 				let invalid_course = [
 					'服務學習(一)',
 					'服務學習(二)',
@@ -196,6 +196,7 @@ var Graduate = {
 var AdditionProgram = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
+		console.log(code, name, type);
 		if(type == '必修')
 			destination = [];
 		else 
