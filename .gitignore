@@ -9,8 +9,8 @@
 !init.js
 !server.js
 !server.babel.js
-!package.json
-!package-lock.json
+!backend_package.json
+!backend_package-lock.json
 !.gitignore
 
 !.git
@@ -19,5 +19,4 @@
 !routes/*
 !middleware
 !middleware/*
-!utils
-!utils/*
+!utils.js
