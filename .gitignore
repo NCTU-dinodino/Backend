@@ -1,4 +1,23 @@
-randomVals.js
-db/*
-node_modules
+# randomVals.js
+# db/*
+# node_modules
+# */.DS_Store
+
+*
 */.DS_Store
+
+!init.js
+!server.js
+!server.babel.js
+!package.json
+!package-lock.json
+!.gitignore
+
+!.git
+!.git/*
+!routes
+!routes/*
+!middleware
+!middleware/*
+!utils
+!utils/*
