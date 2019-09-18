@@ -6,11 +6,8 @@ table.mailSend = function(req, res, next){
     if(req.session.profile){
         
         var transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-            user: 'nctucsca@gmail.com',
-            pass: 'axc3262757'
-        }
+            service: 'Gmail',
+            auth: require('../../../auth/nctu/mail_info').auth
         });
         
         var options = {
@@ -40,8 +37,8 @@ table.mailSend = function(req, res, next){
                 throw err;
             }
         });
-         var mailContent = {sender_id : req.body.sender_id , title :req.body.title, receiver_id: req.body.receiver_id, content: req.body.content};
-         query.CreateMail(mailContent);
+//         var mailContent = {sender_id : req.body.sender_id , title :req.body.title, receiver_id: req.body.receiver_id, content: req.body.content};
+//       query.CreateMail(mailContent);
 
          var signal = {signal:1};
          req.signal = signal;

@@ -135,18 +135,19 @@ timestamp: '2019-02-19 19:39:36',
         //query.ShowApplyPeriod({semester: '109-2'}, function(err, result){
         //query.CreateApplyPeriod({semester: '109-2', type:'graduation', begin:'2019/9/1, 8:00AM', end: '2019/10/1, 10:00AM'}, function(err, result){
         var pack = [];
-        query.ShowUserOffsetApplyForm({all_student: true}, function(err, result){
-        /*query.SetResearchScoreComment(content1, function(err, result) {
+        //query.ShowUserOffsetApplyForm({all_student: true}, function(err, result){
+        //query.SetResearchScoreComment(content1, function(err, result) {
+        query.ShowStudentResearchInfo('0516205', function(err, result){
             if (err) 
                  throw err;
-            console.log("HI?");
+            //console.log("HI?");
             res.send(JSON.parse(result));
-         });*/
+         });
     	//query.SetFirstSecond({student_id: '0616005'}, function(err, result) {
         //query.ShowUserInfo("E9604",function(err, result){
         //query.CreateOffsetApplyForm(data_createOffset,function(err,result){
         //query.DeleteCosMotion('0616069', function(err, result){
-            if(err)
+            /*if(err)
                 throw err;
             result = JSON.parse(result);
             for(var i = 0; i<result.length; i++){
@@ -161,7 +162,7 @@ timestamp: '2019-02-19 19:39:36',
                 pack.push(one);
             }
             if(pack.length == result.length) res.send(result);
-        });
+        });*/
         
         //query.DeleteResearchApplyForm({research_title:'test', tname:'張永儒', first_second:3, semester:'107-2'});
         //}

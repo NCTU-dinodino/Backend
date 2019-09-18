@@ -1,5 +1,8 @@
 var randoms = require('../../../randomVals');
 
-var auth = randoms.auth
+var auth = randoms.randomVals.mailInfo;
+console.log(auth);
 
-exports.auth = auth;
+module.exports = {
+    auth: auth
+};
