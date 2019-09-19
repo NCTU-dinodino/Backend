@@ -137,7 +137,7 @@ timestamp: '2019-02-19 19:39:36',
         var pack = [];
         //query.ShowUserOffsetApplyForm({all_student: true}, function(err, result){
         //query.SetResearchScoreComment(content1, function(err, result) {
-        query.ShowStudentResearchInfo('0516205', function(err, result){
+        query.ShowStudentResearchInfo('0616207', function(err, result){
             if (err) 
                  throw err;
             //console.log("HI?");

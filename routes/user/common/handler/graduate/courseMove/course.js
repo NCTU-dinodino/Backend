@@ -17,8 +17,8 @@ var Course = {
 					destination = [];
 			});
 
-
-			if(type == '軍訓' || code.startsWith('PYY') || name == '藝文賞析教育' || type == '通識' || code.startsWith('MIN') || name == '服務學習(一)' || name == '服務學習(二)')	//Only for restriction of 09
+            //PYY : 體育, GEC & CGE : 共教會 ＆ 通識中心, MIN : 護理
+			if(type == '軍訓' || code.startsWith('PYY') || name == '藝文賞析教育' || code.startsWith('GEC') || code.startsWith('CGE') || code.startsWith('MIN') || name == '服務學習(一)' || name == '服務學習(二)')	//Only for restriction of 09
 				destination = [];
 
 			if(destination == null)
