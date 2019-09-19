@@ -11,10 +11,10 @@ var Course = {
 			let course_groups = JSON.parse(result);
 
 			course_groups.forEach((course_group) => {
-				if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修')
-					destination = [];
-				else if(course_group.cos_codes.some((cos_code) => (cos_code + '_one' == code)))
+				if(course_group.cos_codes.some((cos_code) => (cos_code + '_one' == code)))
 					destination = ['其他選修'];
+                else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修')
+					destination = [];
 			});
 
 
@@ -41,14 +41,11 @@ var Elective = {
 			let course_groups = JSON.parse(result);
 
 			course_groups.forEach((course_group) => {
-				if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code)))
+				if(course_group.cos_codes.some((cos_code) => (code == cos_code + '_one')))
+					destination = ['專業選修'];
+                else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code)))
 					&& type == '必修')
 					destination = [];
-				else if(course_group.cos_codes.some((cos_code) => (code == cos_code + '_one')))
-					destination = ['專業選修'];
-				else if(course_group.cos_cname.startsWith('物化生三選一')
-					&& course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))))
-					destination = ['專業選修'];
 			});
 			
 			let EE_cos_codes = [

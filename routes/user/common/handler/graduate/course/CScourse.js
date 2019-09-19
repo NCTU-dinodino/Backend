@@ -427,33 +427,33 @@ CScourse.processCS = function(req, res, next) {
 			    }*/
 		}
 		//determine PCB to put in compulse or professional
-		
+
 		for(let i = 0; i < PCBnum.length; i++){
 			let course = detail[PCBnum[i]];
 			if(course.pass_fail != '通過')
 				continue;
 			let PCB_cos = {
-				cn:		course.cos_cname,
-				en:		course.cos_ename,
-				score:		course.score,
-				grade:		course.score_level,
-				realCredit:	parseFloat(course.cos_credit),
+                cn:     		course.cos_cname,
+				en:	        	course.cos_ename,
+				score:	    	course.score,
+				grade:	    	course.score_level,
+				realCredit: 	parseFloat(course.cos_credit),
 				originalCredit:	parseFloat(course.cos_credit),
-				complete:	(course.pass_fail == '通過'),
-				year:		parseInt(course.cos_year) - school_year + 1,
-				semester:	parseInt(course.semester),
-				type:		course.cos_type,
-				code:		course.cos_code,
-				english:	false,
-				reason:		'CS',
-				move:		false
+				complete:	    (course.pass_fail == '通過'),
+				year:	    	parseInt(course.cos_year) - school_year + 1,
+				semester:   	parseInt(course.semester),
+				type:	    	course.cos_type,
+				code:	    	course.cos_code,
+				english:    	false,
+				reason:	    	'CS',
+				move:	    	false
 			};
 
-			if(PCB_cos.cn.startsWith('物理'))
+			if(PCB_cos.cn.includes('物理'))
 				PCB.physic.push(PCB_cos);
-			else if(PCB_cos.cn.startsWith('化學'))
+			else if(PCB_cos.cn.includes('化學'))
 				PCB.chemistry.push(PCB_cos);
-			else if(PCB_cos.cn.startsWith('生物'))
+			else if(PCB_cos.cn.includes('生物'))
 				PCB.biology.push(PCB_cos);
 		}
 
