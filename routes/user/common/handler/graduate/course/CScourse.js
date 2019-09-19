@@ -462,13 +462,13 @@ CScourse.processCS = function(req, res, next) {
 				//One credit of physic becomes professional elective when two physic courses was taken.
 				cos.realCredit = cos.originalCredit - 1;
 				courseResult[0].credit += cos.realCredit;
-				courseResult[0].course.push(cos);
+				courseResult[0].course.push(JSON.parse(JSON.stringify(cos)));
 
 				cos.realCredit = 1;
 				//Identification for excessive one credit of physic.
 				cos.code += '_one';
 				courseResult[1].credit += cos.realCredit;
-				courseResult[1].course.push(cos);
+				courseResult[1].course.push(JSON.parse(JSON.stringify(cos)));
 			});
 			PCB.chemistry.forEach((cos) => {
 				courseResult[2].credit += cos.originalCredit;
