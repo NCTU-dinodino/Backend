@@ -25,7 +25,7 @@ getStudentId.studentId = function(req, res, next){
             res.locals.studentId = req.query.student_id;
         }
 
-        //res.locals.studentId = '';
+        res.locals.studentId = '';
 
         next();
     }
