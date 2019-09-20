@@ -502,7 +502,7 @@ table.getGraduateEnglish = function(req, res, next){
         res.redirect('/');
 }
 
-/* 列出該學生畢業預審表 */
+/* 移動課程後重算學分(目前沒用到) */
 table.graduateSummaryList = function(req, res, next){
     if(req.session.profile){
         var courseResult = res.locals.courseResult;
