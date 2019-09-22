@@ -62,11 +62,19 @@ router.post('/students/graduate/summaryList',csrfProtection, StudentId, StudentP
 });
 
 router.post('/students/graduate/resetMove',csrfProtection,graduateResetMove, function(req, res){
-	res.send(req.signal);
+	if(req.signal.signal == 1)
+        res.status(204).end();
+    else
+        res.status(403).end();
+    //res.send(req.signal);
 });
 
 router.post('/students/graduate/moveCourse', csrfProtection, graduateMoveCourse, function(req, res){
-	res.send(req.signal);
+	if(req.signal.signal == 1)
+        res.status(204).end();
+    else
+        res.status(403).end();
+    //res.send(req.signal);
 });
 
 router.post('/students/graduate/legalMoveTarget', csrfProtection, StudentId, checkCard);
