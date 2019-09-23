@@ -15,8 +15,9 @@
 
 !.git
 !.git/*
-!routes
-!routes/*
+!routes/auth
+!routes/user
+!routes/logout.js
 !middleware
 !middleware/*
 !utils.js
