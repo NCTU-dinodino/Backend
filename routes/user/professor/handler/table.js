@@ -744,7 +744,7 @@ table.researchApplyList = function(req, res, next){
 				};
 				projects[apply_form.research_title].participants.push(student);
 			});
-			req.list = Array.from(projects);
+			req.list = Object.values(projects);
 			next();
 		});
 	}else
