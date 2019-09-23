@@ -707,82 +707,48 @@ table.researchApplySetAgree = function(req, res, next) {
 }
 
 table.researchApplyList = function(req, res, next){
-    if(req.session.profile){
-        var teacherId = res.locals.teacherId;  
-        //console.log(teacherId);
-        query.ShowTeacherResearchApplyFormList(teacherId, function(err,result){
-            if(err) {
-                throw err;     
-                res.redirect('/');
-            }
-            if(!result)
-                res.redirect('/');
+	if(req.session.profile){
+		var teacher_id = res.locals.teacherId;
+		query.ShowTeacherResearchApplyFormList(teacher_id, (err, result) => {
+			if(err){
+				throw err;
+				res.redirect('/');
+			}
+			if(!result)
+				res.redirect('/');
 
-           
-            else{
-                result = JSON.parse(result);
-                if(result.length == 0){
-                    var groups = [];
-                }
-                var index = [];
-                var groups = [];
-                
-                var count = 0;
-                var checkNum = 0;
-                for(var i = 0; i<result.length; i++){
-                    if(index[result[i].research_title] == null){
-                        var project = {
-                            research_title: '',
-                            first_second:'',
-                            year: '',
-                            status:'',
-                            participants: []
-                        }
-                        project.research_title = result[i].research_title;
-                        project.first_second = result[i].first_second;
-                        project.year = result[i].semester;
-                        project.status = result[i].agree;
-                        if(result[i].agree != '3'){
-                            groups.push(project);
-                            index[result[i].research_title] = count;
-                            count++;
-                        }
-                            
-                    }  
-                }
-                for(var i = 0; i<result.length; i++){
-                    var student = {
-                        student_id: '',
-                        sname: '',
-                        email: '',
-                        phone: '',
-                        first_second:'',
-                        student_status:''
-                    }
-                    student.student_id = result[i].student_id;
-                    student.sname = result[i].sname;
-                    student.email = result[i].email;
-                    student.phone = result[i].phone;
-                    student.first_second = result[i].first_second;
-                    student.student_status = result[i].status;
-                    if(result[i].agree != '3'){
-                        var id = index[result[i].research_title];
-                        groups[id].participants.push(student);
-                        checkNum++;
-                    }           
-                }
-            }
-            if(checkNum == result.length){
-                req.list = groups;       
-                if(req.list)
-                    next();
-                else
-                    return;
-            }
-        }); 
-    }
-    else
-        res.redirect('/');
+			var apply_forms = JSON.parse(result);
+			var projects = [];
+
+			apply_forms.forEach((apply_form) => {
+				if(apply_form.agree == 3)
+					return;
+				if(!projects[apply_form.research_title]){
+					let project = {
+						research_title:	apply_form.research_title,
+						first_second:	apply_form.first_second,
+						year:		apply_form.year,
+						status:		apply_form.agree,
+						participants:	[]
+					};
+					projects[project.research_title] = project;
+				}
+
+				let student = {
+					student_id:apply_form.student_id,
+					sname:apply_form.sname,
+					email:apply_form.email,
+					phone:apply_form.phone,
+					first_second:apply_form.first_second,
+					student_status:apply_form.status
+				};
+				projects[apply_form.research_title].participants.push(student);
+			});
+			req.list = Array.from(projects);
+			next();
+		});
+	}else
+		res.redirect('/');
 }
 table.adviseeSemesterGradeList = function(req, res, next){
     if(req.session.profile){
