@@ -21,14 +21,14 @@ const getLegalDestination = (req, res, next) => {
 	var course_name = course_info.cn;
 	var course_code = course_info.code;
 	var course_type = course_info.type;
-	var student_id = course_info.studentId;
+	var student_id = course_info.student_id;
 
 	var validation_functions = [];
 	probable_destinations.forEach((cos_type) => {
 		let validation_function = (next) => {
 			cos_type.isValid(course_code, course_name, course_type, student_id, (type_names) => {
 				type_names.forEach((type) => {
-					legal_destinations.push({title: type});
+					legal_destinations.push(type);
 				});
 				next();
 			});
@@ -36,11 +36,13 @@ const getLegalDestination = (req, res, next) => {
 		validation_functions.push(validation_function);
 	});
 	
+	var result = { "target": legal_destinations };
+
 	var flow_func = new flow();
 	flow_func.setArgs()
 		.setErrorHandler()
 		.flow(...validation_functions, () => {
-			res.send(legal_destinations);
+			res.send(result);
 		});
 
 	/*course.General.isValid(course_code, course_name, course_type, student_id, (type_names) => {
