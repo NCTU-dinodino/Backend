@@ -721,7 +721,7 @@ table.researchApplyList = function(req, res, next){
 			var projects = [];
 
 			apply_forms.forEach((apply_form) => {
-				if(apply_form.agree == 3)
+				if(apply_form.agree == '3')
 					return;
 				if(!projects[apply_form.research_title]){
 					let project = {
