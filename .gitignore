@@ -6,8 +6,6 @@
 *
 */.DS_Store
 
-routes/backend_test/leodetest.js
-
 !init.js
 !server.js
 !server.babel.js
@@ -17,8 +15,9 @@ routes/backend_test/leodetest.js
 
 !.git
 !.git/*
-!routes
-!routes/*
+!routes/auth
+!routes/user
+!routes/logout.js
 !middleware
 !middleware/*
 !utils.js
