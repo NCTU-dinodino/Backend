@@ -14,7 +14,6 @@ getStudentId.studentId = function(req, res, next){
         if(checkPage === "students"){
 
            res.locals.studentId = utils.getPersonId(JSON.parse(req.session.profile));
-
             if (res.locals.studentId[0] == 'E') {
                 res.locals.studentId = '0416004';
             }
