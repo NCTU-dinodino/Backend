@@ -727,7 +727,7 @@ table.researchApplyList = function(req, res, next){
 					let project = {
 						research_title:	apply_form.research_title,
 						first_second:	apply_form.first_second,
-						year:		apply_form.year,
+						year:		apply_form.semester,
 						status:		apply_form.agree,
 						participants:	[]
 					};
