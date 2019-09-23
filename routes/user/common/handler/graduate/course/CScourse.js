@@ -433,13 +433,13 @@ CScourse.processCS = function(req, res, next) {
 			if(course.pass_fail != '通過')
 				continue;
 			let PCB_cos = {
-                cn:     		course.cos_cname,
-				en:	        	course.cos_ename,
+				cn:     	course.cos_cname,
+				en:	        course.cos_ename,
 				score:	    	course.score,
 				grade:	    	course.score_level,
 				realCredit: 	parseFloat(course.cos_credit),
 				originalCredit:	parseFloat(course.cos_credit),
-				complete:	    (course.pass_fail == '通過'),
+				complete:	(course.pass_fail == '通過'),
 				year:	    	parseInt(course.cos_year) - school_year + 1,
 				semester:   	parseInt(course.semester),
 				type:	    	course.cos_type,
