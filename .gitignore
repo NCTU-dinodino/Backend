@@ -6,6 +6,8 @@
 *
 */.DS_Store
 
+routes/backend_test/leodetest.js
+
 !init.js
 !server.js
 !server.babel.js
