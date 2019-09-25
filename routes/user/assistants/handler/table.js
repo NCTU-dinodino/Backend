@@ -841,7 +841,7 @@ table.researchProfessorList = function(req, res, next) {
 						next();
 					else
 						return;
-            	}, 2000);
+            	}, 1000);
         	}
     	});	
 	}
