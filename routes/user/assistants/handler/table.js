@@ -690,13 +690,8 @@ table.researchStudentListDownload = function(req, res, next) {
 /* 列出該教授的專題學生資訊 */
 table.researchProfessorList = function(req, res, next) {
 	if (req.session.profile) {
-    	//req.body.grade = (req.body.grade == 'all') ? '' : req.body.grade;
-    	//var accept_num_semester = req.body.semester.substring(0,3);
-        
         var accept_num_semester = req.body.year;
         var year_semester = req.body.year + '-' + req.body.semester;
-    	
-        //console.log(accept_num_semester);
     	var tid = { teacher_id:'' }
     	query.ShowTeacherInfoResearchCnt(tid, function(err, ID_list) {
         	if (err) {
@@ -736,7 +731,6 @@ table.researchProfessorList = function(req, res, next) {
                 	group.push(list);
             	}
             	for (var i=0; i<ID_list.length; i++) {
-                	//query.ShowGradeTeacherResearchStudent(ID_list[i].teacher_id,req.body.grade, function(err, result) {
                 	query.ShowGradeTeacherResearchStudent(ID_list[i].teacher_id,'', function(err, result) {
                     	if (err) {
                         	throw err;
@@ -746,129 +740,50 @@ table.researchProfessorList = function(req, res, next) {
                         	return;
                     	else {
                         	result = JSON.parse(result);
-                        	//console.log(result);
-                        //  	if (req.body.semester == 'all') {
-                        //       	var index = [];
-                        //       	var count = 0;
-                        //       	var index_sid = [];
-                        //       	var count_sid = 0;
-                        //    	for (var j = 0; j<result.length; j++) {
-                        //        	if (index[result[j].research_title] == null) {
-                        //            	var project = {
-                        //                    title: '',
-                        //           	        students : [],
-                        //            	}
-                        //            	project.title = result[j].research_title;
-                        //            	var Id = Index[result[j].teacher_id];
-                        //            	group[Id].accepted.projects.push(project);
-                        //            	index[result[j].research_title] = count;
-                        //            	count++;
-                        //        	}  
-                        //    	}
-                        //    	for (var j = 0; j<result.length; j++) {
-                        //            var student = {
-                        //                id: '',
-                        //                name: '',
-                        //                program: '',
-                        //                semester:'',
-                        //                first_second:'',
-                        //                status: null,
-                        //                add_status:0	
-                        //            //	score: null,
-                        //            }
-                        //            if (index_sid[result[j].student_id] == null) {
-                        //                student.id = result[j].student_id;
-                        //                student.name = result[j].sname;
-                        //                student.program = result[j].class_detail;
-                        //                student.semester = result[j].semester;
-                        //                student.first_second = result[j].first_second;
-                        //                student.status = result[j].status;
-                        //                student.add_status = result[j].add_status;
-                        //                var id = index[result[j].research_title];
-                        //                var Id = Index[result[j].teacher_id];
-                        //                group[Id].accepted.projects[id].students.push(student);
-                        //                index_sid[result[j].student_id] = count_sid;
-                        //                count_sid++;
-                        //                if((result[j].add_status == 0) && (group[Id].accept_status == 0))
-                        //                    group[Id].accept_status = 1;
-                        //            } else {
-                        //                var id = index[result[j].research_title];
-                        //                var Id = Index[result[j].teacher_id];
-                        //                var flag = 1;
-                        //                for (var k =0 ;k < group[Id].accepted.projects[id].students.length ; k++) {  /*update to second semester*/
-                        //                    if (result[j].student_id == group[Id].accepted.projects[id].students[k].id) {
-                        //                        group[Id].accepted.projects[id].students[k].name = result[j].sname;
-                        //                        group[Id].accepted.projects[id].students[k].program = result[j].class_detail;
-                        //                        group[Id].accepted.projects[id].students[k].semester = result[j].semester;
-                        //                        group[Id].accepted.projects[id].students[k].first_second = result[j].first_second;
-                        //                        group[Id].accepted.projects[id].students[k].status = result[j].status;
-                        //                        group[Id].accepted.projects[id].students[k].add_status = result[j].add_status;
-                        //                        flag = 0;
-                        //                        break;
-                        //                    }
-                        //                    else
-                        //                        flag = 1;
-                        //                }
-                        //                if (flag){ /*change teacher*/
-                        //                    student.id = result[j].student_id;
-                        //                    student.name = result[j].sname;
-                        //                    student.program = result[j].class_detail;
-                        //                    student.semester = result[j].semester;
-                        //                    student.first_second = result[j].first_second;
-                        //                    student.status = result[j].status;
-                        //                    student.add_status = result[j].add_status;
-                        //                    group[Id].accepted.projects[id].students.push(student);
-                        //                }						
-
-                   /**/ //             }
-
-                   /**/ //         }		
-                            
-                        // 	} else {
-                            	var index = [];
-                            	var count = 0;
-                            	for (var j = 0; j<result.length; j++) { 
-                                	if ((index[result[j].research_title] == null)&& (result[j].semester == /*req.body.semester*/year_semester) && (result[j].first_second == req.body.first_second)) {
-                                    	var project = {
-                                            title: '',
-                                            students : [],
-                                    	}
-                                    	project.title = result[j].research_title;
-                                    	var Id = Index[result[j].teacher_id];
-                                    	group[Id].accepted.projects.push(project);
-                                    	index[result[j].research_title] = count;
-                                    	count++;
-                                	}  
-                            	}
-                            	for (var j = 0; j<result.length; j++) {
-                                	if ((result[j].semester == /*req.body.semester*/ year_semester) && (result[j].first_second == req.body.first_second)) {
-                                    	var student = {
-                                        	id: '',
-                                        	name: '',
-                                        	program: '',
-                                        	semester:'',
-                                        	first_second:'',
-                                        	status: null,
-                                        	add_status: 0	
-                                    	}
-                                    	student.id = result[j].student_id;
-                                    	student.name = result[j].sname;
-                                    	student.program = result[j].class_detail;
-                                    	student.semester = result[j].semester;
-                                    	student.first_second = result[j].first_second;
-                                    	student.status = result[j].status;
-                                    	student.add_status = result[j].add_status;
-                                    	var id = index[result[j].research_title];
-                                    	var Id = Index[result[j].teacher_id];
-                                    	group[Id].accepted.projects[id].students.push(student);
-                                    	if((result[j].add_status == 0) && (group[Id].accept_status == 0))
-                                    	group[Id].accept_status = 1;
+                            var index = [];
+                        	var count = 0;
+                        	for (var j = 0; j<result.length; j++) { 
+                            	if ((index[result[j].research_title] == null) && (result[j].semester == year_semester) 
+                                    && ( (result[j].first_second == req.body.first_second) || ( (result[j].first_second == '3') && (req.body.first_second == '1') ) ) ){
+                                	var project = {
+                                        title: '',
+                                        students : [],
+                                    }
+                                	project.title = result[j].research_title;
+                                	var Id = Index[result[j].teacher_id];
+                                	group[Id].accepted.projects.push(project);
+                                	index[result[j].research_title] = count;
+                                	count++;
+                            	}  
+                        	}
+                        	for (var j = 0; j<result.length; j++) {
+                            	if ((result[j].semester == year_semester) && ((result[j].first_second == req.body.first_second) || ( (result[j].first_second == '3') && (req.body.first_second == '1') ))) {
+                                    var student = {
+                                    	id: '',
+                                    	name: '',
+                                    	program: '',
+                                    	semester:'',
+                                    	first_second:'',
+                                    	status: null,
+                                    	add_status: 0	
                                 	}
+                                    student.id = result[j].student_id;
+                                	student.name = result[j].sname;
+                                	student.program = result[j].class_detail;
+                                	student.semester = result[j].semester;
+                                	student.first_second = result[j].first_second;
+                                	student.status = result[j].status;
+                                	student.add_status = result[j].add_status;
+                                	var id = index[result[j].research_title];
+                                	var Id = Index[result[j].teacher_id];
+                                	group[Id].accepted.projects[id].students.push(student);
+                                    if((result[j].add_status == 0) && (group[Id].accept_status == 0))
+                                	group[Id].accept_status = 1;
                             	}
-                       // 	}
-                    	}
-                	});
-            	}
+                        	}
+                        }
+                    });
+                }
             	for (var i=0; i<ID_list.length; i++) {
                 	query.ShowTeacherResearchApplyFormList(ID_list[i].teacher_id, function(err, result){
                     	if (err) {
@@ -882,7 +797,7 @@ table.researchProfessorList = function(req, res, next) {
                         	var index = [];
                         	var count = 0;
                         	for (var j = 0; j<result.length; j++) {
-                            	if (index[result[j].research_title] == null && (result[j].semester == /*req.body.semester*/ year_semester) && (result[j].first_second == req.body.first_second)) {
+                            	if (index[result[j].research_title] == null && (result[j].semester == year_semester) && ((result[j].first_second == req.body.first_second) || ( (result[j].first_second == '3') && (req.body.first_second == '1') ))) {
                                 	var project = {
                                         title: '',
                                         students : [],
@@ -897,7 +812,7 @@ table.researchProfessorList = function(req, res, next) {
                             	}  
                         	}
                         	for (var j = 0; j<result.length; j++) {	
-                                if((result[j].semester == /*req.body.semester*/ year_semester) && (result[j].first_second == req.body.first_second)) {
+                                if((result[j].semester == year_semester) && ((result[j].first_second == req.body.first_second) || ( (result[j].first_second == '3') && (req.body.first_second == '1') ))) {
                                     var student = {
                                         id: '',
                                         name: '',
@@ -926,7 +841,7 @@ table.researchProfessorList = function(req, res, next) {
 						next();
 					else
 						return;
-            	}, 1000);
+            	}, 2000);
         	}
     	});	
 	}
