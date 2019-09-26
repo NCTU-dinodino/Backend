@@ -119,7 +119,7 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
 /*add test route here*/
    app.use(require('./routes/backend_test/testAPI.js'));
   // app.use(require('./routes/backend_test/testAPI_2.js'));
-  app.use(require('./routes/backend_test/leodetest.js'));
+  //app.use(require('./routes/backend_test/leodetest.js'));
   app.use(require('./routes/backend_test/testDB.js'));
   return app;
 };
