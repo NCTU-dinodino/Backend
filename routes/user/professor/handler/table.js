@@ -710,7 +710,6 @@ table.researchApplyList = function(req, res, next){
 	if(req.session.profile){
 		var teacher_id = res.locals.teacherId;
 		query.ShowTeacherResearchApplyFormList(teacher_id, (err, result) => {
-			console.log('db ok');
 			if(err){
 				throw err;
 				res.redirect('/');
@@ -718,7 +717,6 @@ table.researchApplyList = function(req, res, next){
 			if(!result)
 				res.redirect('/');
 
-			console.log('result ok');
 			var apply_forms = JSON.parse(result);
 			var projects = [];
 
@@ -746,7 +744,9 @@ table.researchApplyList = function(req, res, next){
 				};
 				projects[apply_form.research_title].participants.push(student);
 			});
-			req.list = Object.values(projects);
+			req.list = Object.keys(projects).map((key) => {
+				return projects[key];
+			});
 			next();
 		});
 	}else
