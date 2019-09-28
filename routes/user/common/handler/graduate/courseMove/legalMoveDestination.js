@@ -22,6 +22,7 @@ const getLegalDestination = (req, res, next) => {
 	var course_code = course_info.code;
 	var course_type = course_info.type;
 	var student_id = course_info.student_id;
+    console.log(course_info);
 
 	var validation_functions = [];
 	probable_destinations.forEach((cos_type) => {
@@ -36,7 +37,7 @@ const getLegalDestination = (req, res, next) => {
 		validation_functions.push(validation_function);
 	});
 	
-	var result = { "target": legal_destinations };
+	var result = { "targets": legal_destinations };
 
 	var flow_func = new flow();
 	flow_func.setArgs()
