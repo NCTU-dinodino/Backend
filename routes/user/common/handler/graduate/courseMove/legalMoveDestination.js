@@ -22,7 +22,7 @@ const getLegalDestination = (req, res, next) => {
 	var course_code = course_info.code;
 	var course_type = course_info.type;
 	var student_id = course_info.student_id;
-    console.log(course_info);
+    //console.log(course_info);
 
 	var validation_functions = [];
 	probable_destinations.forEach((cos_type) => {
