@@ -453,8 +453,13 @@ CScourse.processCS = function(req, res, next) {
 				PCB.physic.push(PCB_cos);
 			else if(PCB_cos.cn.includes('化學'))
 				PCB.chemistry.push(PCB_cos);
-			else if(PCB_cos.cn.includes('生物'))
-				PCB.biology.push(PCB_cos);
+			else if(PCB_cos.cn.includes('生物')){
+				if(PCB_cos.type == '通識'){
+					courseResult[2].credit += PCB_cos.originalCredit;
+					courseResult[2].course.push(PCB_cos);
+				}else
+					PCB.biology.push(PCB_cos);
+			}
 		}
 
 		if(PCB.physic.length == 2){
