@@ -7,8 +7,8 @@ Othercourse.processOther = function(req, res, next){
                 title: '共同必修',
                 credit: 0,
                 require: 0,
-                course: [],
-                tmp: []
+                course: []//,
+                //tmp: []
         }
 	    var elective = {
                 title: '專業選修',
@@ -384,8 +384,8 @@ Othercourse.processOther = function(req, res, next){
 	    language.require = parseFloat(rules[0].foreign_credit);
 
         //record the cs table courses and cs courses' names
-        compulsory.tmp.push(program);
-        compulsory.tmp.push(req.course);
+        /*compulsory.tmp.push(program);
+        compulsory.tmp.push(req.course);*/
 		for(var x = 0; x<total.length; x++){
 	        if(temp > 3){ 
                 //console.log('yoyoyo' +professional_field);

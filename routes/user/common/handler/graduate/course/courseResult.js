@@ -6,7 +6,7 @@ courseResult.processResult = function(req, res, next){
                 total: 0,
                 total_require: 128,
                 compulsory: 0,
-                compulse_require: 58,
+                compulsory_require: 58,
                 pro: 0,
                 pro_require: 0,
                 english: 0,
@@ -35,42 +35,42 @@ courseResult.processResult = function(req, res, next){
   		//console.log(CourseResult[0].course);
   		var EnglishCourse = res.locals.English;
           	result.compulsory = parseFloat(CourseResult[0].credit);
-            result.compulsory = result.compulsory.toFixed(1);
-
-            result.compulse_require = rules[0].require_credit; 	
+            result.compulsory = Number(result.compulsory.toFixed(1));
+            
+            result.compulsory_require = Number(rules[0].require_credit); 	
            // result.compulse_require = result.compulse_require.toFixed(1);
 
           	result.pro = parseFloat(CourseResult[1].credit);
-            result.pro = result.pro.toFixed(1);
+            result.pro = Number(result.pro.toFixed(1));
 
-          	result.pro_require = rules[0].pro_credit;
+          	result.pro_require = Number(rules[0].pro_credit);
             //result.pro_require = result.pro_require.toFixed(1);
 
   		    result.english = EnglishCourse.length;
 
           	result.other = parseFloat(CourseResult[2].credit);
-            result.other = result.other.toFixed(1);
+            result.other = Number(result.other.toFixed(1));
 
-          	result.other_require = rules[0].free_credit;
+          	result.other_require = Number(rules[0].free_credit);
             //result.other_require = result.other_require.toFixed(1);
 
           	result.language = parseFloat(CourseResult[3].credit);
-            result.language = result.language.toFixed(1);
+            result.language = Number(result.language.toFixed(1));
 
           	result.general = parseFloat(CourseResult[4].credit);
-            result.general = result.general.toFixed(1);
+            result.general = Number(result.general.toFixed(1));
 
             result.general_new = parseFloat(CourseResult[5].credit.total);
-            result.general_new = result.general_new.toFixed(1);
+            result.general_new = Number(result.general_new.toFixed(1));
 
 
           	result.pe = CourseResult[6].course.length;
 
             result.graduate = CourseResult[9].credit;
-            result.graduate = result.graduate.toFixed(1);
+            result.graduate = Number(result.graduate.toFixed(1));
 
             result.dmajor_minor_program = CourseResult[10].credit;
-            result.dmajor_minor_program = result.dmajor_minor_program.toFixed(1);
+            result.dmajor_minor_program = Number(result.dmajor_minor_program.toFixed(1));
 
             for(var i = 0; i<CourseResult[6].course.length; i++){
               if(CourseResult[6].course[i].reason == 'now')
@@ -96,7 +96,7 @@ courseResult.processResult = function(req, res, next){
             }
             
             result.total = parseFloat(result.total);
-            result.total = result.total.toFixed(1);
+            result.total = Number(result.total.toFixed(1));
 
   		CourseResult.push(result);
   	}
