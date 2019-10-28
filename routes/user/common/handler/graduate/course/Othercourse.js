@@ -68,6 +68,11 @@ Othercourse.processOther = function(req, res, next){
                 require: 2,
                 course: []
         }
+        var military = {
+                title: '軍訓',
+                credit: 0,
+                course:[]
+        }
         var graduate = {
                 title: '抵免研究所課程',
                 credit:0,
@@ -572,7 +577,7 @@ Othercourse.processOther = function(req, res, next){
                     else if(pass[q].brief == '軍訓'){
                         cosInfo.originalCredit = 0;
                         cosInfo.realCredit = 0;
-                        otherElect.course.push(cosInfo);   
+                        military.course.push(cosInfo);   
                     }           
 	                else if(pass[q].cos_type == '通識'){
 				            var brief = pass[q].brief.substring(0,2);
@@ -783,6 +788,7 @@ Othercourse.processOther = function(req, res, next){
         courseResult.push(peClass);
 	    courseResult.push(service);
 	    courseResult.push(art);
+	    courseResult.push(military);
         courseResult.push(graduate);
         courseResult.push(addition_program);
 	}

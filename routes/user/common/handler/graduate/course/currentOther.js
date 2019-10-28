@@ -118,6 +118,9 @@ currentOther.processOther = function(req, res, next){
                                     cosInfo.code = now[q].cos_code + "_now";
                                 courseResult[6].course.push(cosInfo);
                             }
+                            else if(temp == 'MIN'){
+                                courseResult[9].course.push(cosInfo);
+                            }
                             else{
                                 if(now[q].cos_typeext == '服務學習'){
   								    courseResult[7].course.push(cosInfo);

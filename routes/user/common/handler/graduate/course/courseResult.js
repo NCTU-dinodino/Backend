@@ -25,6 +25,7 @@ courseResult.processResult = function(req, res, next){
                 service_require: 2,
                 art: 0,
                 art_require: 2,
+                military: 0,
                 graduate: 0,
                 dmajor_minor_program: 0
         }
@@ -66,10 +67,10 @@ courseResult.processResult = function(req, res, next){
 
           	result.pe = CourseResult[6].course.length;
 
-            result.graduate = parseFloat(CourseResult[9].credit);
+            result.graduate = parseFloat(CourseResult[10].credit);
             result.graduate = parseFloat(result.graduate.toFixed(1));
 
-            result.dmajor_minor_program = parseFloat(CourseResult[10].credit);
+            result.dmajor_minor_program = parseFloat(CourseResult[11].credit);
             result.dmajor_minor_program = parseFloat(result.dmajor_minor_program.toFixed(1));
 
             for(var i = 0; i<CourseResult[6].course.length; i++){
@@ -86,9 +87,14 @@ courseResult.processResult = function(req, res, next){
                 if(CourseResult[8].course[i].reason == 'now')
                     result.art--; 
             }    
+          	result.military = CourseResult[9].course.length;
+            for(var i = 0; i<CourseResult[9].course.length; i++){
+                if(CourseResult[9].course[i].reason == 'now')
+                    result.military--; 
+            }    
           	for(var i = 0; i<CourseResult.length; i++){
                   if((typeof(CourseResult[i].credit) != undefined) && (CourseResult[i].credit))
-                  	if(i != 10 && i != 9 && i != 5){
+                  	if(i != 11 && i != 10 && i != 9 && i != 5){
                         result.total += CourseResult[i].credit;
                     }
                   //else
