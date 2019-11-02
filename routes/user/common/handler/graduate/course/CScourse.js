@@ -22,7 +22,7 @@ CScourse.processCS = function(req, res, next) {
 		var studentId = res.locals.studentId;
 		var TeacherTime = res.locals.teacher;
 		var offsetTeacherTime = res.locals.offsetTeacher;
-		////console.log(TeacherTime);
+		//console.log(offsetTeacherTime);
 		var TeacherSame = [];
 		var temp = parseInt(studentId.substring(1, 2));
 		var school_year = (100 + temp);
@@ -101,7 +101,8 @@ CScourse.processCS = function(req, res, next) {
 					}
 				}
 				if (offsetNameCheck[compulse[q].cos_cname] == true && codeCheck);
-				else {
+				else if (Tcount != 2){
+                    //console.log(compulse[q].cos_cname + " " + codeCheck);
 					cosNumber = compulse[q].cos_codes;
 					for (var k = 0; k < cosNumber.length; k++) {
 						var cosInfo = {
