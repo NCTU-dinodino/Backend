@@ -7,8 +7,8 @@ Othercourse.processOther = function(req, res, next){
                 title: '共同必修',
                 credit: 0,
                 require: 0,
-                course: [],
-                tmp: []
+                course: []//,
+                //tmp: []
         }
 	    var elective = {
                 title: '專業選修',
@@ -67,6 +67,11 @@ Othercourse.processOther = function(req, res, next){
                 credit: 0,
                 require: 2,
                 course: []
+        }
+        var military = {
+                title: '軍訓',
+                credit: 0,
+                course:[]
         }
         var graduate = {
                 title: '抵免研究所課程',
@@ -384,8 +389,8 @@ Othercourse.processOther = function(req, res, next){
 	    language.require = parseFloat(rules[0].foreign_credit);
 
         //record the cs table courses and cs courses' names
-        compulsory.tmp.push(program);
-        compulsory.tmp.push(req.course);
+        /*compulsory.tmp.push(program);
+        compulsory.tmp.push(req.course);*/
 		for(var x = 0; x<total.length; x++){
 	        if(temp > 3){ 
                 //console.log('yoyoyo' +professional_field);
@@ -572,7 +577,7 @@ Othercourse.processOther = function(req, res, next){
                     else if(pass[q].brief == '軍訓'){
                         cosInfo.originalCredit = 0;
                         cosInfo.realCredit = 0;
-                        otherElect.course.push(cosInfo);   
+                        military.course.push(cosInfo);   
                     }           
 	                else if(pass[q].cos_type == '通識'){
 				            var brief = pass[q].brief.substring(0,2);
@@ -783,6 +788,7 @@ Othercourse.processOther = function(req, res, next){
         courseResult.push(peClass);
 	    courseResult.push(service);
 	    courseResult.push(art);
+	    courseResult.push(military);
         courseResult.push(graduate);
         courseResult.push(addition_program);
 	}

@@ -399,7 +399,7 @@ table.queryChange = function(req, res, next){
 table.graduateCheck = function(req, res, next){
     if(req.session.profile){
         let personId = res.locals.studentId;
-        let submitType = req.body.general_course.type;
+        let submitType = req.body.general_course_type;
         let net_media = req.body.professional_field;
         let info = {id: personId, graduate_submit:1,submit_type:submitType, net_media:net_media};
         query.SetGraduateSubmitStatus(info,function(err,result){
@@ -409,12 +409,8 @@ table.graduateCheck = function(req, res, next){
             }
             else {
                  var checkState = { 
-                    check:{
-                        state: 1
-                    },
-                    general_course:{
-                        type: parseInt(submitType)
-                    }
+                    status: 1,
+                    general_course_type: parseInt(submitType)
                 }
                 req.checkState = checkState;
                 if(req.checkState)
@@ -457,13 +453,8 @@ table.getGraduateCheck = function(req, res, next){
                         default_field = 0;
                 }
                 var checkState = { 
-                    check:{
-                        state: (result[0].graduate_submit == null)?0:parseInt(result[0].graduate_submit)
-                    },
-                    general_course:{
-                        type: (result[0].submit_type == null)?null:parseInt(result[0].submit_type)
-
-                    },
+                    status: (result[0].graduate_submit == null)?0:parseInt(result[0].graduate_submit),
+                    general_course_type: (result[0].submit_type == null)?null:parseInt(result[0].submit_type),
                     professional_field: (result[0].net_media == null)?default_field:parseInt(result[0].net_media)
                 }
                 req.checkState = checkState;
@@ -488,9 +479,9 @@ table.getGraduateEnglish = function(req, res, next){
                 res.redirect('/');
             }
             else {
-                var english = JSON.parse(result)[0].en_certificate;
+                var english = parseInt(JSON.parse(result)[0].en_certificate);
                 if (english == null) english = 0;
-                req.english = {check:{state:english}};
+                req.english = {status:english};
                 if(req.english)
                     next();
                 else

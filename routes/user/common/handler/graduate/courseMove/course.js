@@ -111,27 +111,39 @@ var General = {
 
 			let courses = JSON.parse(result);
 			let course = courses.find((cos) => (code.startsWith(cos.cos_code)));
-			
-			if(course.cos_type == '必修'){
-				callback([]);
-				return;
-			}
+            if(!course){
+                query.ShowUserOnCos(student_id, (error, res) => {
+                    if(error){
+                        callback([]);
+                        return;
+                    }
+                    let now = JSON.parse(res);
+                    course = now.find((cos) => (code.startsWith(cos.cos_code)));
+                });
+            }
+		    //console.log(course);
+            setTimeout(function(){
+		    	if(course.cos_type == '必修'){
+		    		callback([]);
+		    		return;
+		    	}
 
-			if(course.brief)
-				switch(course.brief_new[0]){
-					case '校':case '核':case'跨':
-						destination = [];
-						destination.push('通識(舊制)-' + course.brief.split('/')[0]);
-						//console.log(course.brief_new.split(','));
-						course.brief_new.split(',').forEach((dim) => {
-							destination.push('通識(新制)-' + dim.substring(0, dim.length - 5));
-						});
-						//destination = '通識(舊制)-' + course.brief + '|通識(新制)-' + course.brief_new;
-				}
-			if(destination == null)
-				destination = [];
+		    	if(course.brief)
+		    		switch(course.brief_new[0]){
+		    			case '校':case '核':case'跨':
+		    				destination = [];
+		    				destination.push('通識(舊制)-' + course.brief.split('/')[0]);
+		    				//console.log(course.brief_new.split(','));
+		    				course.brief_new.split(',').forEach((dim) => {
+		    					destination.push('通識(新制)-' + dim.substring(0, dim.length - 5));
+		    				});
+		    				//destination = '通識(舊制)-' + course.brief + '|通識(新制)-' + course.brief_new;
+		    		}
+		    	if(destination == null)
+		    		destination = [];
 
-			callback(destination);
+		    	callback(destination);
+            }, 1000);
 		});
 	}
 }

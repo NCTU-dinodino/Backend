@@ -18,14 +18,14 @@ restore.processRestore = function(req, res, next){
         var restorePreGeneralNew = [];
         var restoreNextGeneralNew = [];
 
-        for(var i = 0; i<11; i++){
+        for(var i = 0; i<12; i++){
             var course = {
                 pre:[],
                 next:[]
             }
             restore.push(course);
         }
-        for(var i = 0; i<11; i++){
+        for(var i = 0; i<12; i++){
             var course = {
                 pre:[],
                 next:[]
@@ -72,13 +72,14 @@ restore.processRestore = function(req, res, next){
                 restore[8].pre[courses[i].cos_cname] = true;
                 restoreIndex[8].pre.push(courses[i].cos_cname);
             }
+            // 9 for military (can't move)
             else if(courses[i].orig_pos == '抵免研究所課程'){
-                restore[9].pre[courses[i].cos_cname] = true;
-                restoreIndex[9].pre.push(courses[i].cos_cname);
-            }
-            else if(courses[i].orig_pos == '雙主修、輔系、學分學程'){
                 restore[10].pre[courses[i].cos_cname] = true;
                 restoreIndex[10].pre.push(courses[i].cos_cname);
+            }
+            else if(courses[i].orig_pos == '雙主修、輔系、學分學程'){
+                restore[11].pre[courses[i].cos_cname] = true;
+                restoreIndex[11].pre.push(courses[i].cos_cname);
             }
             if(courses[i].now_pos == '共同必修'){
                 restore[0].next[courses[i].cos_cname] = true;
@@ -118,12 +119,12 @@ restore.processRestore = function(req, res, next){
                 restoreIndex[8].next.push(courses[i].cos_cname);
             }
             else if(courses[i].now_pos == '抵免研究所課程'){
-                restore[9].next[courses[i].cos_cname] = true;
-                restoreIndex[9].next.push(courses[i].cos_cname);
-            }
-            else if(courses[i].now_pos == '雙主修、輔系、學分學程'){
                 restore[10].next[courses[i].cos_cname] = true;
                 restoreIndex[10].next.push(courses[i].cos_cname);
+            }
+            else if(courses[i].now_pos == '雙主修、輔系、學分學程'){
+                restore[11].next[courses[i].cos_cname] = true;
+                restoreIndex[11].next.push(courses[i].cos_cname);
             }
         }
        //console.log(restore);
@@ -133,6 +134,7 @@ restore.processRestore = function(req, res, next){
        var general_new_dim = [];
 
        for(var i = 0; i<courseResult.length; i++){
+        if(i == 9) continue;
         for(var q = 0; q<courseResult[i].course.length; q++){
             if(restore[i].pre[courseResult[i].course[q].cn] == true){
                restore[i].pre[courseResult[i].course[q].cn] = false;
@@ -205,6 +207,7 @@ restore.processRestore = function(req, res, next){
       // console.log(tempPre);
        //push the course the course in next to the new position
        for(var i = 0; i<courseResult.length; i++){
+        if(i == 9) continue;
         for(var q = 0; q<restoreIndex[i].next.length; q++){
                 let cosName = restoreIndex[i].next[q];
                 let cos = tempPre[cosName];

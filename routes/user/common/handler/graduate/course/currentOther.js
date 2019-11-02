@@ -108,6 +108,8 @@ currentOther.processOther = function(req, res, next){
                             courseResult[4].course.push(cosInfo);
                             var temp_cosInfo = Object.assign({}, cosInfo);
                             temp_cosInfo.dimension = now[q].brief_new.substring(0,5);
+                            if (temp_cosInfo.dimension == "跨院基本素")
+                                temp_cosInfo.dimension = "跨院基本素養";
                             courseResult[5].course.push(temp_cosInfo);
                         }
   			            else{
@@ -115,6 +117,9 @@ currentOther.processOther = function(req, res, next){
   						        if(taken[now[q].cos_code] === true)
                                     cosInfo.code = now[q].cos_code + "_now";
                                 courseResult[6].course.push(cosInfo);
+                            }
+                            else if(temp == 'MIN'){
+                                courseResult[9].course.push(cosInfo);
                             }
                             else{
                                 if(now[q].cos_typeext == '服務學習'){
