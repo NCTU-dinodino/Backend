@@ -13,7 +13,7 @@ var Course = {
 			course_groups.forEach((course_group) => {
 				if(course_group.cos_codes.some((cos_code) => (cos_code + '_one' == code)))
 					destination = ['其他選修'];
-                else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修')
+				else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修')
 					destination = [];
 			});
 
@@ -66,17 +66,21 @@ var Elective = {
 				'IDS'
 			];
 			if(destination == null && CS_cos_codes_prefix.some((cos_code) => (code.startsWith(cos_code)))){
-				let invalid_course = [
+				let invalid_course_name = [
 					'服務學習(一)',
 					'服務學習(二)',
 					'導師時間',
 					'教學實務',
 					'個別研究'
 				];
-				if(invalid_course.some((cos_name) => (name == cos_name)))
+
+				if(invalid_course_name.some((cos_name) => (name == cos_name)))
 					destination = [];
 				else
 					destination = ['專業選修'];
+
+				if(code == 'IOC5189' && student_id.startsWith('08'))
+					destination = [];
 			}
 
 			if(destination == null)
