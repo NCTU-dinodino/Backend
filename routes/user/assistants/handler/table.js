@@ -1200,7 +1200,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 'media': 9
             };
 
-            var [compulse, pro, other, lang, general_old, general_new, pe, service, art, graduate, credit] = courseResult;
+            var [compulse, pro, other, lang, general_old, general_new, pe, service, art, military, graduate, addition_program, credit] = courseResult;
             list.student_id = info.student_id;
             list.sname = info.sname;
             list.program = info.program;
