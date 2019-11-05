@@ -156,7 +156,8 @@ table.queryCourse = function(req, res, next){
                             result = JSON.parse(result);
 
                             info.program = result[0].program;
-                            info.professional_field = parseInt(result[0].net_media);
+                            //info.professional_field = parseInt(result[0].net_media);
+                            info.professional_field = parseInt(professional_field);
                             processCourse(info, function(course){       
                                 req.course = course;
                                 if(req.course)
