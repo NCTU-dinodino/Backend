@@ -194,7 +194,7 @@ table.bulletinEdit = function(req, res, next){
     }
 }
 
-table.buletinDelete = function(req, res, next){
+table.bulletinDelete = function(req, res, next){
     if(req.session.profile){
         bulletin = {
             msg_idx: req.body.id,
