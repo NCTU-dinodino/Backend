@@ -120,4 +120,106 @@ table.mailInfo = function(req, res, next){
          res.redirect('/');
 }
 
+table.bulletinShow = function(req, res, next){
+    if(req.session.profile){
+        query.ShowBulletinMsg(function(err, result){
+            if(err) {
+                throw err;
+                res.redirect('/')
+            }
+            if(!result.length){
+                res.send("bulletin empty!")
+            }
+            else{
+                result = JSON.parse(result)
+                req.bulletin = result
+                next();
+            }
+        })
+    }
+    else
+        res.redirect('/')
+}
+
+table.bulletinCreate = function(req, res, next){
+    if(req.session.profile){
+        bulletin = {
+            cont_type: req.body.type,
+            content: req.body.content
+        }
+        query.CreateBulletinMsg(bulletin, function(err, result){
+            if(err) {
+                req.signal = 403
+                throw err
+            }
+            if(!result){
+                req.signal = 403
+                next()
+            }
+            else{
+                req.signal = 204
+                next()
+            }
+        })
+    }
+    else{
+        res.redirect('/')
+    }
+}
+
+table.bulletinEdit = function(req, res, next){
+    if(req.session.profile){
+        bulletin = {
+            msg_idx: req.body.id,
+            cont_type: req.body.type,
+            content: req.body.content
+        }
+        query.SetBulletinMsg(bulletin, function(err, result){
+            if(err) {
+                req.signal = 403
+                throw err
+            }
+            if(!result){
+                req.signal = 403
+                next()
+            }
+            else{
+                req.signal = 204
+                next()
+            }
+        })
+    }
+    else{
+        res.redirect('/')
+    }
+}
+
+table.buletinDelete = function(req, res, next){
+    if(req.session.profile){
+        bulletin = {
+            msg_idx: req.body.id,
+            cont_type: req.body.type,
+            content: req.body.content
+        }
+        query.DeleteBulletinMsg(bulletin, function(err, result){
+            if(err) {
+                req.signal = 403
+                throw err
+            }
+            if(!result){
+                req.signal = 403
+                next()
+            }
+            else{
+                req.signal = 204
+                next()
+            }
+        })
+    }
+    else{
+        res.redirect('/')
+    }
+}
+
+
 exports.table = table;
