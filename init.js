@@ -114,6 +114,7 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
   app.use(require('./routes/user/assistants/graduate'));
   app.use(require('./routes/user/assistants/advisee'));
   app.use(require('./routes/user/assistants/profile'));
+  app.use(require('./routes/user/common/bulletin'));
 
   app.use(require('./routes/user/common/mail'));
 /*add test route here*/
