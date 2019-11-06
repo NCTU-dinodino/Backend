@@ -143,7 +143,7 @@ table.bulletinShow = function(req, res, next){
 
 table.bulletinCreate = function(req, res, next){
     if(req.session.profile){
-        bulletin = {
+        var bulletin = {
             cont_type: req.body.type,
             content: req.body.content
         }
@@ -169,7 +169,7 @@ table.bulletinCreate = function(req, res, next){
 
 table.bulletinEdit = function(req, res, next){
     if(req.session.profile){
-        bulletin = {
+        var bulletin = {
             msg_idx: req.body.id,
             cont_type: req.body.type,
             content: req.body.content
@@ -196,10 +196,8 @@ table.bulletinEdit = function(req, res, next){
 
 table.bulletinDelete = function(req, res, next){
     if(req.session.profile){
-        bulletin = {
+        var bulletin = {
             msg_idx: req.body.id,
-            cont_type: req.body.type,
-            content: req.body.content
         }
         query.DeleteBulletinMsg(bulletin, function(err, result){
             if(err) {
