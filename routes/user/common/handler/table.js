@@ -131,8 +131,19 @@ table.bulletinShow = function(req, res, next){
                 res.send("bulletin empty!")
             }
             else{
+                var bulletin = []
                 result = JSON.parse(result)
-                req.bulletin = result
+                var i
+                for(i = 0; i < result.length; ++i){
+                    var data = {
+                        "id": result[i].unique_id,
+                        "type": parseInt(result[i].cont_type),
+                        "content": result[i].content,
+                        "timestamp": result[i].create_time
+                    }
+                    bulletin.push(data)
+                }
+                req.bulletin = bulletin
                 next();
             }
         })
