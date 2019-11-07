@@ -130,7 +130,7 @@ var General = {
 		    		if(course.cos_type == '必修'){
 		    			callback([]);
 		    			return;
-		    		}
+				}
 
 		    		if(course.brief)
 		    			switch(course.brief_new[0]){
