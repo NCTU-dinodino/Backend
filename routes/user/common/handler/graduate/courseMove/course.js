@@ -13,7 +13,7 @@ var Course = {
 			course_groups.forEach((course_group) => {
 				if(course_group.cos_codes.some((cos_code) => (cos_code + '_one' == code)))
 					destination = ['其他選修'];
-                else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修')
+				else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修')
 					destination = [];
 			});
 
@@ -66,17 +66,21 @@ var Elective = {
 				'IDS'
 			];
 			if(destination == null && CS_cos_codes_prefix.some((cos_code) => (code.startsWith(cos_code)))){
-				let invalid_course = [
+				let invalid_course_name = [
 					'服務學習(一)',
 					'服務學習(二)',
 					'導師時間',
 					'教學實務',
 					'個別研究'
 				];
-				if(invalid_course.some((cos_name) => (name == cos_name)))
+
+				if(invalid_course_name.some((cos_name) => (name == cos_name)))
 					destination = [];
 				else
 					destination = ['專業選修'];
+
+				if(code == 'IOC5189' && student_id.startsWith('08'))
+					destination = [];
 			}
 
 			if(destination == null)
@@ -111,39 +115,44 @@ var General = {
 
 			let courses = JSON.parse(result);
 			let course = courses.find((cos) => (code.startsWith(cos.cos_code)));
-            if(!course){
-                query.ShowUserOnCos(student_id, (error, res) => {
-                    if(error){
-                        callback([]);
-                        return;
-                    }
-                    let now = JSON.parse(res);
-                    course = now.find((cos) => (code.startsWith(cos.cos_code)));
-                });
-            }
+			if(!course){
+                		query.ShowUserOnCos(student_id, (error, res) => {
+                    			if(error){
+                        			callback([]);
+						return;
+                    			}
+                    			let now = JSON.parse(res);
+                    			course = now.find((cos) => (code.startsWith(cos.cos_code)));
+                		});
+            		}
 		    //console.log(course);
-            setTimeout(function(){
-		    	if(course.cos_type == '必修'){
-		    		callback([]);
-		    		return;
-		    	}
-
-		    	if(course.brief)
-		    		switch(course.brief_new[0]){
-		    			case '校':case '核':case'跨':
-		    				destination = [];
-		    				destination.push('通識(舊制)-' + course.brief.split('/')[0]);
-		    				//console.log(course.brief_new.split(','));
-		    				course.brief_new.split(',').forEach((dim) => {
-		    					destination.push('通識(新制)-' + dim.substring(0, dim.length - 5));
-		    				});
-		    				//destination = '通識(舊制)-' + course.brief + '|通識(新制)-' + course.brief_new;
+            		setTimeout(function(){
+		    		if(course.cos_type == '必修'){
+		    			callback([]);
+		    			return;
 		    		}
-		    	if(destination == null)
-		    		destination = [];
 
-		    	callback(destination);
-            }, 1000);
+		    		if(course.brief)
+		    			switch(course.brief_new[0]){
+		    				case '校':case '核':case'跨':
+		    					destination = [];
+		    					destination.push('通識(舊制)-' + course.brief.split('/')[0]);
+		    					//console.log(course.brief_new.split(','));
+		    					course.brief_new.split(',').forEach((dim) => {
+		    						destination.push('通識(新制)-' + dim.substring(0, dim.length - 5));
+		    					});
+		    					//destination = '通識(舊制)-' + course.brief + '|通識(新制)-' + course.brief_new;
+							break;
+		    			}
+				//Temporary revision for MIN1009, need to be further determined.
+				if(code.startsWith('MIN1009')){
+					destination = ['通識(舊制)-自然', '通識(新制)-跨院基本素養', '通識(新制)-校基本素養'];
+				}
+		    		if(destination == null)
+		    			destination = [];
+
+		    		callback(destination);
+            		}, 1000);
 		});
 	}
 }
