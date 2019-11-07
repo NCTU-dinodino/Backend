@@ -18,10 +18,10 @@ module.exports.init = function(){
     secret: randoms.randomVals.sessionKey,
     httpOnly: true,
     secure: true,
-    duration: 1 * 60 * 1000,
+    //duration: 1 * 60 * 1000,
     //activeDuration : 5 * 60 * 1000,
-    //duration: 3 * 24 * 60 * 60 * 1000,
-    //activeDuration : 5 * 60 * 1000,
+    duration: 10 * 60 * 1000,
+    activeDuration : 10 * 60 * 1000,
  }));
 /*  app.use(function(req, res, next){
       req.session.profile = '{"email":"sophia850413.cs03@nctu.edu.tw","username":"0316201","personStatus":"s"}';
@@ -31,6 +31,11 @@ module.exports.init = function(){
   app.use(require('./middleware/setCsrf').setCsrf);
   app.use(require('./middleware/setProfile').setProfile);
   
+	app.use('/^\/students|\/assistants|\/teachers/', (req, res) => {
+		if(!req.profile)
+			res.redirect('/');
+	});
+
   //app.use(bodyParser.json());
   app.use(bodyParser.json({limit: '50mb'}));
   app.use(bodyParser.urlencoded({
@@ -45,8 +50,7 @@ module.exports.init = function(){
       next();
   });
   app.use('/students/*', function(req, res, next){
-      if(res.locals.studentId);
-      else
+      if(!res.locals.studentId);
         res.locals.studentId = '0316248';
         //res.locals.studentId = utils.getPersonId(JSON.parse(req.session.profile));
       next();
