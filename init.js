@@ -31,9 +31,10 @@ module.exports.init = function(){
   app.use(require('./middleware/setCsrf').setCsrf);
   app.use(require('./middleware/setProfile').setProfile);
   
-	app.use('/^\/assistants|\/teachers|\/students/', (req, res) => {
+	app.use('/^\/assistants|\/teachers|\/students/', (req, res, next) => {
 		if(!req.profile)
 			res.redirect('/');
+		next();
 	});
 
   //app.use(bodyParser.json());
