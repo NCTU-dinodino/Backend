@@ -31,7 +31,7 @@ module.exports.init = function(){
   app.use(require('./middleware/setCsrf').setCsrf);
   app.use(require('./middleware/setProfile').setProfile);
   
-	app.use('/^\/students|\/assistants|\/teachers/', (req, res) => {
+	app.use('/^\/|\/assistants|\/teachers|\/students/', (req, res) => {
 		if(!req.profile)
 			res.redirect('/');
 	});
