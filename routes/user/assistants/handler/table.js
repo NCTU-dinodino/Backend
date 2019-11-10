@@ -1119,6 +1119,28 @@ table.graduateStudentList = function(req, res, next) {
     }
 }
 
+/* 改變某學生的畢業送審狀態 */
+table.postGraduateCheck = function(req, res, next) {
+    if (req.session.profile) {
+        var data = {
+            id: req.body.student_id,
+            graduate_submit: req.body.graduate_submit
+        }
+        console.log(data)
+        query.SetGraduateSubmitStatus(data, function(err, res) {
+            if (err) {
+                throw err;
+                res.redirect('/');
+            } else if (!res) {
+                res.redirect('/');
+            }
+        });
+        next();
+    }
+    else
+        res.redirect('/');
+}
+
 /* 改變某學生畢業預審 */
 table.graduateStudentListUpdate = function(req, res, next) {
 	var courseResult = res.locals.courseResult;
