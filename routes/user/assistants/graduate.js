@@ -55,7 +55,7 @@ router.get('/assistants/graduate/check', studentId, getGraduateCheck, function(r
 });
 
 
-router.get('/assistants/graduate/detail', studentId, studentProfile, queryFree, queryGeneral, queryPass, queryChange, queryCourse, queryNow, queryRule, processOther, processCS, currentOther, currentCS, processRestore, processResult, function(req, res) {
+router.post('/assistants/graduate/detail', csrfProtection, studentId, studentProfile, queryFree, queryGeneral, queryPass, queryChange, queryCourse, queryNow, queryRule, processOther, processCS, currentOther, currentCS, processRestore, processResult, function(req, res) {
 // router.get('/assistants/graduate/revised', studentId, studentProfile, queryFree, queryGeneral, queryPass, queryChange, queryCourse, queryNow, queryRule, processOther, processCS, currentOther, currentCS, processRestore, processResult, function(req, res) {
     res.send(res.locals.courseResult);
 });
