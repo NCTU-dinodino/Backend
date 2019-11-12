@@ -122,7 +122,7 @@ table.mailInfo = function(req, res, next){
 
 table.bulletinShow = function(req, res, next){
     if(req.session.profile){
-        query.ShowBulletinMsg(function(err, result){
+        query.ShowAllBulletinMsg(function(err, result){
             if(err) {
                 throw err;
                 res.redirect('/')
@@ -139,6 +139,7 @@ table.bulletinShow = function(req, res, next){
                         "id": result[i].unique_id,
                         "type": parseInt(result[i].cont_type),
                         "content": result[i].content,
+                        "link": result[i].link,
                         "timestamp": result[i].create_time
                     }
                     bulletin.push(data)
@@ -158,6 +159,8 @@ table.bulletinCreate = function(req, res, next){
             cont_type: req.body.type,
             content: req.body.content
         }
+        if(req.body.link === undefined || req.body.link === null);
+        else bulletin["link"] = req.body.link
         query.CreateBulletinMsg(bulletin, function(err, result){
             if(err) {
                 req.signal = 403
@@ -183,7 +186,8 @@ table.bulletinEdit = function(req, res, next){
         var bulletin = {
             msg_idx: req.body.id,
             cont_type: req.body.type,
-            content: req.body.content
+            content: req.body.content,
+            link: (req.body.link === undefined || req.body.link === null) ? "" : req.body.link
         }
         query.SetBulletinMsg(bulletin, function(err, result){
             if(err) {
