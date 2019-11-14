@@ -1537,8 +1537,8 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var eng_pass = list.en_course === 1;
             var will_eng_pass = will_list.en_course === 1;
 
-            var compulse_pass = (credit.compulse_require - credit.compulsory) <= 0;
-            var will_compulse_pass = (credit.compulse_require - credit.compulse - will_list.compulse) <= 0;
+            var compulse_pass = (credit.compulsory_require - credit.compulsory) <= 0;
+            var will_compulse_pass = (credit.compulsory_require - credit.compulsory - will_list.compulse) <= 0;
         
             var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass);
             /*
@@ -1555,7 +1555,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
             list.art_pass = art_pass;
             list.mentor_pass = mentor_pass;
             list.eng_pass = eng_pass;
-            list.compulse_require = credit.compulse_require;
+            list.compulse_require = credit.compulsory_require;
             list.compulse_credit = credit.compulsory;
             */
 
