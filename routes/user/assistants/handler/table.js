@@ -1125,8 +1125,11 @@ table.postGraduateCheck = function(req, res, next) {
         var data = {
             id: req.body.student_id,
             graduate_submit: req.body.graduate_submit
+        };
+        if(graduate_submit == 3){
+            data.reject_reason = req.body.reason;
         }
-        console.log(data)
+        //console.log(data);
         query.SetGraduateSubmitStatus(data, function(err, res) {
             if (err) {
                 throw err;
