@@ -1126,7 +1126,7 @@ table.postGraduateCheck = function(req, res, next) {
             id: req.body.student_id,
             graduate_submit: req.body.graduate_submit
         };
-        if(graduate_submit == 3){
+        if(req.body.graduate_submit == 3){
             data.reject_reason = req.body.reason;
         }
         //console.log(data);

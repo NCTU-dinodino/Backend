@@ -464,8 +464,9 @@ table.getGraduateCheck = function(req, res, next){
                 if(err)
                     throw err;
                 result = JSON.parse(result);
-                if(checkState.status == 3){
-                    checkState.reject_reason = result.reject_reason;
+                //console.log(result);
+                if(result[0].submit_status == '3'){
+                    checkState.reject_reason = result[0].reject_reason;
                 }
                 req.checkState = checkState;
                 if(req.checkState)
