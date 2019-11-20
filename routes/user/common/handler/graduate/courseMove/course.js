@@ -1,4 +1,21 @@
 var query = require('../../../../../../db/msql');
+
+let CS_cos_codes_prefix = [
+	'DCP',
+	'IOC',
+	'IOE',
+	'ILE',
+	'IDS'
+];
+
+let EE_cos_codes = [
+	'UEE2101',
+	'DEE2548',
+	'DEE2542',
+	'UEE2601',
+	'UEE4605'
+];
+
 var Course = {
 	isValid : function(code, name, type, student_id, callback){
 		let destination = null;
@@ -48,23 +65,9 @@ var Elective = {
 					destination = [];
 			});
 			
-			let EE_cos_codes = [
-				'UEE2101',
-				'DEE2548',
-				'DEE2542',
-				'UEE2601',
-				'UEE4605'
-			];
 			if(destination == null && EE_cos_codes.some((cos_code) => (code.startsWith(cos_code))))
 				destination = ['專業選修'];
 		
-			let CS_cos_codes_prefix = [
-				'DCP',
-				'IOC',
-				'IOE',
-				'ILE',
-				'IDS'
-			];
 			if(destination == null && CS_cos_codes_prefix.some((cos_code) => (code.startsWith(cos_code)))){
 				let invalid_course_name = [
 					'服務學習(一)',
@@ -214,7 +217,7 @@ var Graduate = {
 var AdditionProgram = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
-		if(type == '必修')
+		if(type == '必修' && CS_cos_codes_prefix.some((prefix)=>(code.startsWith(prefix))))
 			destination = [];
 		else 
 			destination = ['雙主修、輔系、學分學程'];
