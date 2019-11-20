@@ -75,6 +75,7 @@ module.exports.init = function(){
   app.use('/assistants/family', express.static('./public', {index: 'index.html'}));
   app.use('/assistants/family/:tid', express.static('./public', {index: 'index.html'}));
   app.use('/assistants/verify', express.static('./public', {index: 'index.html'}));
+  app.use('/assistants/course', express.static('./public', {index: 'index.html'}));
 
 app.use('/students/credit', express.static('./public', {index: 'index.html'}));
 
