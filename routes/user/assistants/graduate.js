@@ -15,6 +15,8 @@ var result = require('../common/handler/graduate/course/courseResult');
 var studentId = getStudentId.getStudentId.studentId;
 var graduateStudentListDownload = table.table.graduateStudentListDownload;
 var graduateStudentList = table.table.graduateStudentList;
+var postGraduateCheck = table.table.postGraduateCheck;
+
 var getGraduateEnglish = gtable.table.getGraduateEnglish;
 var getGraduateCheck = gtable.table.getGraduateCheck;
 var graduateStudentListUpdate = table.table.graduateStudentListUpdate;
@@ -55,7 +57,7 @@ router.get('/assistants/graduate/check', studentId, getGraduateCheck, function(r
 });
 
 
-router.get('/assistants/graduate/detail', studentId, studentProfile, queryFree, queryGeneral, queryPass, queryChange, queryCourse, queryNow, queryRule, processOther, processCS, currentOther, currentCS, processRestore, processResult, function(req, res) {
+router.post('/assistants/graduate/detail', csrfProtection, studentId, studentProfile, queryFree, queryGeneral, queryPass, queryChange, queryCourse, queryNow, queryRule, processOther, processCS, currentOther, currentCS, processRestore, processResult, function(req, res) {
 // router.get('/assistants/graduate/revised', studentId, studentProfile, queryFree, queryGeneral, queryPass, queryChange, queryCourse, queryNow, queryRule, processOther, processCS, currentOther, currentCS, processRestore, processResult, function(req, res) {
     res.send(res.locals.courseResult);
 });
@@ -71,6 +73,9 @@ router.post('/assistants/graduate/gradeStudentId', csrfProtection, getGradeStude
     res.send(req.studentId);
 });
 
-
+router.post('/assistants/graduate/graduateCheck', postGraduateCheck, function(req, res) {
+    res.send({msg: 1});
+});
 
 module.exports = router;
+

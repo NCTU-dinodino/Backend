@@ -156,7 +156,8 @@ table.queryCourse = function(req, res, next){
                             result = JSON.parse(result);
 
                             info.program = result[0].program;
-                            info.professional_field = parseInt(result[0].net_media);
+                            //info.professional_field = parseInt(result[0].net_media);
+                            info.professional_field = parseInt(professional_field);
                             processCourse(info, function(course){       
                                 req.course = course;
                                 if(req.course)
@@ -429,6 +430,7 @@ table.graduateCheck = function(req, res, next){
 table.getGraduateCheck = function(req, res, next){
     if(req.session.profile){
         let personId = res.locals.studentId;
+        var checkState = new Object();
         query.ShowUserInfo(personId, function(err, result){
             if(err){
                 res.redirect('/');
@@ -439,31 +441,40 @@ table.getGraduateCheck = function(req, res, next){
                 var default_field = 0;
                 switch(program){
                     //資電 = D
-		    case '資電':
-		    case 'D':
+		            case '資電':
+		            case 'D':
                         default_field = 3;
                         break;
                     //資工A = A, 資工B = B
-		    case '資工':
-		    case 'A':
-		    case 'B':
+		            case '資工':
+		            case 'A':
+		            case 'B':
                         default_field = 2;
                         break;
                     default:
                         default_field = 0;
                 }
-                var checkState = { 
-                    status: (result[0].graduate_submit == null)?0:parseInt(result[0].graduate_submit),
-                    general_course_type: (result[0].submit_type == null)?null:parseInt(result[0].submit_type),
-                    professional_field: (result[0].net_media == null)?default_field:parseInt(result[0].net_media)
+                checkState.status = (result[0].graduate_submit == null)?0:parseInt(result[0].graduate_submit);
+                checkState.general_course_type = (result[0].submit_type == null)?null:parseInt(result[0].submit_type);
+                checkState.professional_field = (result[0].net_media == null)?default_field:parseInt(result[0].net_media);
+            }
+        });
+        setTimeout(function(){
+            query.ShowStudentGraduate({student_id: personId}, function(err, result){
+                if(err)
+                    throw err;
+                result = JSON.parse(result);
+                //console.log(result);
+                if(result[0].submit_status == '3'){
+                    checkState.reject_reason = result[0].reject_reason;
                 }
                 req.checkState = checkState;
                 if(req.checkState)
                     next();
                 else
                     return;
-            }
-        });
+            });
+        }, 1000);
     }
     else
         res.redirect('/');

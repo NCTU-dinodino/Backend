@@ -1119,6 +1119,31 @@ table.graduateStudentList = function(req, res, next) {
     }
 }
 
+/* 改變某學生的畢業送審狀態 */
+table.postGraduateCheck = function(req, res, next) {
+    if (req.session.profile) {
+        var data = {
+            id: req.body.student_id,
+            graduate_submit: req.body.graduate_submit
+        };
+        if(req.body.graduate_submit == 3){
+            data.reject_reason = req.body.reason;
+        }
+        //console.log(data);
+        query.SetGraduateSubmitStatus(data, function(err, res) {
+            if (err) {
+                throw err;
+                res.redirect('/');
+            } else if (!res) {
+                res.redirect('/');
+            }
+        });
+        next();
+    }
+    else
+        res.redirect('/');
+}
+
 /* 改變某學生畢業預審 */
 table.graduateStudentListUpdate = function(req, res, next) {
 	var courseResult = res.locals.courseResult;
@@ -1200,7 +1225,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 'media': 9
             };
 
-            var [compulse, pro, other, lang, general_old, general_new, pe, service, art, graduate, credit] = courseResult;
+            var [compulse, pro, other, lang, general_old, general_new, pe, service, art, military, graduate, addition_program, credit] = courseResult;
             list.student_id = info.student_id;
             list.sname = info.sname;
             list.program = info.program;
@@ -1515,8 +1540,8 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var eng_pass = list.en_course === 1;
             var will_eng_pass = will_list.en_course === 1;
 
-            var compulse_pass = (credit.compulse_require - credit.compulsory) <= 0;
-            var will_compulse_pass = (credit.compulse_require - credit.compulse - will_list.compulse) <= 0;
+            var compulse_pass = (credit.compulsory_require - credit.compulsory) <= 0;
+            var will_compulse_pass = (credit.compulsory_require - credit.compulsory - will_list.compulse) <= 0;
         
             var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass);
             /*
@@ -1533,7 +1558,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
             list.art_pass = art_pass;
             list.mentor_pass = mentor_pass;
             list.eng_pass = eng_pass;
-            list.compulse_require = credit.compulse_require;
+            list.compulse_require = credit.compulsory_require;
             list.compulse_credit = credit.compulsory;
             */
 
