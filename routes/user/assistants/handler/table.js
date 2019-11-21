@@ -1538,12 +1538,14 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var will_net_media_pass = (list.net - will_list.net <= 0 || list.media - will_list.media <= 0);
 
             var eng_pass = list.en_course === 1;
-            var will_eng_pass = will_list.en_course === 1;
-
+            var will_eng_pass = (list.en_course == 1) || (will_list.en_course == 1);
+            
             var compulse_pass = (credit.compulsory_require - credit.compulsory) <= 0;
             var will_compulse_pass = (credit.compulsory_require - credit.compulsory - will_list.compulse) <= 0;
-        
-            var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass);
+       
+            var no_compulse_current = list.current.length <= 0;
+
+            var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass && no_compulse_current); 
             /*
             list.total_pass = total_pass;
             list.compulse_pass = compulse_pass;
