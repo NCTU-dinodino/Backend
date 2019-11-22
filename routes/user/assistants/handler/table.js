@@ -1262,6 +1262,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 } else {
                     if (general_old.course[i].reason === 'now') {
                         will_list.total += general_old.course[i].originalCredit;
+                        will_list.old_total += general_old.course[i].originalCredit;
                         will_old[mapping[general_old.course[i].dimension]] += general_old.course[i].originalCredit;
                     }
                 }
@@ -1377,15 +1378,20 @@ table.graduateStudentListUpdate = function(req, res, next) {
             } else if (list.en_status === 2 || list.en_status === 3 || list.en_status === 4) {
                 list.en_basic = 4 - basic_credit;
                 list.en_advanced = 4 - advanced_credit - second_credit;
+                if(list.en_advanced < 0)
+                    list.en_basic += list.en_advanced;
                 list.en_total = 8 - basic_credit - advanced_credit - second_credit;
                 will_list.en_basic = list.en_basic - will_basic;
                 will_list.en_advanced = list.en_advanced - will_advanced;
+                if(will_list.en_advanced < 0)
+                    will_list.en_basic += will_list.en_advanced;
                 will_list.en_total = list.en_total - will_basic - will_advanced - will_second;
             } else if (list.en_status === 1) {
                 list.en_basic = 0;
                 list.en_advanced = 0;
                 list.en_total = 0;
             }
+            
             var en_pass = (list.en_total <= 0 && list.en_basic <= 0 && list.en_advanced <= 0);
             var will_en_pass = (will_list.en_total <= 0 && will_list.en_basic <= 0 && will_list.en_advanced <= 0);
             
@@ -1539,31 +1545,14 @@ table.graduateStudentListUpdate = function(req, res, next) {
 
             var eng_pass = list.en_course === 1;
             var will_eng_pass = (list.en_course == 1) || (will_list.en_course == 1);
-            
+
             var compulse_pass = (credit.compulsory_require - credit.compulsory) <= 0;
             var will_compulse_pass = (credit.compulsory_require - credit.compulsory - will_list.compulse) <= 0;
-       
+        
             var no_compulse_current = list.current.length <= 0;
 
-            var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass && no_compulse_current); 
-            /*
-            list.total_pass = total_pass;
-            list.compulse_pass = compulse_pass;
-            list.pro_pass = pro_pass;
-            list.other_pass = other_pass;
-            list.general_pass = general_pass;
-            list.old_pass = old_pass;
-            list.new_pass = new_pass;
-            list.en_pass = en_pass;
-            list.pe_pass = pe_pass;
-            list.service_pass = service_pass;
-            list.art_pass = art_pass;
-            list.mentor_pass = mentor_pass;
-            list.eng_pass = eng_pass;
-            list.compulse_require = credit.compulsory_require;
-            list.compulse_credit = credit.compulsory;
-            */
-
+            var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass && no_compulse_current);
+            
             var will_pass = (will_total_pass && will_compulse_pass && will_pro_pass && will_other_pass && will_general_pass && will_en_pass && will_pe_pass && will_service_pass && will_art_pass && will_mentor_pass && will_eng_pass);
 
             if (pass) {
@@ -1573,7 +1562,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
             } else {
                 list.graduate_status = 0;
             }
-            
+
             list.pro = Math.max(0, list.pro);
             list.other = Math.max(0, list.other);
             list.old_total = Math.max(0, list.old_total);
@@ -1617,7 +1606,6 @@ table.graduateStudentListUpdate = function(req, res, next) {
         }
     }); 
 }
-
 // --------------------------------------------------------------------graduate table
 
 // advisee table---------------------------------------------------------------------
