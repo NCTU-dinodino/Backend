@@ -1,6 +1,6 @@
 var query = require('../../../../../../db/msql');
 
-let CS_cos_codes_prefix = [
+var CS_cos_codes_prefix = [
 	'DCP',
 	'IOC',
 	'IOE',
@@ -8,12 +8,20 @@ let CS_cos_codes_prefix = [
 	'IDS'
 ];
 
-let EE_cos_codes = [
+var EE_cos_codes = [
 	'UEE2101',
 	'DEE2548',
 	'DEE2542',
 	'UEE2601',
 	'UEE4605'
+];
+
+var graduate_cos_codes_prefix = [
+	'IOC',
+	'IOE',
+	'ILE',
+	'IDS',
+	'IEE'
 ];
 
 var Course = {
@@ -199,12 +207,6 @@ var Art = {
 var Graduate = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
-		let graduate_cos_codes_prefix = [
-			'IOC',
-			'IOE',
-			'ILE',
-			'IDS'
-		];
 		if(graduate_cos_codes_prefix.some((cos_code) => (code.startsWith(cos_code))) || type == '大學部修研究所課程')
 			destination = ['抵免研究所課程'];
 		else 
