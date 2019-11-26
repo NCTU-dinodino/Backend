@@ -9,6 +9,7 @@ router.get(/testDB/, (req, res) => {
 	query.ShowUserAllScore(studentId, (err, result) => {
 		result = JSON.parse(result);
 		console.log(result);
+		res.json(result);
 	});
 });
 
