@@ -45,7 +45,8 @@ var Course = {
             //PYY : 體育, GEC & CGE : 共教會 ＆ 通識中心, MIN : 護理
 			if(type == '軍訓' || code.startsWith('PYY') || name == '藝文賞析教育' || code.startsWith('GEC') || code.startsWith('CGE') || code.startsWith('MIN') || name == '服務學習(一)' || name == '服務學習(二)')	//Only for restriction of 09
 				destination = [];
-
+            if(code.startWith('MIN') && (studentId.substring(0,2) != '05'))
+                destination = ['其他選修'];
 			if(destination == null)
 				destination = ['其他選修'];
 
@@ -156,8 +157,8 @@ var General = {
 							break;
 		    			}
 				//Temporary revision for MIN1009, need to be further determined.
-				if(code.startsWith('MIN1009')){
-					destination = ['通識(舊制)-自然', '通識(新制)-跨院基本素養', '通識(新制)-校基本素養'];
+				if(code.startsWith('MIN')){
+					destination = ['通識(舊制)-自然', '通識(新制)-校基本素養'];
 				}
 		    		if(destination == null)
 		    			destination = [];
