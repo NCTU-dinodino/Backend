@@ -45,7 +45,7 @@ var Course = {
             //PYY : 體育, GEC & CGE : 共教會 ＆ 通識中心, MIN : 護理
 			if(type == '軍訓' || code.startsWith('PYY') || name == '藝文賞析教育' || code.startsWith('GEC') || code.startsWith('CGE') || code.startsWith('MIN') || name == '服務學習(一)' || name == '服務學習(二)')	//Only for restriction of 09
 				destination = [];
-            if(code.startWith('MIN') && (student_id.substring(0,2) != '05'))
+            if(code.startsWith('MIN') && (student_id.substring(0,2) != '05'))
                 destination = ['其他選修'];
 			if(destination == null)
 				destination = ['其他選修'];
