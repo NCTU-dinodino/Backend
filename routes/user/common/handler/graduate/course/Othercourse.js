@@ -83,8 +83,9 @@ Othercourse.processOther = function(req, res, next){
                 credit:0,
                 course:[]
         }
+        var studentId = res.locals.studentId;
+        //console.log("std" + studentId);
         var professional_field = req.course.professional_field;
-
         var rules = JSON.parse(req.rules);
         var program = req.course.program;
         var pass = JSON.parse(req.pass);
@@ -315,6 +316,17 @@ Othercourse.processOther = function(req, res, next){
                         elective.course.push(cosInfo);
                         elective.credit += parseFloat(offset[i].credit);
                     }
+                    else if(temp == 'MIN' && studentId.substring(0,2) == '05'){
+                        cosInfo.dimension = '自然';
+                        dimension[5] = true;
+                        general.course.push(cosInfo);
+                        var temp_cosInfo = Object.assign({}, cosInfo);
+                        temp_cosInfo.dimension = '校基本素養';
+                        general_new.course.push(temp_cosInfo);
+                        general.credit += parseFloat(offset[i].credit);
+                        general_new.credit.total += parseFloat(offset[i].credit);
+                        general_new.credit.basic += parseFloat(pass[q].cos_credit);
+                    }
                     else{
                         otherElect.course.push(cosInfo);
                         otherElect.credit += parseFloat(offset[i].credit);
@@ -330,53 +342,53 @@ Othercourse.processOther = function(req, res, next){
                     language.credit += parseFloat(offset[i].credit);
                 }
             }
-                       else if(offset[i].cos_type == '通識'){
-                                cosInfo.dimension = offset[i].brief.substring(0,2);
-                                if(cosInfo.dimension == '當代')
-                                    dimension[0] = true;
-                                else if(cosInfo.dimension == '公民')
-                                    dimension[1] = true;
-                                else if(cosInfo.dimension == '群己')
-                                    dimension[2] = true;
-                                else if(cosInfo.dimension == '文化')
-                                    dimension[3] = true;
-                                else if(cosInfo.dimension == '歷史')
-                                    dimension[4] = true;
-                                else if(cosInfo.dimension == '自然')
-                                    dimension[5] = true;
-                                general.course.push(cosInfo);
-                                var temp_cosInfo = Object.assign({}, cosInfo);
-                                temp_cosInfo.dimension = offset[i].brief_new.substring(0,5);
-                                if (temp_cosInfo.dimension == "跨院基本素")
-                                    temp_cosInfo.dimension = "跨院基本素養";
-                                general_new.course.push(temp_cosInfo);
-                                general.credit += parseFloat(offset[i].credit);
-                                general_new.credit.total += parseFloat(offset[i].credit);
-                                if(offset[i].brief_new.substring(0,2) == '核心') general_new.credit.core += parseFloat(pass[q].cos_credit);
-                                else if(offset[i].brief_new.substring(0,2) == '跨院') general_new.credit.cross += parseFloat(pass[q].cos_credit);
-                                else if(offset[i].brief_new.substring(0,2) == '校基') general_new.credit.basic += parseFloat(pass[q].cos_credit);
-                        }
-                        else if(offset[i].cos_type == '服務學習'){
-                                cosInfo.type  = offset[i].cos_typeext;
-                                service.course.push(cosInfo);
-                                service.credit += parseFloat(offset[i].credit);
-                        }
-                        else if(offset[i].cos_type == '體育'){
-                            if(taken[cosInfo.code] == true){
-                                if(repeatCounter[cosInfo.code] == null)
-                                    repeatCounter[cosInfo.code] = 1;
-                                else
-                                    repeatCounter[cosInfo.code]++;
-                                var temp = cosInfo.code + '_' + repeatCounter[cosInfo.code];
-                                cosInfo.code = temp;
-                            }
-                            else
-                                taken[cosInfo.code] = true;
-                            peClass.course.push(cosInfo);
-                            peClass.credit += parseFloat(offset[i].credit);
-                        }
-                        offsetTakenCheck[offset[i].cos_code] = true;
-                    }
+            else if(offset[i].cos_type == '通識'){
+                     cosInfo.dimension = offset[i].brief.substring(0,2);
+                     if(cosInfo.dimension == '當代')
+                         dimension[0] = true;
+                     else if(cosInfo.dimension == '公民')
+                         dimension[1] = true;
+                     else if(cosInfo.dimension == '群己')
+                         dimension[2] = true;
+                     else if(cosInfo.dimension == '文化')
+                         dimension[3] = true;
+                     else if(cosInfo.dimension == '歷史')
+                         dimension[4] = true;
+                     else if(cosInfo.dimension == '自然')
+                         dimension[5] = true;
+                     general.course.push(cosInfo);
+                     var temp_cosInfo = Object.assign({}, cosInfo);
+                     temp_cosInfo.dimension = offset[i].brief_new.substring(0,5);
+                     if (temp_cosInfo.dimension == "跨院基本素")
+                         temp_cosInfo.dimension = "跨院基本素養";
+                     general_new.course.push(temp_cosInfo);
+                     general.credit += parseFloat(offset[i].credit);
+                     general_new.credit.total += parseFloat(offset[i].credit);
+                     if(offset[i].brief_new.substring(0,2) == '核心') general_new.credit.core += parseFloat(pass[q].cos_credit);
+                     else if(offset[i].brief_new.substring(0,2) == '跨院') general_new.credit.cross += parseFloat(pass[q].cos_credit);
+                     else if(offset[i].brief_new.substring(0,2) == '校基') general_new.credit.basic += parseFloat(pass[q].cos_credit);
+             }
+             else if(offset[i].cos_type == '服務學習'){
+                     cosInfo.type  = offset[i].cos_typeext;
+                     service.course.push(cosInfo);
+                     service.credit += parseFloat(offset[i].credit);
+             }
+             else if(offset[i].cos_type == '體育'){
+                 if(taken[cosInfo.code] == true){
+                     if(repeatCounter[cosInfo.code] == null)
+                         repeatCounter[cosInfo.code] = 1;
+                     else
+                         repeatCounter[cosInfo.code]++;
+                     var temp = cosInfo.code + '_' + repeatCounter[cosInfo.code];
+                     cosInfo.code = temp;
+                 }
+                 else
+                     taken[cosInfo.code] = true;
+                 peClass.course.push(cosInfo);
+                 peClass.credit += parseFloat(offset[i].credit);
+             }
+             offsetTakenCheck[offset[i].cos_code] = true;
+            }
         }
         if(englishFree.length != 0){
             for(var i = 0; i<englishFree.length; i++){
@@ -617,17 +629,17 @@ Othercourse.processOther = function(req, res, next){
                                     service.course.push(cosInfoNew);
                                 }
                                 if(dimension_complete == 1){
-                                    if(general.credit >= general.require){
+                                    /*if(general.credit >= general.require){
                                         cosInfo.move = true;
                                         otherElect.course.push(cosInfo);
                                         otherElect.credit += parseFloat(pass[q].cos_credit);
                                     }
-                                    else{
+                                    else{*/
                                         general.course.push(cosInfo);
                                         general_new.course.push(temp_cosInfo);
                                         general.credit += parseFloat(pass[q].cos_credit);
                                         general_new.credit.total += parseFloat(pass[q].cos_credit);
-                                    }
+                                    //}
                                 }
                                 else{
                                     if(brief == '當代')
@@ -649,6 +661,51 @@ Othercourse.processOther = function(req, res, next){
                                     if(brief_new.substring(0,2) == '核心') general_new.credit.core += parseFloat(pass[q].cos_credit);
                                     else if(brief_new.substring(0,2) == '跨院') general_new.credit.cross += parseFloat(pass[q].cos_credit);
                                     else if(brief_new.substring(0,2) == '校基') general_new.credit.basic += parseFloat(pass[q].cos_credit);
+                                    for(var j =0; j<6; j++)
+                                        if(dimension[j] == true)
+                                            dimension_count++;
+                                    if(dimension_count == 6)
+                                        dimension_complete = 1;
+                                }
+                            }
+                    }
+                    else if(temp == 'MIN' && (studentId.substring(0,2) == "05")){
+                            var brief = "自然";
+                            var brief_new = "校基本素養";
+                            dimension_count = 0;
+                            cosInfo.dimension = brief;
+                            var temp_cosInfo = Object.assign({}, cosInfo);
+                            temp_cosInfo.dimension = brief_new;
+                            for(var z = 0; z< general.course.length; z++){
+                                if(general.course[z].cn == pass[q].cos_cname){
+                                    if(pass[q].score >= general.course[z].score){
+                                        general.course[z] = cosInfo;
+                                        general_new.course[z] = temp_cosInfo;
+                                    }
+                                    break;
+                                }
+                            }
+                            if(z == general.course.length){
+                                if(dimension_complete == 1){
+                                    /*if(general.credit >= general.require){
+                                        cosInfo.move = true;
+                                        otherElect.course.push(cosInfo);
+                                        otherElect.credit += parseFloat(pass[q].cos_credit);
+                                    }
+                                    else{*/
+                                        general.course.push(cosInfo);
+                                        general_new.course.push(temp_cosInfo);
+                                        general.credit += parseFloat(pass[q].cos_credit);
+                                        general_new.credit.total += parseFloat(pass[q].cos_credit);
+                                    //}
+                                }
+                                else{
+                                    dimension[5] = true;
+                                    general.course.push(cosInfo);
+                                    general_new.course.push(temp_cosInfo);
+                                    general.credit += parseFloat(pass[q].cos_credit);
+                                    general_new.credit.total += parseFloat(pass[q].cos_credit);
+                                    general_new.credit.basic += parseFloat(pass[q].cos_credit);
                                     for(var j =0; j<6; j++)
                                         if(dimension[j] == true)
                                             dimension_count++;
