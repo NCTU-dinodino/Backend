@@ -534,6 +534,57 @@ CScourse.processCS = function(req, res, next) {
 				});
 			});
 		}
+        let Phy = 0, Che = 0, Bio = 0;
+        let PhyCos = [], CheCos = [], BioCos = [];
+        let PhyAt = [], CheAt = [], BioAt = [];
+        for(let i = 0; i < courseResult[0].course.length; i++){
+            let cos = courseResult[0].course[i];
+            let cosName = courseResult[0].course[i].cn;
+            if(cosName == "物理(一)" || cosName == "物理(二)"){
+                Phy++;
+                PhyCos.push(cos);
+                PhyAt.push(i);
+            }
+            else if(cosName == "化學(一)" || cosName == "化學(二)"){
+                Che++;
+                CheCos.push(cos);
+                CheAt.push(i);
+            }
+            else if(cosName == "生物(一)" || cosName == "生物(二)"){
+                Bio++;
+                BioCos.push(cos);
+                BioAt.push(i);
+            }
+        }
+        //console.log(PhyCos);
+        //console.log(CheCos);
+        //console.log(Che);
+        //console.log(CheAt);
+        if(Phy == 2){
+            for(let i = 0; i < Che; i++){
+                if(i != 0) CheAt[i]--;
+                courseResult[0].course.splice(CheAt[i], 1);
+                courseResult[2].course.push(CheCos[i]);
+				courseResult[0].credit -= CheCos[i].originalCredit;
+				courseResult[2].credit += CheCos[i].originalCredit;
+            }
+            for(let i = 0; i < Bio; i++){
+                if(i != 0) BioAt[i]--;
+                courseResult[0].course.splice(BioAt[i], 1);
+                courseResult[2].course.push(BioCos[i]);
+				courseResult[0].credit -= BioCos[i].originalCredit;
+				courseResult[2].credit += BioCos[i].originalCredit;
+            }
+        }
+        else if(Che == 2){
+            for(let i = 0; i < Bio; i++){
+                if(i != 0) BioAt[i]--;
+                courseResult[0].course.splice(BioAt[i], 1);
+                courseResult[2].course.push(BioCos[i]);
+				courseResult[0].credit -= BioCos[i].originalCredit;
+				courseResult[2].credit += BioCos[i].originalCredit;
+            }
+        }
 
 	} else {
 		res.redirect('/');
