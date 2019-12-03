@@ -268,6 +268,17 @@ Othercourse.processOther = function(req, res, next){
                     service.course.push(cosInfo);
                     service.credit += parseFloat(offset[i].credit);
                 }
+                else if(!compulseCodeCheck[offset[i].cos_code]){
+                    var temp = offset[i].cos_code.substring(0,3);
+                    if(temp == 'DCP' || temp == 'IOC' || temp == 'IOE' || temp == 'ILE' || temp == 'IDS'){
+                        elective.course.push(cosInfo);
+                        elective.credit += parseFloat(offset[i].credit);
+                    }
+                    else{
+                        otherElect.course.push(cosInfo);
+                        otherElect.credit += parseFloat(offset[i].credit);
+                    }
+                }
                 else{    
                     if(offset[i].cos_cname.includes('導師時間')) {
                         //taken[cosInfo.code] == true;
