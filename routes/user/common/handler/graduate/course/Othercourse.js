@@ -123,8 +123,8 @@ Othercourse.processOther = function(req, res, next){
         var dimension_complete = 0;
         var dimension_count = 0;
         var studentId = res.locals.studentId;
-        var temp = parseInt(studentId.substring(0,2));
-        var school_year = (100 + temp);
+        var studentGrade = parseInt(studentId.substring(0,2));
+        var school_year = (100 + studentGrade);
         var englishFree = [];
         var offsetTeacherTime = [];
         var repeatCounter = [];
@@ -248,7 +248,8 @@ Othercourse.processOther = function(req, res, next){
              else if(offset[i].offset_type == '免修')
                  cosInfo.reason = 'free2';
             if(offset[i].cos_type == '必修'){
-               // console.log(offset[i].cos_cname );
+                //console.log(offset[i].cos_cname );
+                //console.log(offset[i].cos_code );
                 if(offset[i].cos_cname.substring(0,2) == '物理'){
                     cosInfo.realCredit = parseFloat(offset[i].credit) - 1;
                     var cosAdd = JSON.stringify(cosInfo);
@@ -258,7 +259,7 @@ Othercourse.processOther = function(req, res, next){
                     elective.credit++;
                     elective.course.push(cosAdd);
                 }
-                if(codeBrief == 'ART'){
+                else if(codeBrief == 'ART'){
                     if(taken[cosInfo.code] == true){
                         if(repeatCounter[cosInfo.code] == null)
                             repeatCounter[cosInfo.code] = 1;
@@ -439,7 +440,7 @@ Othercourse.processOther = function(req, res, next){
         /*compulsory.tmp.push(program);
         compulsory.tmp.push(req.course);*/
         for(var x = 0; x<total.length; x++){
-            if(temp > 3){ 
+            if(studentGrade > 3){ 
                 //console.log('yoyoyo' +professional_field);
                 //if(total[x].type == '必修' || (program == '網多' && professional_field == 0 && total[x].type == '網路') || (program == '網多' && professional_field == 1 && total[x].type == '多媒體')){
                 if(total[x].type == '必修' || (professional_field == 0 && total[x].type == '網路') || (professional_field == 1 && total[x].type == '多媒體')){
