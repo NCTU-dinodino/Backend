@@ -204,9 +204,20 @@ Othercourse.processOther = function(req, res, next){
                     else if(offset[i].brief_new.substring(0,2) == '校基') general_new.credit.basic += parseFloat(pass[q].cos_credit);
 
                 }
-                //else if(offset[i].cos_type =='體育'){
-
-                //}
+                else if(offset[i].cos_type =='體育'){
+                    if(taken[cosInfo.code] == true){
+                        if(repeatCounter[cosInfo.code] == null)
+                            repeatCounter[cosInfo.code] = 1;
+                        else
+                            repeatCounter[cosInfo.code]++;
+                        var temp = cosInfo.code + '_' + repeatCounter[cosInfo.code];
+                        cosInfo.code = temp;
+                    }
+                    else
+                        taken[cosInfo.code] = true;
+                    peClass.course.push(cosInfo);
+                    peClass.credit += parseFloat(offset[i].credit);
+                }
             }
             if(offsetTakenCheck[offset[i].cos_code] != true){
             var cosInfo = {
@@ -385,7 +396,7 @@ Othercourse.processOther = function(req, res, next){
                      service.credit += parseFloat(offset[i].credit);
              }
              else if(offset[i].cos_type == '體育'){
-                 if(taken[cosInfo.code] == true){
+                 /*if(taken[cosInfo.code] == true){
                      if(repeatCounter[cosInfo.code] == null)
                          repeatCounter[cosInfo.code] = 1;
                      else
@@ -395,6 +406,8 @@ Othercourse.processOther = function(req, res, next){
                  }
                  else
                      taken[cosInfo.code] = true;
+                 */
+                 taken[cosInfo.code] = true;
                  peClass.course.push(cosInfo);
                  peClass.credit += parseFloat(offset[i].credit);
              }
