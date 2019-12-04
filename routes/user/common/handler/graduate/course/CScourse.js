@@ -193,15 +193,26 @@ CScourse.processCS = function(req, res, next) {
 			var more = [];
 			cosNumber = compulse[q].cos_codes;
 			if (notCS[compulse[q].cos_cname] === true) {
+                for(let i = 0; i < cosNumber.length; i++){
+                    if(taken[cosNumber[i]] == true){
+                        haveCS = 1;
+                        break;
+                    }
+                }
 				//free[compulse[q].cos_cname].reason = 'notCS';
-				free[compulse[q].cos_cname].complete = true;
-				var cosInfo = JSON.stringify(free[compulse[q].cos_cname]);
-				cosInfo = JSON.parse(cosInfo);
-				cosInfo.reason = 'notCS';
-				cosInfo.realCredit = 0;
-				courseResult[0].course.push(cosInfo);
-			} else if (offsetNameCheck[compulse[q].cos_cname] == true || offsetNameCheck[compulse[q].cos_cname + "(英文授課)"] == true);
-			else {
+				if(haveCS == 0){
+                    free[compulse[q].cos_cname].complete = true;
+				    var cosInfo = JSON.stringify(free[compulse[q].cos_cname]);
+				    cosInfo = JSON.parse(cosInfo);
+				    cosInfo.reason = 'notCS';
+				    cosInfo.realCredit = 0;
+				    courseResult[0].course.push(cosInfo);
+                    continue;
+                }
+			} else if (offsetNameCheck[compulse[q].cos_cname] == true || offsetNameCheck[compulse[q].cos_cname + "(英文授課)"] == true){
+                continue;
+            }
+			//else {
 				for (var k = 0; k < cosNumber.length; k++) {
 					var cosInfo = {
 						cn: '',
@@ -417,7 +428,7 @@ CScourse.processCS = function(req, res, next) {
 							courseResult[0].course.push(more[index]);
 					}
 				}
-			}
+			//}
 			////console.log(teacherCount);
 			/*if(teacherCount < 1)
 			    if(compulse[q].cos_cname == '導師時間'){
