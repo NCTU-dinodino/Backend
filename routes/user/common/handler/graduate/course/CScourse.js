@@ -192,6 +192,7 @@ CScourse.processCS = function(req, res, next) {
 			trueCounter = 0;
 			var more = [];
 			cosNumber = compulse[q].cos_codes;
+            var haveCS = 0;
 			if (notCS[compulse[q].cos_cname] === true) {
                 for(let i = 0; i < cosNumber.length; i++){
                     if(taken[cosNumber[i]] == true){
