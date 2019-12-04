@@ -77,6 +77,7 @@ router.post('/students/graduate/moveCourse', csrfProtection, graduateMoveCourse,
     //res.send(req.signal);
 });
 
-router.post('/students/graduate/legalMoveTarget', csrfProtection, StudentId, checkCard);
+//router.post('/students/graduate/legalMoveTarget', csrfProtection, StudentId, checkCard);
+router.post('/students/graduate/legalMoveTarget', csrfProtection, StudentId, StudentProfile, queryFree, queryGeneral, queryPass,queryChange, queryCourse, queryNow,queryRule,processOther, processCS, currentOther, currentCS, processRestore, processResult, getGraduateCheck, checkCard);
 
 module.exports = router;
