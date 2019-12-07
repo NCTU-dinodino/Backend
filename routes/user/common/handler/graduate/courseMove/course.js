@@ -222,6 +222,8 @@ var AdditionProgram = {
 		let destination = null;
 		if(type == '必修' && CS_cos_codes_prefix.some((prefix)=>(code.startsWith(prefix))))
 			destination = [];
+		else if(['物理', '化學', '生物'].some((target_name)=>(name.includes(target_name))))
+			destination = [];
 		else 
 			destination = ['雙主修、輔系、學分學程'];
 
