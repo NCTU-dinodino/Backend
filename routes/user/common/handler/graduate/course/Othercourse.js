@@ -694,7 +694,7 @@ Othercourse.processOther = function(req, res, next){
                                 }
                             }
                     }
-                    else if(temp == 'MIN' && (studentId.substring(0,2) == "05")){
+                    else if(temp == 'MIN' && pass[q].cos_type == '選修' && (studentId.substring(0,2) == "05")){
                             var brief = "自然";
                             var brief_new = "校基本素養";
                             dimension_count = 0;

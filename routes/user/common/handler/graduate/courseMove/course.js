@@ -42,7 +42,7 @@ var Course = {
 					destination = [];
 			});
 
-            //PYY : 體育, GEC & CGE : 共教會 ＆ 通識中心, MIN : 護理
+            //PYY : 體育, GEC & CGE : 共教會 ＆ 通識中心, MIN : 護理/軍訓
 			if(type == '軍訓' || code.startsWith('PYY') || name == '藝文賞析教育' || code.startsWith('GEC') || code.startsWith('CGE') || code.startsWith('MIN') || name == '服務學習(一)' || name == '服務學習(二)')	//Only for restriction of 09
 				destination = [];
             if(code.startsWith('MIN') && (student_id.substring(0,2) != '05'))
@@ -144,7 +144,7 @@ var General = {
 		    			return;
 				}
 
-		    		if(course.brief)
+		    		if(course.brief){
 		    			switch(course.brief_new[0]){
 		    				case '校':case '核':case'跨':
 		    					destination = [];
@@ -156,10 +156,11 @@ var General = {
 		    					//destination = '通識(舊制)-' + course.brief + '|通識(新制)-' + course.brief_new;
 							break;
 		    			}
-				//Temporary revision for MIN1009, need to be further determined.
-				if(code.startsWith('MIN')){
-					destination = ['通識(舊制)-自然', '通識(新制)-校基本素養'];
-				}
+                    }
+				    //Temporary revision for MIN1009, need to be further determined.
+				    else if(code.startsWith('MIN') && type == '選修'){
+					    destination = ['通識(舊制)-自然', '通識(新制)-校基本素養'];
+				    }
 		    		if(destination == null)
 		    			destination = [];
 

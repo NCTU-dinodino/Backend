@@ -100,7 +100,7 @@ currentOther.processOther = function(req, res, next){
                             else
                                 courseResult[3].course.push(cosInfo);
   				 		}
-                        else if(now[q].cos_type == '通識'){
+                        else if(now[q].cos_type == '通識' || (now[q].cos_type == '選修' && temp == 'MIN')){
   						    var brief = now[q].brief.substring(0,2);
                             //console.log("general course:");
                             //console.log(now[q]);
