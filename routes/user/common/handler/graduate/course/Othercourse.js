@@ -282,7 +282,11 @@ Othercourse.processOther = function(req, res, next){
                 }
                 else if(!compulseCodeCheck[offset[i].cos_code]){
                     var temp = offset[i].cos_code.substring(0,3);
-                    if(temp == 'DCP' || temp == 'IOC' || temp == 'IOE' || temp == 'ILE' || temp == 'IDS'){
+                    if(offset[i].cos_cname.includes('導師時間')) {
+                        offsetTeacherTime.push(cosInfo);
+                        compulsory.course.push(cosInfo);
+                    }
+                    else if(temp == 'DCP' || temp == 'IOC' || temp == 'IOE' || temp == 'ILE' || temp == 'IDS'){
                         elective.course.push(cosInfo);
                         elective.credit += parseFloat(offset[i].credit);
                     }
