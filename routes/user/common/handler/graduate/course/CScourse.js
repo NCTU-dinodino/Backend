@@ -314,7 +314,7 @@ CScourse.processCS = function(req, res, next) {
 							//console.log("temp:");
 							//console.log(temp);
 							if (more[0].cn == '微處理機系統實驗') {
-								if (temp > 3) {
+								if (temp > 3 && temp < 6) {
 									var cosAdd = JSON.stringify(more[0]);
 									cosAdd = JSON.parse(cosAdd);
 									cosAdd.realCredit = 1;
@@ -334,7 +334,7 @@ CScourse.processCS = function(req, res, next) {
 									courseResult[0].course.push(more[0]);
 								}
 							} else if (more[0].cn == '數位電路實驗') {
-								if (temp > 3 && credit > 2) {
+								if (temp > 3 && temp < 6 && credit > 2) {
 									var cosAdd = JSON.stringify(more[0]);
 									cosAdd = JSON.parse(cosAdd);
 									cosAdd.realCredit = 1;
@@ -382,7 +382,7 @@ CScourse.processCS = function(req, res, next) {
 								}
 							}
 							if (more[index].cn == '微處理機系統實驗') {
-								if (temp > 3) {
+								if (temp > 3 && temp < 6) {
 									var cosAdd = JSON.stringify(more[index]);
 									cosAdd = JSON.parse(cosAdd);
 									cosAdd.realCredit = 1;
@@ -402,7 +402,7 @@ CScourse.processCS = function(req, res, next) {
 									courseResult[0].course.push(more[index]);
 								}
 							} else if (more[index].cn == '數位電路實驗') {
-								if (temp > 3 && credit > 2) {
+								if (temp > 3 && temp < 6 && credit > 2) {
 									var cosAdd = JSON.stringify(more[index]);
 									cosAdd = JSON.parse(cosAdd);
 									cosAdd.realCredit = 1;
