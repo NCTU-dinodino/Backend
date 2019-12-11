@@ -139,7 +139,7 @@ var General = {
             		}
 		    //console.log(course);
             		setTimeout(function(){
-		    		if(course.cos_type == '必修'){
+		    		if(course.cos_type == '必修' && CS_cos_codes_prefix.some((prefix)=>(code.startsWith(prefix)))){
 		    			callback([]);
 		    			return;
 				}
