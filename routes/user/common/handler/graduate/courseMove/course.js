@@ -38,7 +38,9 @@ var Course = {
 			course_groups.forEach((course_group) => {
 				if(course_group.cos_codes.some((cos_code) => (cos_code + '_one' == code)))
 					destination = ['其他選修'];
-				else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修' && (!course_group.cos_cname.startsWith('物化生') && code == '必修'))
+				else if(course_group.cos_cname.startsWith('物化生') && type != '必修')
+					destination = ['其他選修'];
+				else if(course_group.cos_codes.some((cos_code) => (code.startsWith(cos_code))) && course_group.type == '必修')
 					destination = [];
 			});
 
