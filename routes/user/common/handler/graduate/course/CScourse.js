@@ -597,7 +597,41 @@ CScourse.processCS = function(req, res, next) {
 				courseResult[2].credit += BioCos[i].originalCredit;
             }
         }
-
+        
+        // deal with duplicate course
+        var dupCosMap = new Map();
+        for(let i = 0; i <= 4; i++){
+            for(let j = 0; j < courseResult[i].course.length; j++){
+                let cos = courseResult[i].course[j];
+                let cosCode = cos.code;
+                if(!dupCosMap.has(cosCode))
+                    dupCosMap.set(cosCode, 1);
+                else{
+                    courseResult[i].credit -= cos.realCredit;
+                    cos.realCredit = 0;
+                    //cos.reason = 'duplicate';
+                }
+            }
+        }
+        // for new general
+        for(let j = 0; j < courseResult[5].course.length; j++){
+            let cos = courseResult[5].course[j];
+            let cosCode = cos.code;
+            let cosDimension = cos.dimension;
+            if(!dupCosMap.has(cosCode))
+                dupCosMap.set(cosCode, 1);
+            else{
+                courseResult[5].credit[0] -= cos.realCredit;
+                if(cosDimension.startsWith('核心'))
+                    courseResult[5].credit[1] -= cos.realCredit;
+                else if(cosDimension.startsWith('校基本'))
+                    courseResult[5].credit[2] -= cos.realCredit;
+                else if(cosDimension.startsWith('跨院'))
+                    courseResult[5].credit[3] -= cos.realCredit;
+                cos.realCredit = 0;
+                //cos.reason = 'duplicate';
+            }
+        }
 	} else {
 		res.redirect('/');
 	}

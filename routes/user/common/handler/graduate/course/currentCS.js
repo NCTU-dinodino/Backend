@@ -192,9 +192,21 @@ currentCS.processCS = function(req, res, next){
                                 }
                         }
                 }*/
-
-
-	}
+        // deal with duplicate course
+        var dupCosMap = new Map();
+        for(let i = 0; i <= 5; i++){
+            for(let j = 0; j < courseResult[i].course.length; j++){
+                let cos = courseResult[i].course[j];
+                let cosCode = cos.code;
+                if(!dupCosMap.has(cosCode))
+                    dupCosMap.set(cosCode, 1);
+                else{
+                    //cos.reason = 'duplicate';
+                }
+            }
+        }
+	
+    }
   	else {
       		res.redirect('/');
   	}
