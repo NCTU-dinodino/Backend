@@ -1349,11 +1349,11 @@ table.graduateStudentListUpdate = function(req, res, next) {
             for (var i = 0; i < lang.course.length; i++) {
                 if (lang.course[i].complete) {
                     if (lang.course[i].cn.substring(0, 2) === '大一') {
-                        basic_credit += lang.course[i].originalCredit;
+                        basic_credit += lang.course[i].realCredit;
                     } else if (lang.course[i].cn.substring(0, 4) === '進階英文') {
-                        advanced_credit += lang.course[i].originalCredit;
+                        advanced_credit += lang.course[i].realCredit;
                     } else {
-                        second_credit += lang.course[i].originalCredit;
+                        second_credit += lang.course[i].realCredit;
                     }
                 } else {
                     if (lang.course[i].reason === 'now') {
@@ -1369,10 +1369,10 @@ table.graduateStudentListUpdate = function(req, res, next) {
             }
             if (list.en_status === 0) {
                 list.en_basic  = 4 - basic_credit;
-                list.en_advanced = 4 - advanced_credit;
+                list.en_advanced = 4 - advanced_credit - second_credit;
                 list.en_total = 8 - basic_credit - second_credit - advanced_credit;
                 will_list.en_basic = list.en_basic - will_basic;
-                will_list.en_advanced = list.en_advanced - will_advanced;
+                will_list.en_advanced = list.en_advanced - will_advanced - will_second;
                 will_list.en_total = list.en_total - will_basic - will_second - will_advanced;
             } else if (list.en_status === 2 || list.en_status === 3 || list.en_status === 4) {
                 list.en_basic = 4 - basic_credit;
@@ -1553,7 +1553,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass && no_compulse_current);
             
             var will_pass = (will_total_pass && will_compulse_pass && will_pro_pass && will_other_pass && will_general_pass && will_en_pass && will_pe_pass && will_service_pass && will_art_pass && will_mentor_pass && will_eng_pass);
-            
+
             if (pass) {
                 list.graduate_status = 2;
             } else if (will_pass) {
