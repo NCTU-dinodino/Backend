@@ -198,6 +198,8 @@ currentCS.processCS = function(req, res, next){
             for(let j = 0; j < courseResult[i].course.length; j++){
                 let cos = courseResult[i].course[j];
                 let cosCode = cos.code;
+                if(!cosCode)
+                    continue;
                 if(!dupCosMap.has(cosCode))
                     dupCosMap.set(cosCode, 1);
                 else{
