@@ -1282,7 +1282,6 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var old_pass = (list.old_culture <= 0 && list.old_citizen <= 0 && list.old_group <= 0 && list.old_science <= 0 && list.old_history <= 0 && list.old_contemp <= 0 && list.old_total <= 0);
             var will_old_pass = (list.old_culture - will_list.old_culture <= 0 && list.old_citizen - will_list.old_citizen <= 0 && list.old_group - will_list.old_group <= 0 && list.old_science - will_list.old_science <= 0 && list.old_history - will_list.old_history <= 0 && list.old_contemp - will_list.old_contemp <= 0 && list.old_total - will_list.old_total <= 0);
 
-            
             //general_new
             list.new_total = credit.general_new_require - credit.general_new;
             list.new_core_total = general_new.require.core;
@@ -1336,7 +1335,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 general_pass = new_pass;
 				will_general_pass = will_new_pass;
             }
-            
+ 
             //lang
             if (info.en_certificate === null) { info.en_certificate = '0'; }
             list.en_status = parseInt(info.en_certificate);
@@ -1371,10 +1370,10 @@ table.graduateStudentListUpdate = function(req, res, next) {
             if (list.en_status === 0) {
                 list.en_basic  = 4 - basic_credit;
                 list.en_advanced = 4 - advanced_credit;
-                list.en_total = 8 - basic_credit - second_credit;
+                list.en_total = 8 - basic_credit - second_credit - advanced_credit;
                 will_list.en_basic = list.en_basic - will_basic;
                 will_list.en_advanced = list.en_advanced - will_advanced;
-                will_list.en_total = list.en_total - will_basic - will_second;
+                will_list.en_total = list.en_total - will_basic - will_second - will_advanced;
             } else if (list.en_status === 2 || list.en_status === 3 || list.en_status === 4) {
                 list.en_basic = 4 - basic_credit;
                 list.en_advanced = 4 - advanced_credit - second_credit;
@@ -1554,7 +1553,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass && no_compulse_current);
             
             var will_pass = (will_total_pass && will_compulse_pass && will_pro_pass && will_other_pass && will_general_pass && will_en_pass && will_pe_pass && will_service_pass && will_art_pass && will_mentor_pass && will_eng_pass);
-
+            
             if (pass) {
                 list.graduate_status = 2;
             } else if (will_pass) {

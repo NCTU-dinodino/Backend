@@ -614,12 +614,13 @@ CScourse.processCS = function(req, res, next) {
             }
         }
         // for new general
+        var dupGeneralNewCosMap = new Map();
         for(let j = 0; j < courseResult[5].course.length; j++){
             let cos = courseResult[5].course[j];
             let cosCode = cos.code;
             let cosDimension = cos.dimension;
-            if(!dupCosMap.has(cosCode))
-                dupCosMap.set(cosCode, 1);
+            if(!dupGeneralNewCosMap.has(cosCode))
+                dupGeneralNewCosMap.set(cosCode, 1);
             else{
                 courseResult[5].credit[0] -= cos.realCredit;
                 if(cosDimension.startsWith('核心'))
@@ -629,7 +630,7 @@ CScourse.processCS = function(req, res, next) {
                 else if(cosDimension.startsWith('跨院'))
                     courseResult[5].credit[3] -= cos.realCredit;
                 cos.realCredit = 0;
-                //cos.reason = 'duplicate';
+                cos.reason = 'duplicate';
             }
         }
 	} else {
