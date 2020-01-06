@@ -41,7 +41,6 @@ var currentCS = nowCS.currentCS.processCS;
 
 
 router.post('/students/graduate/detail',csrfProtection, StudentId, StudentProfile, queryFree, queryGeneral, queryPass,queryChange, queryCourse, queryNow,queryRule,processOther, processCS, currentOther, currentCS, processRestore, processResult, function(req, res){
-    res.locals.courseResult[5].course = [];
     res.send(res.locals.courseResult);
 
 });
