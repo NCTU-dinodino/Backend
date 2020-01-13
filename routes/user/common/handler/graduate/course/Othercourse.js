@@ -495,7 +495,7 @@ Othercourse.processOther = function(req, res, next){
                 cosInfo.complete = false;
             if(rule[pass[q].cos_code] != true){
                 if(cosInfo.complete === true){
-                    if((temp == 'DCP' || temp == 'IOC' || temp == 'IOE' || temp == 'ILE') && pass[q].cos_type != '通識'){
+                    if((temp == 'DCP' || temp == 'IOC' || temp == 'IOE' || temp == 'ILE' || pass[q].cos_cname.includes('服務學習(二)')) && pass[q].cos_type != '通識'){
                         if(pass[q].cos_cname == '服務學習(一)' || pass[q].cos_cname.includes('服務學習(二)')){
                             if(offsetNameCheck[pass[q].cos_cname] == true);
                             else{
