@@ -68,7 +68,7 @@ currentOther.processOther = function(req, res, next){
   					if(temp == 'DCP' || temp == 'IOC' || temp == 'IOE' || temp == 'ILE'|| temp == 'IDS'){
                         //////console.log("CS course");
                         //////console.log(now[q]);
-                        if(now[q].cos_cname == '服務學習(一)' || now[q].cos_cname == '服務學習(二)'){
+                        if(now[q].cos_cname == '服務學習(一)' || now[q].cos_cname == '服務學習(二)' || now[q].cos_cname.includes('服務學習')){
                             courseResult[7].course.push(cosInfo);
                         }
                         else{
@@ -122,7 +122,7 @@ currentOther.processOther = function(req, res, next){
                                 courseResult[9].course.push(cosInfo);
                             }
                             else{
-                                if(now[q].cos_typeext == '服務學習'){
+                                if(now[q].cos_typeext == '服務學習' || now[q].cos_cname.includes('服務學習')){
   								    courseResult[7].course.push(cosInfo);
                                 }
   								else if(now[q].cos_cname == '導師時間'){
