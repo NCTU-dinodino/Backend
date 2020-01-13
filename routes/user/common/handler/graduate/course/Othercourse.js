@@ -273,7 +273,7 @@ Othercourse.processOther = function(req, res, next){
                     art.course.push(cosInfo);
                     art.credit += parseFloat(offset[i].credit);
                 }
-                else if(offset[i].cos_cname == '服務學習(一)' || offset[i].cos_cname.includes('服務學習(二)')){
+                else if(offset[i].cos_cname == '服務學習(一)' || offset[i].cos_cname.includes('服務學習(二)') || offset[i].cos_cname.includes('服務學習二')){
                     //console.log("find service offset");
                     //console.log(cosInfo);
                     cosInfo.type = offset[i].cos_typeext;
@@ -495,8 +495,8 @@ Othercourse.processOther = function(req, res, next){
                 cosInfo.complete = false;
             if(rule[pass[q].cos_code] != true){
                 if(cosInfo.complete === true){
-                    if((temp == 'DCP' || temp == 'IOC' || temp == 'IOE' || temp == 'ILE' || pass[q].cos_cname.includes('服務學習(二)')) && pass[q].cos_type != '通識'){
-                        if(pass[q].cos_cname == '服務學習(一)' || pass[q].cos_cname.includes('服務學習(二)')){
+                    if((temp == 'DCP' || temp == 'IOC' || temp == 'IOE' || temp == 'ILE' || pass[q].cos_cname.includes('服務學習二')) && pass[q].cos_type != '通識'){
+                        if(pass[q].cos_cname == '服務學習(一)' || pass[q].cos_cname.includes('服務學習(二)') || pass[q].cos_cname.includes('服務學習二')){
                             if(offsetNameCheck[pass[q].cos_cname] == true);
                             else{
                             cosInfo.type = pass[q].cos_typeext;
