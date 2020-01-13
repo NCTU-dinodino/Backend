@@ -121,6 +121,7 @@ var Language = {
 var General = {
 	isValid(code, name, type, student_id, callback){
 		let destination = null;
+		if(type != '通識')callback([]);
 		query.ShowUserAllScore(student_id, (err, result) => {
 			if(err){
 				callback([]);
@@ -152,16 +153,16 @@ var General = {
 		    					destination = [];
 		    					destination.push('通識(舊制)-' + course.brief.split('/')[0]);
 		    					//console.log(course.brief_new.split(','));
-		    					course.brief_new.split(',').forEach((dim) => {
+		    					/*course.brief_new.split(',').forEach((dim) => {
 		    						destination.push('通識(新制)-' + dim.substring(0, dim.length - 5));
-		    					});
+		    					});*/
 		    					//destination = '通識(舊制)-' + course.brief + '|通識(新制)-' + course.brief_new;
 							break;
 		    			}
                     }
 				    //Temporary revision for MIN1009, need to be further determined.
 				    else if(code.startsWith('MIN') && type == '選修'){
-					    destination = ['通識(舊制)-自然', '通識(新制)-校基本素養'];
+					    destination = ['通識(舊制)-自然'/*, '通識(新制)-校基本素養'*/];
 				    }
 		    		if(destination == null)
 		    			destination = [];
