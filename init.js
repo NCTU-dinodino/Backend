@@ -20,8 +20,8 @@ module.exports.init = function(){
     secure: true,
     //duration: 1 * 60 * 1000,
     //activeDuration : 5 * 60 * 1000,
-    duration: 10 * 60 * 1000,
-    activeDuration : 10 * 60 * 1000,
+    duration: 0,
+    activeDuration : 20 * 60 * 1000,
  }));
 /*  app.use(function(req, res, next){
       req.session.profile = '{"email":"sophia850413.cs03@nctu.edu.tw","username":"0316201","personStatus":"s"}';
@@ -100,6 +100,10 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
 
  
   /*done*/
+	app.use((req, res, next) => {req.csca = {}; next();});
+	app.use(require('./routes/Backend_revise/public/src/router/student.js'));
+	app.use(require('./routes/Backend_revise/public/src/router/assistant.js'));
+
   app.use(require('./routes/logout'));
   app.use(require('./routes/auth/nctu/nctu'));
   app.use(require('./routes/user/students/profile'));
