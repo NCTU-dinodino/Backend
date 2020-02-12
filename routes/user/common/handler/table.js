@@ -144,6 +144,7 @@ table.bulletinShow = function(req, res, next){
                     }
                     bulletin.push(data)
                 }
+                bulletin.sort((a, b) => (Date.parse(a.timestamp) < Date.parse(b.timestamp)) ? 1 : -1);
                 req.bulletin = bulletin
                 next();
             }

@@ -1262,6 +1262,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 } else {
                     if (general_old.course[i].reason === 'now') {
                         will_list.total += general_old.course[i].originalCredit;
+                        will_list.old_total += general_old.course[i].originalCredit;
                         will_old[mapping[general_old.course[i].dimension]] += general_old.course[i].originalCredit;
                     }
                 }
@@ -1281,7 +1282,6 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var old_pass = (list.old_culture <= 0 && list.old_citizen <= 0 && list.old_group <= 0 && list.old_science <= 0 && list.old_history <= 0 && list.old_contemp <= 0 && list.old_total <= 0);
             var will_old_pass = (list.old_culture - will_list.old_culture <= 0 && list.old_citizen - will_list.old_citizen <= 0 && list.old_group - will_list.old_group <= 0 && list.old_science - will_list.old_science <= 0 && list.old_history - will_list.old_history <= 0 && list.old_contemp - will_list.old_contemp <= 0 && list.old_total - will_list.old_total <= 0);
 
-            
             //general_new
             list.new_total = credit.general_new_require - credit.general_new;
             list.new_core_total = general_new.require.core;
@@ -1335,7 +1335,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 general_pass = new_pass;
 				will_general_pass = will_new_pass;
             }
-            
+ 
             //lang
             if (info.en_certificate === null) { info.en_certificate = '0'; }
             list.en_status = parseInt(info.en_certificate);
@@ -1349,11 +1349,11 @@ table.graduateStudentListUpdate = function(req, res, next) {
             for (var i = 0; i < lang.course.length; i++) {
                 if (lang.course[i].complete) {
                     if (lang.course[i].cn.substring(0, 2) === '大一') {
-                        basic_credit += lang.course[i].originalCredit;
+                        basic_credit += lang.course[i].realCredit;
                     } else if (lang.course[i].cn.substring(0, 4) === '進階英文') {
-                        advanced_credit += lang.course[i].originalCredit;
+                        advanced_credit += lang.course[i].realCredit;
                     } else {
-                        second_credit += lang.course[i].originalCredit;
+                        second_credit += lang.course[i].realCredit;
                     }
                 } else {
                     if (lang.course[i].reason === 'now') {
@@ -1369,23 +1369,28 @@ table.graduateStudentListUpdate = function(req, res, next) {
             }
             if (list.en_status === 0) {
                 list.en_basic  = 4 - basic_credit;
-                list.en_advanced = 4 - advanced_credit;
-                list.en_total = 8 - basic_credit - second_credit;
+                list.en_advanced = 4 - advanced_credit - second_credit;
+                list.en_total = 8 - basic_credit - second_credit - advanced_credit;
                 will_list.en_basic = list.en_basic - will_basic;
-                will_list.en_advanced = list.en_advanced - will_advanced;
-                will_list.en_total = list.en_total - will_basic - will_second;
+                will_list.en_advanced = list.en_advanced - will_advanced - will_second;
+                will_list.en_total = list.en_total - will_basic - will_second - will_advanced;
             } else if (list.en_status === 2 || list.en_status === 3 || list.en_status === 4) {
                 list.en_basic = 4 - basic_credit;
                 list.en_advanced = 4 - advanced_credit - second_credit;
+                if(list.en_advanced < 0)
+                    list.en_basic += list.en_advanced;
                 list.en_total = 8 - basic_credit - advanced_credit - second_credit;
                 will_list.en_basic = list.en_basic - will_basic;
                 will_list.en_advanced = list.en_advanced - will_advanced;
+                if(will_list.en_advanced < 0)
+                    will_list.en_basic += will_list.en_advanced;
                 will_list.en_total = list.en_total - will_basic - will_advanced - will_second;
             } else if (list.en_status === 1) {
                 list.en_basic = 0;
                 list.en_advanced = 0;
                 list.en_total = 0;
             }
+            
             var en_pass = (list.en_total <= 0 && list.en_basic <= 0 && list.en_advanced <= 0);
             var will_en_pass = (will_list.en_total <= 0 && will_list.en_basic <= 0 && will_list.en_advanced <= 0);
             
@@ -1538,30 +1543,15 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var will_net_media_pass = (list.net - will_list.net <= 0 || list.media - will_list.media <= 0);
 
             var eng_pass = list.en_course === 1;
-            var will_eng_pass = will_list.en_course === 1;
+            var will_eng_pass = (list.en_course == 1) || (will_list.en_course == 1);
 
             var compulse_pass = (credit.compulsory_require - credit.compulsory) <= 0;
             var will_compulse_pass = (credit.compulsory_require - credit.compulsory - will_list.compulse) <= 0;
         
-            var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass);
-            /*
-            list.total_pass = total_pass;
-            list.compulse_pass = compulse_pass;
-            list.pro_pass = pro_pass;
-            list.other_pass = other_pass;
-            list.general_pass = general_pass;
-            list.old_pass = old_pass;
-            list.new_pass = new_pass;
-            list.en_pass = en_pass;
-            list.pe_pass = pe_pass;
-            list.service_pass = service_pass;
-            list.art_pass = art_pass;
-            list.mentor_pass = mentor_pass;
-            list.eng_pass = eng_pass;
-            list.compulse_require = credit.compulsory_require;
-            list.compulse_credit = credit.compulsory;
-            */
+            var no_compulse_current = list.current.length <= 0;
 
+            var pass = (total_pass && compulse_pass && pro_pass && other_pass && general_pass && en_pass && pe_pass && service_pass && art_pass && mentor_pass && eng_pass && no_compulse_current);
+            
             var will_pass = (will_total_pass && will_compulse_pass && will_pro_pass && will_other_pass && will_general_pass && will_en_pass && will_pe_pass && will_service_pass && will_art_pass && will_mentor_pass && will_eng_pass);
 
             if (pass) {
@@ -1571,7 +1561,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
             } else {
                 list.graduate_status = 0;
             }
-            
+
             list.pro = Math.max(0, list.pro);
             list.other = Math.max(0, list.other);
             list.old_total = Math.max(0, list.old_total);
@@ -1615,7 +1605,6 @@ table.graduateStudentListUpdate = function(req, res, next) {
         }
     }); 
 }
-
 // --------------------------------------------------------------------graduate table
 
 // advisee table---------------------------------------------------------------------

@@ -125,15 +125,17 @@ table.queryCourse = function(req, res, next){
             studentId: studentId
         };
         let s_info = {id: studentId, graduate_submit:4,submit_type:2, net_media:professional_field};
-        query.SetGraduateSubmitStatus(s_info, function(err, result){
-            if(!result){
-                res.redirect('/');
-            }
-            if(err){
-                throw err;
-                res.redirect('/');
-            }
-        });
+        if(professional_field != undefined){
+            query.SetGraduateSubmitStatus(s_info, function(err, result){
+                if(!result){
+                    res.redirect('/');
+                }
+                if(err){
+                    throw err;
+                    res.redirect('/');
+                }
+            });
+        }
         setTimeout(function(){
                 query.ShowCosGroup(studentId, function(err, result){
                     if(err){
@@ -156,8 +158,8 @@ table.queryCourse = function(req, res, next){
                             result = JSON.parse(result);
 
                             info.program = result[0].program;
-                            //info.professional_field = parseInt(result[0].net_media);
-                            info.professional_field = parseInt(professional_field);
+                            info.professional_field = parseInt(result[0].net_media);
+                            //info.professional_field = parseInt(professional_field);
                             processCourse(info, function(course){       
                                 req.course = course;
                                 if(req.course)
@@ -176,7 +178,6 @@ table.queryCourse = function(req, res, next){
       		res.redirect('/');
     }
 }
-
 
 function processCourse(info, callback){
          

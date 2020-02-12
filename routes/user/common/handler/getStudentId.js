@@ -25,6 +25,7 @@ getStudentId.studentId = function(req, res, next){
         }
 
         //res.locals.studentId = '';
+	req.csca.student_id = res.locals.studentId;
 
         next();
     }

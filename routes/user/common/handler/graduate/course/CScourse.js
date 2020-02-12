@@ -192,16 +192,28 @@ CScourse.processCS = function(req, res, next) {
 			trueCounter = 0;
 			var more = [];
 			cosNumber = compulse[q].cos_codes;
+            var haveCS = 0;
 			if (notCS[compulse[q].cos_cname] === true) {
+                for(let i = 0; i < cosNumber.length; i++){
+                    if(taken[cosNumber[i]] == true){
+                        haveCS = 1;
+                        break;
+                    }
+                }
 				//free[compulse[q].cos_cname].reason = 'notCS';
-				free[compulse[q].cos_cname].complete = true;
-				var cosInfo = JSON.stringify(free[compulse[q].cos_cname]);
-				cosInfo = JSON.parse(cosInfo);
-				cosInfo.reason = 'notCS';
-				cosInfo.realCredit = 0;
-				courseResult[0].course.push(cosInfo);
-			} else if (offsetNameCheck[compulse[q].cos_cname] == true || offsetNameCheck[compulse[q].cos_cname + "(英文授課)"] == true);
-			else {
+				if(haveCS == 0){
+                    free[compulse[q].cos_cname].complete = true;
+				    var cosInfo = JSON.stringify(free[compulse[q].cos_cname]);
+				    cosInfo = JSON.parse(cosInfo);
+				    cosInfo.reason = 'notCS';
+				    cosInfo.realCredit = 0;
+				    courseResult[0].course.push(cosInfo);
+                    continue;
+                }
+			} else if (offsetNameCheck[compulse[q].cos_cname] == true || offsetNameCheck[compulse[q].cos_cname + "(英文授課)"] == true){
+                continue;
+            }
+			//else {
 				for (var k = 0; k < cosNumber.length; k++) {
 					var cosInfo = {
 						cn: '',
@@ -302,7 +314,7 @@ CScourse.processCS = function(req, res, next) {
 							//console.log("temp:");
 							//console.log(temp);
 							if (more[0].cn == '微處理機系統實驗') {
-								if (temp > 3) {
+								if (temp > 3 && temp < 6) {
 									var cosAdd = JSON.stringify(more[0]);
 									cosAdd = JSON.parse(cosAdd);
 									cosAdd.realCredit = 1;
@@ -322,7 +334,7 @@ CScourse.processCS = function(req, res, next) {
 									courseResult[0].course.push(more[0]);
 								}
 							} else if (more[0].cn == '數位電路實驗') {
-								if (temp > 3 && credit > 2) {
+								if (temp > 3 && temp < 6 && credit > 2) {
 									var cosAdd = JSON.stringify(more[0]);
 									cosAdd = JSON.parse(cosAdd);
 									cosAdd.realCredit = 1;
@@ -370,7 +382,7 @@ CScourse.processCS = function(req, res, next) {
 								}
 							}
 							if (more[index].cn == '微處理機系統實驗') {
-								if (temp > 3) {
+								if (temp > 3 && temp < 6) {
 									var cosAdd = JSON.stringify(more[index]);
 									cosAdd = JSON.parse(cosAdd);
 									cosAdd.realCredit = 1;
@@ -390,7 +402,7 @@ CScourse.processCS = function(req, res, next) {
 									courseResult[0].course.push(more[index]);
 								}
 							} else if (more[index].cn == '數位電路實驗') {
-								if (temp > 3 && credit > 2) {
+								if (temp > 3 && temp < 6 && credit > 2) {
 									var cosAdd = JSON.stringify(more[index]);
 									cosAdd = JSON.parse(cosAdd);
 									cosAdd.realCredit = 1;
@@ -417,7 +429,7 @@ CScourse.processCS = function(req, res, next) {
 							courseResult[0].course.push(more[index]);
 					}
 				}
-			}
+			//}
 			////console.log(teacherCount);
 			/*if(teacherCount < 1)
 			    if(compulse[q].cos_cname == '導師時間'){
@@ -534,7 +546,95 @@ CScourse.processCS = function(req, res, next) {
 				});
 			});
 		}
-
+        let Phy = 0, Che = 0, Bio = 0;
+        let PhyCos = [], CheCos = [], BioCos = [];
+        let PhyAt = [], CheAt = [], BioAt = [];
+        for(let i = 0; i < courseResult[0].course.length; i++){
+            let cos = courseResult[0].course[i];
+            let cosName = courseResult[0].course[i].cn;
+            if(cosName == "物理(一)" || cosName == "物理(二)"){
+                Phy++;
+                PhyCos.push(cos);
+                PhyAt.push(i);
+            }
+            else if(cosName == "化學(一)" || cosName == "化學(二)"){
+                Che++;
+                CheCos.push(cos);
+                CheAt.push(i);
+            }
+            else if(cosName == "生物(一)" || cosName == "生物(二)"){
+                Bio++;
+                BioCos.push(cos);
+                BioAt.push(i);
+            }
+        }
+        //console.log(PhyCos);
+        //console.log(CheCos);
+        //console.log(Che);
+        //console.log(CheAt);
+        if(Phy == 2){
+            for(let i = 0; i < Che; i++){
+                if(i != 0) CheAt[i]--;
+                courseResult[0].course.splice(CheAt[i], 1);
+                courseResult[2].course.push(CheCos[i]);
+				courseResult[0].credit -= CheCos[i].originalCredit;
+				courseResult[2].credit += CheCos[i].originalCredit;
+            }
+            for(let i = 0; i < Bio; i++){
+                if(i != 0) BioAt[i]--;
+                courseResult[0].course.splice(BioAt[i], 1);
+                courseResult[2].course.push(BioCos[i]);
+				courseResult[0].credit -= BioCos[i].originalCredit;
+				courseResult[2].credit += BioCos[i].originalCredit;
+            }
+        }
+        else if(Che == 2){
+            for(let i = 0; i < Bio; i++){
+                if(i != 0) BioAt[i]--;
+                courseResult[0].course.splice(BioAt[i], 1);
+                courseResult[2].course.push(BioCos[i]);
+				courseResult[0].credit -= BioCos[i].originalCredit;
+				courseResult[2].credit += BioCos[i].originalCredit;
+            }
+        }
+        
+        // deal with duplicate course
+        var dupCosMap = new Map();
+        for(let i = 0; i <= 4; i++){
+            for(let j = 0; j < courseResult[i].course.length; j++){
+                let cos = courseResult[i].course[j];
+                let cosCode = cos.code;
+                if(!cosCode)
+                    continue;
+                if(!dupCosMap.has(cosCode))
+                    dupCosMap.set(cosCode, 1);
+                else{
+                    courseResult[i].credit -= cos.realCredit;
+                    cos.realCredit = 0;
+                    //cos.reason = 'duplicate';
+                }
+            }
+        }
+        // for new general
+        var dupGeneralNewCosMap = new Map();
+        for(let j = 0; j < courseResult[5].course.length; j++){
+            let cos = courseResult[5].course[j];
+            let cosCode = cos.code;
+            let cosDimension = cos.dimension;
+            if(!dupGeneralNewCosMap.has(cosCode))
+                dupGeneralNewCosMap.set(cosCode, 1);
+            else{
+                courseResult[5].credit[0] -= cos.realCredit;
+                if(cosDimension.startsWith('核心'))
+                    courseResult[5].credit[1] -= cos.realCredit;
+                else if(cosDimension.startsWith('校基本'))
+                    courseResult[5].credit[2] -= cos.realCredit;
+                else if(cosDimension.startsWith('跨院'))
+                    courseResult[5].credit[3] -= cos.realCredit;
+                cos.realCredit = 0;
+                cos.reason = 'duplicate';
+            }
+        }
 	} else {
 		res.redirect('/');
 	}

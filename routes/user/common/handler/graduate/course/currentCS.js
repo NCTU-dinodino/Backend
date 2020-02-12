@@ -192,9 +192,34 @@ currentCS.processCS = function(req, res, next){
                                 }
                         }
                 }*/
-
-
-	}
+        // deal with duplicate course
+        var dupCosMap = new Map();
+        for(let i = 0; i <= 4; i++){
+            for(let j = 0; j < courseResult[i].course.length; j++){
+                let cos = courseResult[i].course[j];
+                let cosCode = cos.code;
+                if(!cosCode)
+                    continue;
+                if(!dupCosMap.has(cosCode))
+                    dupCosMap.set(cosCode, 1);
+                else{
+                    cos.reason = 'duplicate';
+                }
+            }
+        }
+        // deal with duplicate new general course
+        var dupGeneralNewCosMap = new Map();
+        for(let j = 0; j < courseResult[5].course.length; j++){
+            let cos = courseResult[5].course[j];
+            let cosCode = cos.code;
+            if(!dupGeneralNewCosMap.has(cosCode))
+                dupGeneralNewCosMap.set(cosCode, 1);
+            else{
+                cos.reason = 'duplicate';
+            }
+        }
+	
+    }
   	else {
       		res.redirect('/');
   	}

@@ -17,6 +17,8 @@ restore.processRestore = function(req, res, next){
         var tempNext = [];
         var restorePreGeneralNew = [];
         var restoreNextGeneralNew = [];
+        var general_old_dim = [];
+        var general_new_dim = [];
 
         for(var i = 0; i<12; i++){
             var course = {
@@ -100,6 +102,7 @@ restore.processRestore = function(req, res, next){
             else if(courses[i].now_pos.substring(0,6) == '通識(舊制)'){
                 restore[4].next[courses[i].cos_cname] = true;
                 restoreIndex[4].next.push(courses[i].cos_cname);
+                general_old_dim[courses[i].cos_cname] = courses[i].now_pos.substring(7,9);
             }
             else if(courses[i].now_pos.substring(0,6) == '通識(新制)'){
                 restore[5].next[courses[i].cos_cname] = true;
@@ -130,8 +133,6 @@ restore.processRestore = function(req, res, next){
        //console.log(restore);
        //console.log(restoreIndex);
        //console.log(courseResult[6]);
-       var general_old_dim = [];
-       var general_new_dim = [];
 
        for(var i = 0; i<courseResult.length; i++){
         if(i == 9) continue;

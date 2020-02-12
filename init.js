@@ -20,8 +20,8 @@ module.exports.init = function(){
     secure: true,
     //duration: 1 * 60 * 1000,
     //activeDuration : 5 * 60 * 1000,
-    duration: 10 * 60 * 1000,
-    activeDuration : 10 * 60 * 1000,
+    duration: 0,
+    activeDuration : 20 * 60 * 1000,
  }));
 /*  app.use(function(req, res, next){
       req.session.profile = '{"email":"sophia850413.cs03@nctu.edu.tw","username":"0316201","personStatus":"s"}';
@@ -75,6 +75,7 @@ module.exports.init = function(){
   app.use('/assistants/family', express.static('./public', {index: 'index.html'}));
   app.use('/assistants/family/:tid', express.static('./public', {index: 'index.html'}));
   app.use('/assistants/verify', express.static('./public', {index: 'index.html'}));
+  app.use('/assistants/course', express.static('./public', {index: 'index.html'}));
 
 app.use('/students/credit', express.static('./public', {index: 'index.html'}));
 
@@ -99,6 +100,10 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
 
  
   /*done*/
+	app.use((req, res, next) => {req.csca = {}; next();});
+	app.use(require('./routes/Backend_revise/public/src/router/student.js'));
+	app.use(require('./routes/Backend_revise/public/src/router/assistant.js'));
+
   app.use(require('./routes/logout'));
   app.use(require('./routes/auth/nctu/nctu'));
   app.use(require('./routes/user/students/profile'));
@@ -123,9 +128,9 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
 
   app.use(require('./routes/user/common/mail'));
 /*add test route here*/
-   app.use(require('./routes/backend_test/testAPI.js'));
-  // app.use(require('./routes/backend_test/testAPI_2.js'));
-  //app.use(require('./routes/backend_test/leodetest.js'));
-  app.use(require('./routes/backend_test/testDB.js'));
+	try{app.use(require('./routes/backend_test/testAPI.js'));}catch(e){}
+	try{app.use(require('./routes/backend_test/testAPI_2.js'));}catch(e){}
+  	try{app.use(require('./routes/backend_test/leodetest.js'));}catch(e){}
+  	try{app.use(require('./routes/backend_test/testDB.js'));}catch(e){}
   return app;
 };
