@@ -296,6 +296,7 @@ table.dataLogShow = function(req, res, next){
                         "status": result[i].status,
                         "message": result[i].message,
                         "data_type": result[i].data_type,
+                        "year": result[i].year,
                         "semester": result[i].semester
                     }
                     dataLog.push(log);
