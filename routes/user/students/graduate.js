@@ -71,11 +71,7 @@ router.post('/students/graduate/resetMove',csrfProtection,graduateResetMove, fun
 });
 
 router.post('/students/graduate/moveCourse', csrfProtection, graduateMoveCourse, function(req, res){
-    if(req.signal.signal == 1)
-        res.status(204).end();
-    else
-        res.status(403).end();
-    //res.send(req.signal);
+    res.send(req.moveCourse);
 });
 
 //router.post('/students/graduate/legalMoveTarget', csrfProtection, StudentId, checkCard);

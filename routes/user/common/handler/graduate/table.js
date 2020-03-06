@@ -978,28 +978,47 @@ table.graduateMoveCourse = function(req, res, next){
     if(req.session.profile){
             var id = req.body.student_id;
             var cos_name = req.body.cn;
-            //var code = req.body.code;
             var origin_group = req.body.origin_group;
             var target_group = req.body.target_group;
             //console.log(target_group);
-            query.SetCosMotion(id, cos_name, origin_group, target_group,function(err, result){
-                    if(err){
-                        throw err;
-                        res.redirect('/');
+            query.ShowStudentGraduate({student_id: id}, function(err, result){
+                if(err)
+                    throw err;
+                result = JSON.parse(result);
+                if(result[0].pro > 0 && target_group == '抵免研究所課程'){
+                    req.moveCourse = {
+                        success: false,
+                        reason: '超過畢業學分才可移動'
                     }
-                    if(!result)
-                        res.redirect('/');
-                    else{
-                        result = JSON.parse(result);
-                        req.signal = {
-                            signal:(parseInt(result.info.affectedRows) > 0)?1:0
-                        }
-                        if(req.signal)
-                            next();
-                        else
-                            return;
-                    }     
+                    if(req.moveCourse)
+                        next();
+                }
             });
+            setTimeout(function(){
+                query.SetCosMotion(id, cos_name, origin_group, target_group,function(err, result){
+                        if(err){
+                            throw err;
+                            res.redirect('/');
+                        }
+                        if(!result)
+                            res.redirect('/');
+                        else{
+                            result = JSON.parse(result);
+                            req.moveCourse = {
+                                success: true,
+                                reason: ''
+                            }
+                            if(parseInt(result.info.affectedRows) == 0){
+                                req.moveCourse.success = false;
+                                req.moveCourse.reason = 'error';
+                            }
+                            if(req.moveCourse)
+                                next();
+                            else
+                                return;
+                        }     
+                });
+            }, 1000);
         }
         else
             res.redirect('/');
