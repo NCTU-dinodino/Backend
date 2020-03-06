@@ -5,7 +5,7 @@ var csrfProtection = csrf()
 var table = require('./handler/table')
 
 var dataFormDownload = table.table.dataFormDownload
-var dataInsert = table.table.dataInsert
+var dataUpload = table.table.dataUpload
 var dataLogShow = table.table.dataLogShow
 var dataLogDelete = table.table.dataLogDelete
 var dataLogDeleteAll = table.table.dataLogDeleteAll
