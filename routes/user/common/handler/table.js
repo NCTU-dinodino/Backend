@@ -1,6 +1,9 @@
 var table = {};
+var fs= require('fs');
 var nodemailer = require('nodemailer');
 var query = require('../../../../db/msql');
+var data_path = "/home/nctuca/dinodino-extension/automation/data";
+var sample_path = "/home/nctuca/dinodino-extension/automation/sample";
 
 table.mailSend = function(req, res, next){
     if(req.session.profile){
@@ -235,5 +238,123 @@ table.bulletinDelete = function(req, res, next){
     }
 }
 
+table.dataFormDownload = function(req, res, next){
+    if(req.session.profile){
+        var fileName = req.body.file_name;
+        fs.readFile(sample_path + '/' + fileName + '.xlsx', function(err, result){
+            req.download = result.toString('base64');
+            if (req.download)
+                next();
+            else
+                return;
+        });
+    }
+    else
+        res.redirect('/');
+}
+
+table.dataUpload = function(req, res, next){
+    if(req.session.profile){
+        var input = req.body;
+        var decode_buf = new Buffer(input.file_name, 'base64');
+        var fileName = decode_buf.toString('utf-8');
+        fs.writeFile(data_path + '/' + fileName, decode_buf, function(err){
+            if(err) {
+                throw err;
+                res.redirect('/');
+            }
+            else{
+                query.InsertNewData({file_name: fileName, data_type: input.data_type, semester: input.semester});
+                setTimeout(function(){
+                    req.signal = {signal :1};
+                    if(req.signal)
+                        next();
+                    else
+                        return;
+                },1000);
+            }
+        });
+    }
+    else
+        res.redirect('/');
+}
+
+table.dataLogShow = function(req, res, next){
+    if(req.session.profile){
+        query.ShowAllDataLog(function(err, result){
+            if(err) {
+                throw err;
+                res.redirect('/');
+            }
+            else{
+                var dataLog = [];
+                result = JSON.parse(result);
+                for(var i = 0; i < result.length; ++i){
+                    var log = {
+                        "id": result[i].unique_id,
+                        "time": result[i].time,
+                        "status": result[i].status,
+                        "message": result[i].message,
+                        "data_type": result[i].data_type,
+                        "semester": result[i].semester
+                    }
+                    dataLog.push(log);
+                }
+                req.dataLog = dataLog;
+                next();
+            }
+        })
+    }
+    else
+        res.redirect('/');
+}
+
+table.dataLogDelete = function(req, res, next){
+    if(req.session.profile){
+        query.DeleteDataLog({id: req.body.id}, function(err, result){
+            if (err) {
+                throw err;
+                res.redirect('/');
+            }
+            if (!result)
+                res.redirect('/');
+            result = JSON.parse(result);
+            var signal = {
+                signal: (parseInt(result.info.affectedRows) > 0)?1:0
+            }
+            req.signal = signal;
+            if (req.signal)
+                next();
+            else
+                return;
+        })
+    }
+    else
+        res.redirect('/')
+}
+
+table.dataLogDeleteAll = function(req, res, next){
+    if(req.session.profile){
+        query.DeleteAllDataLog(function(err, result){
+            if (err) {
+                throw err;
+                res.redirect('/');
+            }
+            if (!result)
+                res.redirect('/');
+            result = JSON.parse(result);
+            var signal = {
+                signal: (parseInt(result.info.affectedRows) > 0)?1:0
+            }
+            req.signal = signal;
+            if (req.signal)
+                next();
+            else
+                return;
+        })
+    }
+    else
+        res.redirect('/')
+}
 
 exports.table = table;
