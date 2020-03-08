@@ -241,7 +241,7 @@ table.bulletinDelete = function(req, res, next){
 table.dataFormDownload = function(req, res, next){
     if(req.session.profile){
         var fileName = req.body.data_type;
-        fs.readFile(sample_path + '/' + fileName + '.xlsx', function(err, result){
+        fs.readFile(sample_path + '/' + fileName + '範例.xlsx', function(err, result){
             req.download = result.toString('base64');
             if (req.download)
                 next();
