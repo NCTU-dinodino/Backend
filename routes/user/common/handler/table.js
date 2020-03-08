@@ -256,8 +256,11 @@ table.dataFormDownload = function(req, res, next){
 table.dataUpload = function(req, res, next){
     if(req.session.profile){
         var input = req.body;
-        var decode_buf = new Buffer(input.file_name, 'base64');
-        var fileName = decode_buf.toString('utf-8');
+        var decode_buf = new Buffer(input.file_data, 'base64');
+        var now = new Date();
+        var date = now.toLocaleString().split(" ")[0];
+        var time = now.toLocaleString().split(" ")[1];
+        var fileName = input.data_type + '_' + date + '_' + time + '.xlsx';
         fs.writeFile(data_path + '/' + fileName, decode_buf, function(err){
             if(err) {
                 throw err;
