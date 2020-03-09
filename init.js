@@ -37,6 +37,21 @@ module.exports.init = function(){
 		next();
 	});
 
+	app.use('/assistants', (req, res, next) => {
+		if(JSON.parse(req.session.profile).personStatus != 'a') res.redirect('/');
+		next();
+	});
+
+	app.use('/students', (req, res, next) => {
+		if(JSON.parse(req.session.profile).personStatus != 'w' && JSON.parse(req.session.profile).personStatus != 's') res.redirect('/');
+		next();
+	});
+
+	app.use('/teachers', (req, res, next) => {
+		if(JSON.parse(req.session.profile).personStatus != 'p') res.redirect('/');
+		next();
+	});
+
   //app.use(bodyParser.json());
   app.use(bodyParser.json({limit: '50mb'}));
   app.use(bodyParser.urlencoded({
