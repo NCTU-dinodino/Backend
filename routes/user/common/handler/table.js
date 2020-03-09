@@ -1,5 +1,6 @@
 var table = {};
 var fs= require('fs');
+var Readable = require('stream').Readable;
 var nodemailer = require('nodemailer');
 var query = require('../../../../db/msql');
 var data_path = "/home/nctuca/dinodino-extension/automation/data";
@@ -256,12 +257,17 @@ table.dataFormDownload = function(req, res, next){
 table.dataUpload = function(req, res, next){
     if(req.session.profile){
         var input = req.body;
-        var decode_buf = new Buffer(input.file_data, 'base64');
+        const buffer = Buffer.from(input.file_data, 'base64');
+        var readStream = new Readable();
         var now = new Date();
         var date = now.toLocaleString().split(" ")[0];
         var time = now.toLocaleString().split(" ")[1];
         var fileName = input.data_type + '_' + date + '_' + time + '.xlsx';
-        fs.writeFile(data_path + '/' + fileName, decode_buf, function(err){
+        var writeStream = fs.createWriteStream(data_path + '/' + fileName);
+        readStream.push(buffer);
+        readStream.push(null);
+        readStream.pipe(writeStream);
+        writeStream.on('finish', function(err) {
             if(err) {
                 throw err;
                 res.redirect('/');
