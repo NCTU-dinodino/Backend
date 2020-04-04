@@ -141,7 +141,7 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
   app.use(require('./routes/user/assistants/profile'));
   app.use(require('./routes/user/common/bulletin'));
   app.use(require('./routes/user/common/dataUpload'));
-
+  app.use(require('./routes/user/common/other'));
   app.use(require('./routes/user/common/mail'));
 /*add test route here*/
 	try{app.use(require('./routes/backend_test/testAPI.js'));}catch(e){}

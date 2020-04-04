@@ -1187,6 +1187,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 'en_total': 1,
     			'en_basic': 1,
     			'en_advanced': 1,
+                'en_uncertified': 0,
     			'pe': 6,
     			'service': 2,
     			'art': 2,
@@ -1203,6 +1204,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 'en_total': 0,
                 'en_basic': 0,
                 'en_advanced': 0,
+                'en_uncertified': 0,
                 'old_total': 0,
                 'old_contemp': 0,
     			'old_culture': 0,
@@ -1225,7 +1227,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 'media': 9
             };
 
-            var [compulse, pro, other, lang, general_old, general_new, pe, service, art, military, graduate, addition_program, credit] = courseResult;
+            var [compulse, pro, other, lang, general_old, general_new, pe, service, art, exclusion, graduate, addition_program, total, english] = courseResult;
             list.student_id = info.student_id;
             list.sname = info.sname;
             list.program = info.program;
@@ -1238,7 +1240,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
             
             if (info.submit_type === null) { info.submit_type = '0'; }
             list.submit_type = parseInt(info.submit_type);
-            list.old_total = credit.general_require - credit.general;
+            list.old_total = general_old.require - general_old.acquire;
             var mapping = {'文化': 'culture', '公民': 'citizen', '群己': 'group', '自然': 'science', '歷史': 'history', '通識': 'contemp'};
             var old = {
                 'culture': 2,
@@ -1283,7 +1285,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var will_old_pass = (list.old_culture - will_list.old_culture <= 0 && list.old_citizen - will_list.old_citizen <= 0 && list.old_group - will_list.old_group <= 0 && list.old_science - will_list.old_science <= 0 && list.old_history - will_list.old_history <= 0 && list.old_contemp - will_list.old_contemp <= 0 && list.old_total - will_list.old_total <= 0);
 
             //general_new
-            list.new_total = credit.general_new_require - credit.general_new;
+            list.new_total = general_new.require.total - general_new.acquire.total;
             list.new_core_total = general_new.require.core;
             for (var i = 0; i < general_new.course.length; i++) {
                 if (general_new.course[i].complete && general_new.course[i].dimension != '') {
@@ -1316,8 +1318,8 @@ table.graduateStudentListUpdate = function(req, res, next) {
                     }
                 }
             }
-            list.new_basic = general_new.require.basic - general_new.credit.basic;
-            list.new_cross = general_new.require.cross - general_new.credit.cross;
+            list.new_basic = general_new.require.basic - general_new.acquire.basic;
+            list.new_cross = general_new.require.cross - general_new.acquire.cross;
             var new_pass = (list.new_total <= 0 && list.new_core_total <= 0 && list.new_core_society <= 0 && list.new_core_humanity <= 0 && list.new_basic <= 0 && list.new_cross <= 0);
             var will_new_pass = (list.new_total + will_list.new_total <= 0 && list.new_core_total + will_list.new_core_total <= 0 && list.new_core_society + will_list.new_core_society <= 0 && list.new_core_humanity + will_list.new_core_humanity <= 0 && list.new_basic + will_list.new_basic <= 0 && list.new_cross + will_list.new_cross <= 0);
 
@@ -1339,19 +1341,21 @@ table.graduateStudentListUpdate = function(req, res, next) {
             //lang
             if (info.en_certificate === null) { info.en_certificate = '0'; }
             list.en_status = parseInt(info.en_certificate);
-            list.en_total = credit.language_require - credit.language;
+            list.en_total = lang.require - lang.acquire;
             var basic_credit = 0;
             var advanced_credit = 0;
             var second_credit = 0;
             var will_basic = 0;
             var will_advanced = 0;
             var will_second = 0;
+            var advanced_num = 0;
             for (var i = 0; i < lang.course.length; i++) {
                 if (lang.course[i].complete) {
                     if (lang.course[i].cn.substring(0, 2) === '大一') {
                         basic_credit += lang.course[i].realCredit;
                     } else if (lang.course[i].cn.substring(0, 4) === '進階英文') {
                         advanced_credit += lang.course[i].realCredit;
+                        advanced_num++;
                     } else {
                         second_credit += lang.course[i].realCredit;
                     }
@@ -1361,6 +1365,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
                             will_basic += lang.course[i].originalCredit;
                         } else if (lang.course[i].cn.substring(0, 4) === '進階英文') {
                             will_advanced += lang.course[i].originalCredit;
+                            advanced_num++;
                         } else {
                             will_second += lang.course[i].originalCredit;
                         }
@@ -1374,6 +1379,8 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 will_list.en_basic = list.en_basic - will_basic;
                 will_list.en_advanced = list.en_advanced - will_advanced - will_second;
                 will_list.en_total = list.en_total - will_basic - will_second - will_advanced;
+                list.en_uncertified = 4 - advanced_num;
+                if(list.en_uncertified > 2) list.en_uncertified = 2;
             } else if (list.en_status === 2 || list.en_status === 3 || list.en_status === 4) {
                 list.en_basic = 4 - basic_credit;
                 list.en_advanced = 4 - advanced_credit - second_credit;
@@ -1512,27 +1519,27 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 }
             }
             
-            list.total_credit = credit.total;
-            var total_pass = list.total_credit >= credit.total_require;
-            var will_total_pass = (list.total_credit + will_list.total) >= credit.total_require;
+            list.total_credit = total.acquire;
+            var total_pass = list.total_credit >= total.require;
+            var will_total_pass = (list.total_credit + will_list.total) >= total.require;
 
-            list.pro = credit.pro_require - credit.pro;
+            list.pro = pro.require - pro.acquire;
             var pro_pass = list.pro <= 0;
             var will_pro_pass = (list.pro - will_list.pro) <= 0;
 
-            list.other = credit.other_require - credit.other;
+            list.other = other.require - other.acquire;
             var other_pass = list.other <= 0;
             var will_other_pass = (list.other - will_list.other) <= 0;
 
-            list.pe = credit.pe_require - credit.pe;
+            list.pe = pe.require - pe.acquire;
             var pe_pass = list.pe <= 0;
             var will_pe_pass = (list.pe - will_list.pe) <= 0;
 
-            list.service = credit.service_require - credit.service;
+            list.service = service.require - service.acquire;
             var service_pass = list.service <= 0;
             var will_service_pass = (list.service - will_list.service) <= 0;
 
-            list.art = credit.art_require - credit.art;
+            list.art = art.require - art.acquire;
             var art_pass = list.art <= 0;
             var will_art_pass = (list.art - will_list.art) <= 0;
 
@@ -1545,8 +1552,8 @@ table.graduateStudentListUpdate = function(req, res, next) {
             var eng_pass = list.en_course === 1;
             var will_eng_pass = (list.en_course == 1) || (will_list.en_course == 1);
 
-            var compulse_pass = (credit.compulsory_require - credit.compulsory) <= 0;
-            var will_compulse_pass = (credit.compulsory_require - credit.compulsory - will_list.compulse) <= 0;
+            var compulse_pass = (compulse.require - compulse.acquire) <= 0;
+            var will_compulse_pass = (compulse.require - compulse.acquire - will_list.compulse) <= 0;
         
             var no_compulse_current = list.current.length <= 0;
 
@@ -1562,28 +1569,29 @@ table.graduateStudentListUpdate = function(req, res, next) {
                 list.graduate_status = 0;
             }
 
-            list.pro = Math.max(0, list.pro);
-            list.other = Math.max(0, list.other);
-            list.old_total = Math.max(0, list.old_total);
-            list.old_contemp = Math.max(0, list.old_contemp);
-            list.old_culture = Math.max(0, list.old_culture);
-            list.old_history = Math.max(0, list.old_history);
-            list.old_citizen = Math.max(0, list.old_citizen);
-            list.old_group = Math.max(0, list.old_group);
-            list.old_science = Math.max(0, list.old_science);
-            list.new_total = Math.max(0, list.new_total);
-            list.new_core_total = Math.max(0, list.new_core_total);
-            list.new_core_society = Math.max(0, list.new_core_society);
-            list.new_core_humanity = Math.max(0, list.new_core_humanity);
-            list.new_basic = Math.max(0, list.new_basic);
-            list.new_cross = Math.max(0, list.new_cross);
-            list.en_total = Math.max(0, list.en_total);
-            list.en_basic = Math.max(0, list.en_basic);
-            list.en_advanced = Math.max(0, list.en_advanced);
-            list.pe = Math.max(0, list.pe);
-            list.service = Math.max(0, list.service);
-            list.art = Math.max(0, list.art);
-            list.mentor = Math.max(0, list.mentor);
+            list.pro = Math.max(0, list.pro - will_list.pro);
+            list.other = Math.max(0, list.other - will_list.other);
+            list.old_total = Math.max(0, list.old_total - will_list.old_total);
+            list.old_contemp = Math.max(0, list.old_contemp - will_list.old_contemp);
+            list.old_culture = Math.max(0, list.old_culture - will_list.old_culture);
+            list.old_history = Math.max(0, list.old_history - will_list.old_history);
+            list.old_citizen = Math.max(0, list.old_citizen - will_list.old_citizen);
+            list.old_group = Math.max(0, list.old_group - will_list.old_group);
+            list.old_science = Math.max(0, list.old_science - will_list.old_science);
+            list.new_total = Math.max(0, list.new_total - will_list.new_total);
+            list.new_core_total = Math.max(0, list.new_core_total - will_list.new_core_total);
+            list.new_core_society = Math.max(0, list.new_core_society - will_list.new_core_society);
+            list.new_core_humanity = Math.max(0, list.new_core_humanity - will_list.new_core_humanity);
+            list.new_basic = Math.max(0, list.new_basic - will_list.new_basic);
+            list.new_cross = Math.max(0, list.new_cross - will_list.new_cross);
+            list.en_total = Math.max(0, will_list.en_total);
+            list.en_basic = Math.max(0, will_list.en_basic);
+            list.en_advanced = Math.max(0, will_list.en_advanced);
+            list.en_uncertified = Math.max(0, list.en_uncertified);
+            list.pe = Math.max(0, list.pe - will_list.pe);
+            list.service = Math.max(0, list.service - will_list.service);
+            list.art = Math.max(0, list.art - will_list.art);
+            list.mentor = Math.max(0, list.mentor - will_list.mentor);
             
             setTimeout(function() {
                 query.CreateStudentGraduate(list, function(err, result2) {
@@ -1605,6 +1613,7 @@ table.graduateStudentListUpdate = function(req, res, next) {
         }
     }); 
 }
+
 // --------------------------------------------------------------------graduate table
 
 // advisee table---------------------------------------------------------------------
@@ -1751,136 +1760,5 @@ table.adviseeSemesterScoreList = function(req, res, next) {
 }
 
 // ---------------------------------------------------------------------advisee table
-
-// other table-----------------------------------------------------------------------
-
-table.createApplyPeriod = function(req, res, next){
-    if (req.session.profile) {
-        var input = req.body; 
-        var info = {semester: '', type:'', begin:'', end: ''};
-        info.semester = input.semester;
-        if(input.hasOwnProperty('graduation')) {
-            info.type = 'graduation';
-            info.begin = input.graduation.begin;
-            info.end = input.graduation.end;
-        }
-        else if(input.hasOwnProperty('project')) {
-            info.type = 'research';
-            info.begin = input.project.begin;
-            info.end = input.project.end;
-        }
-        else if(input.hasOwnProperty('verify')) {
-            info.type = 'offset';
-            info.begin = input.verify.begin;
-            info.end = input.verify.end;
-        }
-    	query.CreateApplyPeriod(info, function(err, result) {
-            if (err) {
-                throw err;
-                res.redirect('/');    
-            }
-            if (!result)
-                res.redirect('/');
-            result = JSON.parse(result);
-            var signal = {
-                signal: (parseInt(result.info.affectedRows) > 0)?1:0
-            }
-            req.createApplyPeriod = signal;
-			if (req.createApplyPeriod)
-				next();
-			else
-				return;
-        });
-    }
-    else
-        res.redirect('/');
-}
-
-table.setApplyPeriod = function(req, res, next){
-    if (req.session.profile) {
-        var input = req.body; 
-        var info = {semester: '', type:'', begin:'', end: ''};
-        info.semester = input.semester;
-        if(input.hasOwnProperty('graduation')) {
-            info.type = 'graduation';
-            info.begin = input.graduation.begin;
-            info.end = input.graduation.end;
-        }
-        else if(input.hasOwnProperty('project')) {
-            info.type = 'research';
-            info.begin = input.project.begin;
-            info.end = input.project.end;
-        }
-        else if(input.hasOwnProperty('verify')) {
-            info.type = 'offset';
-            info.begin = input.verify.begin;
-            info.end = input.verify.end;
-        }
-    	query.SetApplyPeriod(info, function(err, result) {
-            if (err) {
-                throw err;
-                res.redirect('/');    
-            }
-            if (!result)
-                res.redirect('/');
-            result = JSON.parse(result);
-            var signal = {
-                signal: (parseInt(result.info.affectedRows) > 0)?1:0
-            }
-            req.setApplyPeriod = signal;
-			if (req.setApplyPeriod)
-				next();
-			else
-				return;
-        });
-    }
-    else
-        res.redirect('/');
-}
-
-table.showApplyPeriod = function(req, res, next){
-    if(req.session.profile) {
-        var input = req.body;
-        //var input = {semester: '108-1'};
-        query.ShowApplyPeriod(input, function(err, result) {
-            if (err) {
-                throw err;
-                res.redirect('/');    
-            }
-            if (!result)
-                res.redirect('/');
-            result = JSON.parse(result);
-            var output = {
-              "verify": {
-                "begin": "",
-                "end": ""
-              },
-              "project": {
-                "begin": "",
-                "end": ""
-              },
-              "graduation": {
-                "begin": "",
-                "end": ""
-              }
-            };
-            output.verify.begin = result.offset.begin;
-            output.verify.end = result.offset.end;
-            output.project.begin = result.research.begin;
-            output.project.end = result.research.end;
-            output.graduation.begin = result.graduation.begin;
-            output.graduation.end = result.graduation.end;
-            req.showApplyPeriod = output;
-			if (req.showApplyPeriod)
-				next();
-			else
-				return;
-        });
-    }
-    else
-        res.redirect('/');
-
-}
-// ------------------------------------------------------------------------other table
 
 exports.table = table;
