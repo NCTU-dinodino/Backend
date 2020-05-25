@@ -21,7 +21,7 @@ module.exports.init = function(){
     //duration: 1 * 60 * 1000,
     //activeDuration : 5 * 60 * 1000,
     duration: 0,
-    activeDuration : 20 * 60 * 1000,
+    activeDuration : 35 * 60 * 1000,
  }));
 /*  app.use(function(req, res, next){
       req.session.profile = '{"email":"sophia850413.cs03@nctu.edu.tw","username":"0316201","personStatus":"s"}';
