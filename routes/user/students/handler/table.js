@@ -700,7 +700,21 @@ table.researchList = function(req, res, next){
                         }
                         else{
                             project = JSON.parse(project);
-                            req.list = [...project,...form];       
+                            req.list = [...project,...form].map((record) => (
+				{
+					student_id: record.student_id,
+					tname: record.tname,
+					title: record.research_title,
+					score: record.score == null ? null : parseInt(record.score),
+					semester: record.semester,
+					comment: record.comment,
+					first_second: parseInt(record.first_second),
+					department: parseInt(record.status),
+					status: record.agree,
+					add_status: record.add_status == null ? null : parseInt(record.add_status),
+					replace_status: record.replace_pro == null ? null : parseInt(record.replace_pro)
+				}
+			    )); 
                             if(req.list)
                                 next();
                             else
@@ -722,16 +736,21 @@ table.researchShowStudentStatus = function(req, res, next){
     if(req.session.profile){ 
         var group =[];
         for(var i = 0;i< req.body.participants.length; i++){
-            query.ShowStudentResearchStatus(req.body.participants[i], function(err,result){ 
+
+            query.ShowStudentResearchStatus(req.body.participants[i].student_id, function(err,result){ 
                 if(err){
                     throw err;                                                                                              
                     res.redirect('/');
                 }
                 if(!result)
                     res.redirect('/');      
-                else{                                                                                                       
-                    result = JSON.parse(result);                
-                    group =[...group, ...result];
+                else{                                                          
+		    query.ShowStudentResearchInfo(req.body.participants[i].student_id, (err, result_2) => {
+                    	result = JSON.parse(result);
+			result2 = JSON.parse(result_2);
+			result.status = (result2.some((record) => (record.first_second == '1'))) ? result.status : '6';
+                    	group =[...group, ...result];
+		    });
                 }
              }); 
         }
@@ -852,10 +871,9 @@ table.researchApplyCreate = function(req, res, next){
             var info = req.body;
             var data = {
                 tname: info.tname,
-                research_title: info.research_title,
+                research_title: info.title,
                 semester: info.semester
             };
-            var signal = {signal :1};   
             query.ShowResearchTitleNumber(data, function(error, result){
                 if(error){
                     throw error;
@@ -864,8 +882,8 @@ table.researchApplyCreate = function(req, res, next){
                 if(!result)
                     res.redirect('/');
                 var num = JSON.parse(result)[0]['count'];
-                for(var i = 0;i< info.student_num; i++){
-                    var studentInfo = {phone : info.phones[i], student_id : info.participants[i], research_title : info.research_title, tname : info.tname,first_second : info.first_second[i], email : info.email[i], semester: info.semester, program : info.department[i], name : info.name[i]};
+                for(var i = 0;i< info.participants.length; i++){
+                    var studentInfo = {phone : info.participants[i].phones, student_id : info.participants[i].student_id, research_title : info.research_title, tname : info.tname,first_second : info.participants[i].first_second, email : info.participants[i].email, semester: info.semester, program : info.department[i], name : info.name[i]};
                     if(num != "1")
                         studentInfo.research_title += "_" + num;
                         query.CreateResearchApplyForm(studentInfo, function(err, res1){
@@ -874,7 +892,7 @@ table.researchApplyCreate = function(req, res, next){
                                 res.redirect('/');
                             }
                             if(res1 == 'wrong'){
-                                signal.signal = 0;
+                                res.status(403);
                             }
                         });
                 }
@@ -920,8 +938,8 @@ table.researchApplyCreate = function(req, res, next){
                 }
             });
             
-            req.create = signal;   
             if(req.create)
+		res.status(204);
                 next();
             else
                 return;
@@ -937,11 +955,11 @@ table.researchApplyCreate = function(req, res, next){
 table.researchApplyDelete = function(req, res, next){
     if (req.session.profile) {
         var info = req.body;
-        var formInfo = {research_title : info.research_title, tname : info.tname, first_second:info.first_second, semester: info.semester};
+        var formInfo = {research_title : info.title, tname : info.tname, first_second:info.first_second, semester: info.semester};
         query.DeleteResearchApplyForm(formInfo);
         
         setTimeout(function(){
-            req.delete = {signal :1};   
+            req.status(204); 
             if(req.delete)
                 next();
             else

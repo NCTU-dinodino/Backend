@@ -28,7 +28,7 @@ router.post('/students/research/setReplace', csrfProtection,researchSetReplace, 
 });
 
 router.post('/students/research/create',csrfProtection,researchApplyCreate, function(req, res){
-	res.send(req.create);
+	res.send();
 
 });
 
