@@ -9,6 +9,7 @@ var researchSetScore = table.table.researchSetScore;
 var researchSetTitle = table.table.researchSetTitle;
 var researchList = table.table.researchList;
 var researchSetReplace = table.table.researchSetReplace;
+var researchChangeTeacherList = table.table.researchChangeTeacherList;
 
 router.post('/professors/research/setScore' , csrfProtection, researchSetScore, function(req, res){
     res.send(req.setScore);
@@ -23,5 +24,8 @@ router.post('/professors/research/list',csrfProtection, researchList, function(r
 });
 router.post('/professors/research/setReplace', csrfProtection, researchSetReplace, function(req, res) {
     res.send(req.reply);
+});
+router.post('/professors/research/changeTeacherList',csrfProtection, researchChangeTeacherList, function(req, res){
+    res.send(req.changeTeacherList);
 });
 module.exports = router;

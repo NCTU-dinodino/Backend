@@ -593,6 +593,79 @@ table.researchSetReplace = function(req, res, next) {
     }
 }
 
+table.researchChangeTeacherList = function(req, res, next){
+    if (req.session.profile) {
+
+        var info = req.body;
+        var teacher_id = info.teacherId;
+        var sem = info.sem; 
+        
+        query.ShowGradeTeacherResearchStudent(teacher_id,'', function(err, result){
+            if(err){
+                throw err;
+                res.redirect('/');
+            }
+            if(!result)
+                res.redirect('/');
+            
+            result = JSON.parse(result);  
+            if(result.length == 0){
+                var groups = []
+            }
+            else{
+                var index = [];
+                var temp = result[0].research_title;
+                var count = 0;
+    
+                for(var i = 0; i<result.length; i++){
+                    if(index[result[i].research_title] == null){
+                        if(result[i].semester != sem) continue;
+                        var project = {
+                            research_title: '',
+                            participants : [],
+                            year:'',
+                            first_second: '',
+                        }
+                        project.year = result[i].semester;
+                        project.research_title = result[i].research_title;
+                        project.first_second = result[i].first_second;
+                        groups.push(project);
+                        index[result[i].research_title] = count;
+                        count++;
+                    }  
+                }
+                for(var i = 0; i<result.length; i++){
+                    if(result[i].semester != sem) continue;
+                    var student = {
+                        student_id: '',
+                        sname: '',
+                        phone: '',
+                        email: '',
+                        replace_pro:0
+                    }
+                    student.student_id = result[i].student_id;
+                    student.sname = result[i].sname;
+                    student.phone = result[i].phone;
+                    student.email = result[i].email;
+                    student.replace_pro = parseInt(result[i].replace_pro);
+                    var id = index[result[i].research_title];
+                    groups[id].participants.push(student);
+                }
+                setTimeout(function(){
+                    req.changeTeacherList = groups;
+                    if(req.changeTeacherList)
+                        next();
+                    else
+                        return; 
+                },1000);
+            }
+        });            
+    } 
+    else{
+        res.redirect('/');
+    }
+}
+
 table.researchApplySetAgree = function(req, res, next) {
     if (req.session.profile) {
         var info = req.body;
