@@ -115,7 +115,7 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
 
  
   /*done*/
-	app.use((req, res, next) => {req.csca = {}; next();});
+	app.use((req, res, next) => {req.csca = {'raw_data': {}}; next();});
 	app.use(require('./routes/Backend_revise/public/src/router/student.js'));
 	app.use(require('./routes/Backend_revise/public/src/router/assistant.js'));
 

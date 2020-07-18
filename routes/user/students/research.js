@@ -29,11 +29,10 @@ router.post('/students/research/setReplace', csrfProtection,researchSetReplace, 
 
 router.post('/students/research/create',csrfProtection,researchApplyCreate, function(req, res){
 	res.send();
-
 });
 
 router.post('/students/research/delete', csrfProtection,researchApplyDelete, function(req, res){
-	res.send(req.delete);	
+	res.send();	
 });
 
 router.post('/students/research/showStudentStatus', csrfProtection,researchShowStudentStatus, function(req, res){
