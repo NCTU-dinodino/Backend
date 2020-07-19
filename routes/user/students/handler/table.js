@@ -972,7 +972,7 @@ table.researchApplyCreate = function(req, res, next){
 		let promiseList = [];
 		req.body.members.forEach((student) => {
 			let studentInfo = {
-				phone:			student.phones,
+				phone:			student.phone,
 				student_id:		student.student_id,
 				research_title:	req.body.title + (num != 1 ? '_' + num : ''),
 				tname:			req.body.tname,
