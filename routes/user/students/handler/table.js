@@ -793,7 +793,7 @@ table.researchShowStudentStatus = function(req, res, next){
 
 	let promiseList = [];
 
-	for(let student in req.body.participants) promiseList.push(promiseShowStudentResearchStatus(student.student_id));
+	for(let student in req.body.members) promiseList.push(promiseShowStudentResearchStatus(student.student_id));
 
 	Promise.all(promiseList)
 	.then((result) => {
