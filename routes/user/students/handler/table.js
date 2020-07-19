@@ -1100,18 +1100,20 @@ table.researchApplyCreate = function(req, res, next){
 table.researchApplyDelete = function(req, res, next){
 	let promiseDeleteResearchApplyForm = new Promise((resolve, reject) => {
 		if(!req.session.profile) reject('Student profile not found');
-		let queryData = {
-			research_title:	req.body.title,
-			tname:			req.body.tname,
-			first_second:	req.body.first_second,
-			semester:		req.body.semester
-		};
+		else{
+			let queryData = {
+				research_title:	req.body.title,
+				tname:			req.body.tname,
+				first_second:	req.body.first_second,
+				semester:		req.body.semester
+			};
 
-		query.DeleteResearchApplyForm(queryData, (error, result) => {
-			if(error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
-			if(!result) reject('Cannot fetch DeleteResearchApplyForm.');
-			resolve(result);
-		});
+			query.DeleteResearchApplyForm(queryData, (error, result) => {
+				if(error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
+				if(!result) reject('Cannot fetch DeleteResearchApplyForm.');
+				resolve(result);
+			});
+		}
 	});
 
 	promiseDeleteResearchApplyForm
