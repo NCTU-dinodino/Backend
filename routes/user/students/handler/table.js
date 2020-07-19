@@ -1004,7 +1004,7 @@ table.researchApplyCreate = function(req, res, next){
 			cc:			mails,
 			bcc:		'',
 			subject:	'[交大資工線上助理]專題申請郵件通知]',
-			html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + mails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>''""'''''
+			html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + mails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
 		};
 
 		transporter.sendMail(options, (error, result) => {
