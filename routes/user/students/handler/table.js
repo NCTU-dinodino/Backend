@@ -970,7 +970,7 @@ table.researchApplyCreate = function(req, res, next){
 	.then((result) => {
 		let num = parseInt(result[0].count);
 		let promiseList = [];
-		for(let student in req.body.participants){
+		for(let student in req.body.members){
 			let studentInfo = {
 				phone:			student.phones,
 				student_id:		student.student_id,
