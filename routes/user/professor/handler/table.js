@@ -609,13 +609,12 @@ table.researchChangeTeacherList = function(req, res, next){
                 res.redirect('/');
             
             result = JSON.parse(result);  
-            if(result.length == 0){
-                var groups = []
-            }
-            else{
+            
+            if(result.length != 0){
                 var index = [];
                 var temp = result[0].research_title;
                 var count = 0;
+                var groups = []
     
                 for(var i = 0; i<result.length; i++){
                     if(index[result[i].research_title] == null){
