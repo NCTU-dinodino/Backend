@@ -36,6 +36,6 @@ router.post('/students/research/delete', csrfProtection,researchApplyDelete, fun
 });
 
 router.post('/students/research/showStudentStatus', csrfProtection,researchShowStudentStatus, function(req, res){
-	res.send(req.status);	
+	res.send(res.status);	
 });
 module.exports = router;
