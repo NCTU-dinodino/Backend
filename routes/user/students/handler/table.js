@@ -793,11 +793,11 @@ table.researchShowStudentStatus = function(req, res, next){
 
 	let promiseList = [];
 
-	for(let student in req.body.participants) promiseList.append(promiseShowStudentResearchStatus(student.student_id));
+	for(let student in req.body.participants) promiseList.push(promiseShowStudentResearchStatus(student.student_id));
 
 	Promise.all(promiseList)
 	.then((result) => {
-		result = result.reduce((acc, cur) => (acc.append(cur[0])), []);
+		result = result.reduce((acc, cur) => (acc.push(cur[0])), []);
 		res.status = result;
 		next();
 	})
@@ -982,7 +982,7 @@ table.researchApplyCreate = function(req, res, next){
 				program:		student.department,
 				name:			student.name
 			};
-			promiseList.append(promiseCreateResearchApplyForm(studentInfo));
+			promiseList.push(promiseCreateResearchApplyForm(studentInfo));
 		}
 		return Promise.all(promiseList);
 	})
