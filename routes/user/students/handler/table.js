@@ -793,7 +793,7 @@ table.researchShowStudentStatus = function(req, res, next){
 
 	let promiseList = [];
 
-	for(let student in req.body.members) promiseList.push(promiseShowStudentResearchStatus(student.student_id));
+	req.body.members.forEach((student) => {promiseList.push(promiseShowStudentResearchStatus(student.student_id))});
 
 	Promise.all(promiseList)
 	.then((result) => {
@@ -970,7 +970,7 @@ table.researchApplyCreate = function(req, res, next){
 	.then((result) => {
 		let num = parseInt(result[0].count);
 		let promiseList = [];
-		for(let student in req.body.members){
+		req.body.members.forEach((student) => {
 			let studentInfo = {
 				phone:			student.phones,
 				student_id:		student.student_id,
@@ -983,7 +983,7 @@ table.researchApplyCreate = function(req, res, next){
 				name:			student.name
 			};
 			promiseList.push(promiseCreateResearchApplyForm(studentInfo));
-		}
+		});
 		return Promise.all(promiseList);
 	})
 	.then((result) => {
