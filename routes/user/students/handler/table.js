@@ -1119,6 +1119,7 @@ table.researchApplyDelete = function(req, res, next){
 	promiseDeleteResearchApplyForm
 	.then((result) => {
 		res.status(204);
+		next();
 	})
 	.catch((error) => {
 		console.log(error);
