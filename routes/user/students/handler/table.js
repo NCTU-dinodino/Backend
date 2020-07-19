@@ -942,7 +942,7 @@ table.researchSetReplace = function(req, res, next){
 /*建立專題申請，並發送信件給學生*/
 table.researchApplyCreate = function(req, res, next){
 	let promiseShowResearchTitleNumber = () => new Promise((resolve, reject) => {
-		if(!req.sessopn.profile) reject('Student profile not found.');
+		if(!req.session.profile) reject('Student profile not found.');
 		else{
 			let queryData = {
 				tname: 			req.body.tname,
