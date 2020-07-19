@@ -992,6 +992,7 @@ table.researchApplyCreate = function(req, res, next){
 	})
 	.then(() => {
 		let mails = req.body.members.reduce((acc, cur) => (acc + cur + ','), '');
+		console.log(mails);
 		
 		let transporter = nodemailer.createTransport({
 			service:	'Gmail',
