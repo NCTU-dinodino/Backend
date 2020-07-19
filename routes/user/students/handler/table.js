@@ -1098,19 +1098,30 @@ table.researchApplyCreate = function(req, res, next){
 
 /*刪除專題申請*/
 table.researchApplyDelete = function(req, res, next){
-    if (req.session.profile) {
-        var info = req.body;
-        var formInfo = {research_title : info.title, tname : info.tname, first_second:info.first_second, semester: info.semester};
-        query.DeleteResearchApplyForm(formInfo);
-        
-        setTimeout(function(){
-            req.status(204); 
-			next();
-        },1000);
-    } 
-    else {
-        res.redirect('/');
-    }
+	let promiseDeleteResearchApplyForm = new Promise((resolve, reject) => {
+		if(!req.session.profile) reject('Student profile not found');
+		let queryData = {
+			research_title:	req.body.title,
+			tname:			req.body.tname,
+			first_second:	req.body.first_second,
+			semester:		req.body.semester
+		};
+
+		query.DeleteResearchApplyForm(queryData, (error, result) => {
+			if(error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
+			if(!result) reject('Cannot fetch DeleteResearchApplyForm.');
+			resolve(result);
+		});
+	});
+
+	promiseDeleteResearchApplyForm
+	.then((result) => {
+		res.status(204);
+	})
+	.catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
 
 }
 
