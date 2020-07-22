@@ -1130,7 +1130,7 @@ table.researchApplyDelete = function(req, res, next){
 
 /*列出教授以前指導過的專題*/
 table.professorInfoPastResearch = function(req, res, next){
-	let promiseShowGradeTeacherResearchStudent = (teacherId) => {
+	let promiseShowGradeTeacherResearchStudent = (teacherId) => new Promise((resolve, reject) => {
 		if(!req.session.profile) reject('Student profile not found.');
 		else{
 			query.ShowGradeTeacherResearchStudent(teacherId, '', (error, result) => {
