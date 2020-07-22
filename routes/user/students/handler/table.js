@@ -1130,6 +1130,32 @@ table.researchApplyDelete = function(req, res, next){
 
 /*列出教授以前指導過的專題*/
 table.professorInfoPastResearch = function(req, res, next){
+	let promiseShowGradeTeacherResearchStudent = (teacherId) => {
+		if(!req.session.profile) reject('Student profile not found.');
+		else{
+			query.ShowGradeTeacherResearchStudent(teacherId, '', (error, result) => {
+				if(error) reject('Cannot fetch ShowGradeTeacherResearchStudent. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowGradeTeacherResearchStudent.');
+				resolve(JSON.parse(result));
+			});
+		}
+	};
+
+	promiseShowGradeTeacherResearchStudent(req.body.teacher_id)
+	.then((result) => (result
+		.filter((record) => (record.first_second == '2'))
+		.map((record) => ({title: record.research_title, semester: record.semester}))
+	))
+	.then((result) => {
+		req.pastResearch = result;
+		next();
+	})
+	.catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
+
+	/*
    if (req.session.profile) {
     var teacherId = req.body.teacher_id;
     var data = {teacher_id: teacherId };
@@ -1171,7 +1197,7 @@ table.professorInfoPastResearch = function(req, res, next){
   } else {
     res.redirect('/');
   }  
-
+*/
 }
 
 /*列出教授列表，及各教授相關資訊*/
