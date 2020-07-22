@@ -1147,6 +1147,13 @@ table.professorInfoPastResearch = function(req, res, next){
 		.map((record) => ({title: record.research_title, semester: record.semester}))
 	))
 	.then((result) => {
+		let map = {};
+		result.forEach((data) => {
+			map[data.title + data.semester] = data;
+		});
+		return Object.values(map).sort();
+	})
+	.then((result) => {
 		req.pastResearch = result;
 		next();
 	})
