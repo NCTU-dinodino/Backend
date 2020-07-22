@@ -1139,7 +1139,7 @@ table.professorInfoPastResearch = function(req, res, next){
 				resolve(JSON.parse(result));
 			});
 		}
-	};
+	});
 
 	promiseShowGradeTeacherResearchStudent(req.body.teacher_id)
 	.then((result) => (result
