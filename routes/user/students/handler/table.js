@@ -797,7 +797,7 @@ table.researchShowStudentStatus = function(req, res, next){
 
 	Promise.all(promiseList)
 	.then((result) => {
-		result = result.reduce((acc, cur) => {acc.push(cur[0]); return acc;}, []).map((student) => {student.stauts = parseInt(student.status); return student;});
+		result = result.reduce((acc, cur) => {acc.push(cur[0]); return acc;}, []).map((student) => {student.status = parseInt(student.status); return student;});
 		res.status = result;
 		next();
 	})
