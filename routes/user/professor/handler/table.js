@@ -614,7 +614,9 @@ table.researchChangeTeacherList = function(req, res, next){
                 var index = [];
                 var temp = result[0].research_title;
                 var count = 0;
-                var groups = []
+                var groups = [];
+                var replace_index = [];
+				var replace_groups = [];
     
                 for(var i = 0; i<result.length; i++){
                     if(index[result[i].research_title] == null){
@@ -630,6 +632,7 @@ table.researchChangeTeacherList = function(req, res, next){
                         project.first_second = result[i].first_second;
                         groups.push(project);
                         index[result[i].research_title] = count;
+                        replace_index[count] = 0;
                         count++;
                     }  
                 }
@@ -648,10 +651,15 @@ table.researchChangeTeacherList = function(req, res, next){
                     student.email = result[i].email;
                     student.replace_pro = parseInt(result[i].replace_pro);
                     var id = index[result[i].research_title];
+                    if(student.replace_pro == 1) replace_index[id] = 1;
                     groups[id].participants.push(student);
                 }
+                for(var i = 0; i < groups.length; i++){
+					if(replace_index[i] == 1)
+						replace_groups.push(groups[i]);
+				}
                 setTimeout(function(){
-                    req.changeTeacherList = groups;
+                    req.changeTeacherList = replace_groups;
                     if(req.changeTeacherList)
                         next();
                     else
