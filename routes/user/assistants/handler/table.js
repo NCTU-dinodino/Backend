@@ -720,7 +720,7 @@ table.researchProfessorList = function(req, res, next) {
         if (!req.session.profile)
             reject('Student profile not found.');
         else {
-            query.ShowTeacherResearchApplyFormList(teacher_id,'', (error, result) => {
+            query.ShowTeacherResearchApplyFormList(teacher_id, (error, result) => {
                 if(error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
 				if(!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
 				resolve(JSON.parse(result));
