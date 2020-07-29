@@ -1026,6 +1026,10 @@ table.researchSetFirstSecond = function(req, res, next) {
 
 table.researchSendWarningEmail = function(req, res, next) {
 	let promiseList = [];
+	let transporter = nodemailer.createTransport({
+		service: 'Gmail',
+		auth: mail_info.auth
+	});
 
 	let promiseShowUserInfo = (id) => new Promise((resolve, reject) => {
 		query.ShowUserInfo(id, (error, result) => {
