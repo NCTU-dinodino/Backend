@@ -804,7 +804,7 @@ table.researchProfessorList = function(req, res, next) {
                     teacher_list[teacher_idx].accept_status = 1;
             }
         });
-        // teacher_list.push({teacher_index:teacher_index,research_index:research_index})
+        teacher_list.push({teacher_index:teacher_index,research_index:research_index})
         return Promise.all(promiseList_apply);
     })
     .then((result) => {
