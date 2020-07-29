@@ -692,7 +692,7 @@ table.researchProfessorList = function(req, res, next) {
     let year = req.body.year;
     let year_semester = req.body.year + '-' + req.body.semester;
 
-    let promiseShowTeacherInfoResearchCnt = new Promise((resolve, reject) => {
+    let promiseShowTeacherInfoResearchCnt = () => new Promise((resolve, reject) => {
         if (!req.session.profile)
             reject('Student profile not found.');
         else {
