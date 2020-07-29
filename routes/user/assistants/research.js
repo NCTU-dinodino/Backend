@@ -62,7 +62,7 @@ router.post('/assistants/research/professorListDownload', csrfProtection, resear
     res.send(req.studentListDownload);
 });
 
-router.post('/assistants/research/SendWarningEmail', csrfProtection, researchSendWaringEmail, (req, res) => {
+router.post('/assistants/research/SendWarningEmail', csrfProtection, researchSendWarningEmail, (req, res) => {
 	res.send();
 });
 
