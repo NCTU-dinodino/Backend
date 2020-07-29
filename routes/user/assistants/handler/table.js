@@ -804,20 +804,23 @@ table.researchProfessorList = function(req, res, next) {
                     teacher_list[teacher_idx].accept_status = 1;
             }
         });
-        teacher_list.push({teacher_index:teacher_index,research_index:research_index})
         return Promise.all(promiseList_apply);
     })
     .then((result) => {
-        let research_index = [];
-        result.forEach((student) => {
+        let research_index = {};
+        let students = [];
+        result.forEach((student_of_techer) => {
+            students.push(...student_of_techer);
+        });
+        students.forEach((student) => {
             if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ( (student.first_second == '3') && (req.body.first_second == '1') ))) {
-                if (research_index[student.research_title] == null){
+                if (research_index[student.research_title + '_' + student.teacher_id] == null){
                     let project = {
                         title: student.research_title,
                         students : [],
                     }
                     let teacher_idx = teacher_index[student.teacher_id];
-                    research_index[student.research_title] = teacher_list[teacher_idx].pending.projects.length;
+                    research_index[student.research_title + '_' + student.teacher_id] = teacher_list[teacher_idx].pending.projects.length;
                     teacher_list[teacher_idx].pending.projects.push(project);
                     if(teacher_list[teacher_idx].pending_status == 0)
                         teacher_list[teacher_idx].pending_status = 1;
@@ -831,7 +834,7 @@ table.researchProfessorList = function(req, res, next) {
                     first_second: student.first_second,
                     status: student.status,
                 }
-                let research_idx = research_index[student.research_title];
+                let research_idx = research_index[student.research_title + '_' + student.teacher_id];
                 let teacher_idx = teacher_index[student.teacher_id];
                 teacher_list[teacher_idx].pending.projects[research_idx].students.push(student_info);
             }
