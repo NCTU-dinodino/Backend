@@ -1062,10 +1062,12 @@ table.researchSendWarningEmail = function(req, res, next) {
 			}
 		});
 		res.status = 200;
+		next();
 	})
 	.catch((error) => {
 		console.log(error);
 		res.status = 403;
+		next();
 	});
 }
 
