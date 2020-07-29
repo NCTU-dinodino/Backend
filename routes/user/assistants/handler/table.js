@@ -799,6 +799,10 @@ table.researchProfessorList = function(req, res, next) {
                 if((student.add_status == 0) && (teacher_list[teacher_idx].accept_status == 0))
                     teacher_list[teacher_idx].accept_status = 1;
             }
+            else {
+                let teacher_idx = teacher_index[student.teacher_id];
+                teacher_list[teacher_idx].accepted.projects.push({title: 'none'});
+            }
         });
 
         return Promise.all(promiseList_apply);
