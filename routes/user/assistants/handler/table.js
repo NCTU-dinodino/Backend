@@ -808,7 +808,7 @@ table.researchProfessorList = function(req, res, next) {
         //     }
         // });
 
-        // return Promise.all(promiseList_apply);
+        return Promise.all(promiseList_apply);
     })
     .then((result) => {
         let research_index = [];
