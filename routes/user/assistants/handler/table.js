@@ -771,7 +771,7 @@ table.researchProfessorList = function(req, res, next) {
     .then((result) => {
         let research_index = [];
         result.forEach((student) => {
-            teacher_list[teacher_idx].accepted.projects.push({st:student});
+            teacher_list[0].accepted.projects.push({st:student});
         // result.forEach((students_of_techer) => {
             // students_of_techer.forEach((student) => {
                 if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ( (student.first_second == '3') && (req.body.first_second == '1') ))) {
