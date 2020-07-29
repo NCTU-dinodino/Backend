@@ -729,7 +729,7 @@ table.researchProfessorList = function(req, res, next) {
     });
 
     let teacher_list = [];
-    let teacher_index = [];
+    let teacher_index = {};
     let promiseList_apply = [];
     let promiseList = [];
 
@@ -769,7 +769,7 @@ table.researchProfessorList = function(req, res, next) {
         return Promise.all(promiseList);
     })
     .then((result) => {
-        let research_index = [];
+        let research_index = {};
         let students_ = [];
         result.forEach((student_of_techer) => {
             students_.push(...student_of_techer);
