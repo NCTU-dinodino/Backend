@@ -774,39 +774,38 @@ table.researchProfessorList = function(req, res, next) {
         result.forEach((student_of_techer) => {
             students_.push(...student_of_techer);
         });
-        teacher_list[0].accepted.projects.push({st:students_});
-        // students_.forEach((student) => {
-        //     console.log(2);
-        //     // teacher_list[0].accepted.projects.push({st:student});
-        //     if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ( (student.first_second == '3') && (req.body.first_second == '1') ))) {
-        //         if (research_index[student.research_title] == null){
-        //             let project = {
-        //                 title: student.research_title,
-        //                 students : [],
-        //             }
-        //             let teacher_idx = teacher_index[student.teacher_id];
-        //             research_index[student.research_title] = teacher_list[teacher_idx].accepted.projects.length;
-        //             teacher_list[teacher_idx].accepted.projects.push(project);
-        //         }
+        students_.forEach((student) => {
+            console.log(2);
+            // teacher_list[0].accepted.projects.push({st:student});
+            if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ( (student.first_second == '3') && (req.body.first_second == '1') ))) {
+                if (research_index[student.research_title] == null){
+                    let project = {
+                        title: student.research_title,
+                        students : [],
+                    }
+                    let teacher_idx = teacher_index[student.teacher_id];
+                    research_index[student.research_title] = teacher_list[teacher_idx].accepted.projects.length;
+                    teacher_list[teacher_idx].accepted.projects.push(project);
+                }
 
-        //         let student_info = {
-        //             id: student.student_id,
-        //             name: student.sname,
-        //             program: student.class_detail,
-        //             semester: student.semester,
-        //             first_second: student.first_second,
-        //             status: student.status,
-        //             add_status: student.add_status,
-        //             score: student.score == null ? null : parseInt(student.score),
-        //             comment: student.comment
-        //         }
-        //         let research_idx = research_index[student.research_title];
-        //         let teacher_idx = teacher_index[student.teacher_id];
-        //         teacher_list[teacher_idx].accepted.projects[research_idx].students.push(student_info);
-        //         if((student.add_status == 0) && (teacher_list[teacher_idx].accept_status == 0))
-        //             teacher_list[teacher_idx].accept_status = 1;
-        //     }
-        // });
+                let student_info = {
+                    id: student.student_id,
+                    name: student.sname,
+                    program: student.class_detail,
+                    semester: student.semester,
+                    first_second: student.first_second,
+                    status: student.status,
+                    add_status: student.add_status,
+                    score: student.score == null ? null : parseInt(student.score),
+                    comment: student.comment
+                }
+                let research_idx = research_index[student.research_title];
+                let teacher_idx = teacher_index[student.teacher_id];
+                teacher_list[teacher_idx].accepted.projects[research_idx].students.push(student_info);
+                if((student.add_status == 0) && (teacher_list[teacher_idx].accept_status == 0))
+                    teacher_list[teacher_idx].accept_status = 1;
+            }
+        });
 
         return Promise.all(promiseList_apply);
     })
