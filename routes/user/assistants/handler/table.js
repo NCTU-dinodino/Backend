@@ -772,9 +772,11 @@ table.researchProfessorList = function(req, res, next) {
         let research_index = [];
         let students_ = [];
         result.forEach((student_of_techer) => {
+            console.log(1);
             students_ = [...students_, ...student_of_techer];
         });
         students_.forEach((student) => {
+            console.log(2);
             // teacher_list[0].accepted.projects.push({st:student});
             if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ( (student.first_second == '3') && (req.body.first_second == '1') ))) {
                 if (research_index[student.research_title] == null){
