@@ -1024,6 +1024,47 @@ table.researchSetFirstSecond = function(req, res, next) {
     }
 }
 
+table.researchSendWarningEmail = function(req, res, next) {
+	let promiseList = [];
+
+	let promiseShowUserInfo = (id) => new Promise((resolve, reject) => {
+		query.ShowUserInfo(id, (error, result) => {
+			if(error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
+			else if(!result) reject('Cannot fetch ShowUserInfo.');
+			else resolve(JSON.parse(result)[0]);
+		});
+	});
+
+	req.body.people.forEach((person) => {
+		promiseList.push(promiseShowUserInfo(person.id));
+	});
+
+	Promise.all(promiseList)
+	.then(result => result.map(info => {return {name: info.sname, email: info.email}}))
+	.then(result => {
+		let emails = result.map(info => info.email).join();
+		let options = {
+			from: 'nctucsca@gmail.com',
+			to: emails,
+			cc: /*req.body.sender_email*/'',
+			bcc: '',
+			subject: '', // Subject line
+			html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+		};
+
+		transporter.sendMail(options, function(error, info){
+			if(error){
+				return Promise.reject('Error sending emails.');
+			}
+		});
+		res.status = 200;
+	})
+	.catch((error) => {
+		console.log(error);
+		res.status = 403;
+	});
+}
+
 // --------------------------------------------------------------------research table
 
 // graduate table--------------------------------------------------------------------
@@ -1760,5 +1801,6 @@ table.adviseeSemesterScoreList = function(req, res, next) {
 }
 
 // ---------------------------------------------------------------------advisee table
+
 
 exports.table = table;

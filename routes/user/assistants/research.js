@@ -15,6 +15,7 @@ var researchDelete = table.table.researchDelete;
 var researchSetAddStatus = table.table.researchSetAddStatus;
 var researchSetFirstSecond = table.table.researchSetFirstSecond;
 var researchStudentListDownload = table.table.researchStudentListDownload;
+var researchSendWarningEmail = table.table.researchSendWarningEmail;
 
 router.post('/assistants/research/studentList', csrfProtection, researchStudentList, function(req, res) {
 // router.post('/assistants/project/StudentResearchList', csrfProtection, researchStudentList, function(req, res) {
@@ -59,6 +60,10 @@ router.post('/assistants/research/setFirstSecond', csrfProtection, researchSetFi
 router.post('/assistants/research/professorListDownload', csrfProtection, researchStudentListDownload, function(req, res) {
 // router.post('/assistants/project/StudentResearchListDownload', csrfProtection, researchStudentListDownload, function(req, res) {
     res.send(req.studentListDownload);
+});
+
+router.post('/assistants/research/SendWarningEmail', csrfProtection, researchSendWaringEmail, (req, res) => {
+	res.send();
 });
 
 module.exports = router;
