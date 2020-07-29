@@ -772,9 +772,10 @@ table.researchProfessorList = function(req, res, next) {
         let research_index = [];
         let students_ = [];
         result.forEach((student_of_techer) => {
-            console.log(1);
             students_ = [...students_, ...student_of_techer];
         });
+        teacher_list[0].accepted.projects.push({st:students_});
+        return;
         students_.forEach((student) => {
             console.log(2);
             // teacher_list[0].accepted.projects.push({st:student});
