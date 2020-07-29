@@ -797,9 +797,9 @@ table.researchProfessorList = function(req, res, next) {
                     score: student.score == null ? null : parseInt(student.score),
                     comment: student.comment
                 }
-                // let research_idx = research_index[student.research_title];
-                // let teacher_idx = teacher_index[student.teacher_id];
-                // teacher_list[teacher_idx].accepted.projects[research_idx].students.push(student_info);
+                let research_idx = research_index[student.research_title];
+                let teacher_idx = teacher_index[student.teacher_id];
+                teacher_list[teacher_idx].accepted.projects[research_idx].students.push(student_info);
                 // if((student.add_status == 0) && (teacher_list[teacher_idx].accept_status == 0))
                 //     teacher_list[teacher_idx].accept_status = 1;
             }
