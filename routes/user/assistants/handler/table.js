@@ -805,6 +805,7 @@ table.researchProfessorList = function(req, res, next) {
                     teacher_list[teacher_idx].accept_status = 1;
             }
         });
+    });
         return Promise.all(promiseList_apply);
     })
     .then((result) => {
