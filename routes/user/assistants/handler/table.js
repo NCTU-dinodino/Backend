@@ -779,7 +779,7 @@ table.researchProfessorList = function(req, res, next) {
                     }
                     let teacher_idx = teacher_index[student.teacher_id];
                     research_index[student.research_title] = teacher_list[teacher_idx].accepted.projects.length;
-                    teacher_list[teacher_idx].accepted.projects.push(project);
+                    teacher_list[teacher_idx].accepted.projects.push({title:'here'});
                 }
 
                 let student_info = {
