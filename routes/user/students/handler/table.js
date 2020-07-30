@@ -1000,7 +1000,7 @@ table.researchApplyCreate = function(req, res, next){
 
 		let options = {
 			from:		'nctucsca@gmail.com',
-			to:			req.body.teacher_email,
+			to:			(process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
 			cc:			mails,
 			bcc:		'',
 			subject:	'[交大資工線上助理]專題申請郵件通知]',
