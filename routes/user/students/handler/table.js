@@ -977,8 +977,8 @@ table.researchApplyCreate = function(req, res, next){
 		query.CreateResearchApplyForm(studentInfo, (error, result) => {
 			if(error) reject('Cannot fetch CreateResearchApplyForm. Error message: ' + error);
 			if(!result) reject('Cannot fetch CreateResearchApplyForm.');
-			if(result == 'wrong') resolve(result);
-			resolve(JSON.parse(result));
+			else if(result == 'wrong') resolve(result);
+			else resolve(JSON.parse(result));
 		});
 	});
 
