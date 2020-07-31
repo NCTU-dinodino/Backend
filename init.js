@@ -144,9 +144,6 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
   app.use(require('./routes/user/common/other'));
   app.use(require('./routes/user/common/mail'));
 /*add test route here*/
-	try{app.use(require('./routes/backend_test/testAPI.js'));}catch(e){}
-	try{app.use(require('./routes/backend_test/testAPI_2.js'));}catch(e){}
-  	try{app.use(require('./routes/backend_test/leodetest.js'));}catch(e){}
-  	try{app.use(require('./routes/backend_test/testDB.js'));}catch(e){}
+  	try{app.use(require('./routes/BackendTest/TestPage.js'));}catch(e){}
   return app;
 };
