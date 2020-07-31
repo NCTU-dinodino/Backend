@@ -144,6 +144,8 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
   app.use(require('./routes/user/common/other'));
   app.use(require('./routes/user/common/mail'));
 /*add test route here*/
-  	try{app.use(require('./routes/BackendTest/TestPage.js'));}catch(e){}
+	if(process.env.__ENV__ == 'DEV'){
+  		app.use(require('./routes/BackendTest/TestPage.js'));
+	}
   return app;
 };
