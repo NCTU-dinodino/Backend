@@ -941,6 +941,14 @@ table.researchSetReplace = function(req, res, next){
 
 /*建立專題申請，並發送信件給學生*/
 table.researchApplyCreate = function(req, res, next){
+	let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
+		query.ShowTeacherIdList((error, result) => {
+			if(error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowTeacherIdList.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
 	let promiseShowResearchTitleNumber = () => new Promise((resolve, reject) => {
 		if(!req.session.profile) reject('Student profile not found.');
 		else{
@@ -957,6 +965,14 @@ table.researchApplyCreate = function(req, res, next){
 		}
 	});
 
+	let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
+		query.ShowStudentResearchInfo(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
 	let promiseCreateResearchApplyForm = (studentInfo) => new Promise((resolve, reject) => {
 		query.CreateResearchApplyForm(studentInfo, (error, result) => {
 			if(error) reject('Cannot fetch CreateResearchApplyForm. Error message: ' + error);
@@ -966,7 +982,126 @@ table.researchApplyCreate = function(req, res, next){
 		});
 	});
 
-	promiseShowResearchTitleNumber()
+	let promiseSetResearchReplace = (studentInfo) => new Promise((resolve, reject) => {
+		query.SetResearchReplace(studentInfo, (error, result) => {
+			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
+			resolve({teacher_email: studentInfo.teacher_email, student_email: studentInfo.student_email});
+		});
+	});
+
+	let promiseCreateOrSetReplace = (student) => {
+		if(student.first_second == 1){
+			return promiseShowResearchTitleNumber()
+			.then(result => {
+				let num = parseInt(result[0].count);
+				let studentInfo = {
+					phone:			student.phone,
+					student_id:		student.student_id,
+					research_title:	req.body.title + (num != 1 ? '_' + num : ''),
+					tname:			req.body.tname,
+					first_second:	student.first_second,
+					email:			student.email,
+					semester:		req.body.semester,
+					program:		student.department,
+					name:			student.name
+				};
+				return promiseCreateResearchApplyForm(studentInfo);	
+			})
+			.then(result => {
+				if(result == 'wrong'){
+					return {student_mail: student.email, status: false, type: 'create'};
+				}else{
+					return {student_email: student.email, status: true, type: 'create'};
+				}
+			});
+		}else if(student.first_second == 2){
+			return promiseShowStudentResearchInfo(student.student_id)
+			.then((result) => {
+				let researchFirstObj = result.find(research => research.first_second == '1');
+				if(researchFirstObj) return Promise.all([promiseShowTeacherIdList(), researchFirstObj.tname]);
+				else return Promise.reject('Student ' + student.student_id + ' hasn\'t applied research 1.');
+			})
+			.then((result) => {
+				let teacherList = result[0];
+				let tname = resul[1];
+
+				return {email: teacherList.find(teacher => teacher.tname == tname).email};
+			})
+			.then((result) => {
+				let studentInfo = {
+					student_id: student.student_id,
+					research_title: req.body.title,
+					semester: req.body.semester,
+					replace_pro: '1',
+					teacher_email: result,
+					student_email: student.email
+				};
+				return promiseSetResearchReplace(studentInfo);
+			})
+			.then(result => {return {teacher_email: result.teacher_email, student_email: result.student_email, status: true, type: 'replace'}});
+		}
+	});
+
+	let promiseList = req.body.members.map((student) => promiseCreateOrSetReplace(student));
+
+	Promise.all(promiseList)
+	.then(result => {
+		if(result.every(r => r.type == 'create')){
+			if(result.every(status => status.status)){
+				res.status = 204;
+				let emails = result.map(r => r.student_email).join();
+				let transporter = nodemailer.createTransport({
+					service:	'Gmail',
+					auth:		mail_info.auth
+				});
+
+				let options = {
+					from:		'nctucsca@gmail.com',
+					to:			(process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
+					cc:			emails,
+					bcc:		'',
+					subject:	'[交大資工線上助理]專題申請郵件通知]',
+					html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + emails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+				};
+
+				transporter.sendMail(options, (error, result) => {
+					if(error) return Promise.reject('Cannot send email. Error message: ' + error);
+				});
+			}else{
+				res.status = 403;
+			}
+		}else{
+			let transporter = nodemailer.createTransport({
+				service: 'Gmail',
+				auth: mail_info.auth
+			});
+
+			result.filter(info => info.type == 'replace').forEach(info => {
+				let options = {
+					from:		'nctucsca@gmail.com',
+					to:			(process.env.__ENV__ == 'DEV' ? '' : info.teacher_email),
+					cc:			'',
+					bcc:		'',
+					subject:	'[交大資工線上助理]學生申請<更換專題教授>通知', // Subject line
+					html: 		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 學生：' + info.student_email + ' 謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+				};
+
+				transporter.sendMail(options, (error, result) => {
+					if(error) return Promise.reject('Cannot send email. Error message: ' + error);
+				});
+			});
+		}
+	})
+	.then(_ => {
+		next();
+	})
+	.catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
+
+
+/*	promiseShowResearchTitleNumber()
 	.then((result) => {
 		let num = parseInt(result[0].count);
 		let promiseList = [];
@@ -1018,7 +1153,6 @@ table.researchApplyCreate = function(req, res, next){
 		res.redirect('/');
 	});
 
-	/*
     if (req.session.profile) {
             var info = req.body;
             var data = {
@@ -1098,6 +1232,13 @@ table.researchApplyCreate = function(req, res, next){
 
 /*刪除專題申請*/
 table.researchApplyDelete = function(req, res, next){
+	let promiseSetResearchReplace = (studentInfo) => new Promise((resolve, reject) => {
+		query.SetResearchReplace(studentInfo, (error, result) => {
+			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
+			resolve(studentInfo.teacher_email);
+		});
+	});
+
 	let promiseDeleteResearchApplyForm = new Promise((resolve, reject) => {
 		if(!req.session.profile) reject('Student profile not found');
 		else{
@@ -1115,6 +1256,8 @@ table.researchApplyDelete = function(req, res, next){
 			});
 		}
 	});
+
+
 
 	promiseDeleteResearchApplyForm
 	.then((result) => {
