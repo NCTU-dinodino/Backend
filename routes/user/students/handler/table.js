@@ -1040,7 +1040,7 @@ table.researchApplyCreate = function(req, res, next){
 			})
 			.then(result => {return {teacher_email: result.teacher_email, student_email: result.student_email, status: true, type: 'replace'}});
 		}
-	});
+	};
 
 	let promiseList = req.body.members.map((student) => promiseCreateOrSetReplace(student));
 
