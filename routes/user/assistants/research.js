@@ -15,6 +15,8 @@ var researchDelete = table.table.researchDelete;
 var researchSetAddStatus = table.table.researchSetAddStatus;
 var researchSetFirstSecond = table.table.researchSetFirstSecond;
 var researchStudentListDownload = table.table.researchStudentListDownload;
+var researchNotInSystemList = table.table.researchNotInSystemList;
+var researchNotOnCosList = table.table.researchNotOnCosList;
 
 router.post('/assistants/research/studentList', csrfProtection, researchStudentList, function(req, res) {
 // router.post('/assistants/project/StudentResearchList', csrfProtection, researchStudentList, function(req, res) {
