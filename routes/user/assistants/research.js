@@ -61,4 +61,12 @@ router.post('/assistants/research/professorListDownload', csrfProtection, resear
     res.send(req.studentListDownload);
 });
 
+router.post('/assistants/research/notInSystemList', csrfProtection, researchNotInSystemList, function(req, res) {
+    res.send(req.notInSystemList);
+});
+
+router.post('/assistants/research/notOnCosList', csrfProtection, researchNotOnCosList, function(req, res) {
+    res.send(req.notOnCosList);
+});
+
 module.exports = router;
