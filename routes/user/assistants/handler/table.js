@@ -1021,6 +1021,66 @@ table.researchSetFirstSecond = function(req, res, next) {
     }
 }
 
+/* 回傳選課有選專題但不在專題和專題申請表的學生學號 */
+table.researchNotInSystemList = function(req, res, next) {
+    if (req.session.profile) { 
+        var input = {semester: req.body.semester};
+        query.ShowOnCosButNotInDBStudentList(input, function(err,result) {
+            if (err) {
+                throw err;
+                res.redirect('/');
+            }
+            if (!result)
+                res.redirect('/');
+            result = JSON.parse(result)
+            var list = result.map((student) => {
+                student['id'] = student['student_id'];
+                student['name'] = student['sname'];
+                delete student['student_id'];
+                delete student['sname'];
+                return student;
+            })
+            req.notInSystemList = list;
+            if (req.notInSystemList)
+                next();
+            else
+                return;
+        }); 
+    }
+    else
+        res.redirect('/');
+}
+
+/* 回傳在專題或專題申請表但選課沒有選專題的學生 */
+table.researchNotOnCosList = function(req, res, next) {
+	if (req.session.profile) { 
+    	var input = {semester: req.body.semester};
+    	query.ShowInDBButNotOnCosStudentList(input, function(err,result) {
+        	if (err) {
+            	throw err;
+            	res.redirect('/');
+       		}
+        	if (!result)
+            	res.redirect('/');
+			result = JSON.parse(result)
+            var list = result.map((student) => {
+                student['id'] = student['student_id'];
+                student['name'] = student['sname'];
+                delete student['student_id'];
+                delete student['sname'];
+                return student;
+            })
+			req.notOnCosList = list;
+			if (req.notOnCosList)
+				next();
+			else
+				return;
+    	});	
+	}
+	else
+    	res.redirect('/');
+}
+
 // --------------------------------------------------------------------research table
 
 // graduate table--------------------------------------------------------------------
