@@ -1023,7 +1023,7 @@ table.researchApplyCreate = function(req, res, next){
 			})
 			.then((result) => {
 				let teacherList = result[0];
-				let tname = resul[1];
+				let tname = result[1];
 
 				return {email: teacherList.find(teacher => teacher.tname == tname).email};
 			})
