@@ -916,6 +916,7 @@ table.researchApplyList = function(req, res, next){
 
 		let promiseList = projects.map(project => Promise.all(project.participants.map(student => promiseShowStudentResearchInfo(student.student_id))));
 		return Promise.all([Promise.resolve(projects), Promise.all(promiseList)]);
+	})
 	.then(result => {
 		let projects = result[0];
 		let studentInfos = result[1];
