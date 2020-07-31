@@ -1036,7 +1036,32 @@ table.researchApplyCreate = function(req, res, next){
 					teacher_email: result,
 					student_email: student.email
 				};
-				return promiseSetResearchReplace(studentInfo);
+				return Promise.all([
+					promiseSetResearchReplace(studentInfo),
+					promiseShowResearchTitleNumber()
+					.then(result => {
+						let num = parseInt(result[0].count);
+						let studentInfo = {
+							phone:			student.phone,
+							student_id:		student.student_id,
+							research_title:	req.body.title + (num != 1 ? '_' + num : ''),
+							tname:			req.body.tname,
+							first_second:	student.first_second,
+							email:			student.email,
+							semester:		req.body.semester,
+							program:		student.department,
+							name:			student.name
+						};
+						return promiseCreateResearchApplyForm(studentInfo);	
+					})
+				]);
+			})
+			.then(result => {
+				if(result == 'wrong'){
+					return {student_mail: student.email, status: false, type: 'create'};
+				}else{
+					return {student_email: student.email, status: true, type: 'create'};
+				}
 			})
 			.then(result => {return {teacher_email: result.teacher_email, student_email: result.student_email, status: true, type: 'replace'}});
 		}
@@ -1060,7 +1085,7 @@ table.researchApplyCreate = function(req, res, next){
 					to:			(process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
 					cc:			emails,
 					bcc:		'',
-					subject:	'[交大資工線上助理]專題申請郵件通知]',
+					subject:	'[交大資工線上助理]專題申請郵件通知',
 					html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + emails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
 				};
 

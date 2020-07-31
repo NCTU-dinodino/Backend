@@ -518,6 +518,22 @@ table.researchSetReplace = function(req, res, next) {
 		});
 	};
 
+	let promiseShowStudentResearchApplyForm = (studentId) => {
+		query.ShowStudentResearchApplyForm(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
+			else resolve(JSON.parse(result));
+		});
+	};
+
+	let promiseShowTeacherResearchApplyFormList = (teacherId) => {
+		query.ShowTeacherResearchApplyFormList(teacherId, '', (error, result) => {
+			if(error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
+			else resolve(JSON.parse(result));
+		});
+	};
+
 	let promiseDeleteResearch = (info) => {
 		query.DeleteResearch(info, (error, result) => {
 			if(error) reject('Cannot fetch DeleteResearch. Error message: ' + error);
@@ -542,14 +558,14 @@ table.researchSetReplace = function(req, res, next) {
 				semester: req.body.semester,
 				replace_pro: 0
 			};
-			return Promise.all([Promise.resolve(true), Promise.resolve(email), promiseSetResearchReplace(replaceInfo)]);
+			return Promise.all([Promise.resolve(false), Promise.resolve(email), promiseSetResearchReplace(replaceInfo)]);
 		}else if(req.body.student_id == 1){
 			let deleteInfo = {
 				student_id: req.body.student_id,
 				first_second: req.body.first_second,
 				semester: req.body.semester
 			};
-			return Promise.all([Promise.resolve(false), Promise.resolve(email), promiseDeleteResearch(deleteInfo)]);
+			return Promise.all([Promise.resolve(true), Promise.resolve(email), promiseDeleteResearch(deleteInfo)]);
 		}
 	})
 	.then(result => {
@@ -571,7 +587,7 @@ table.researchSetReplace = function(req, res, next) {
 		};
 
 		if(status){
-			options.subject = '[交大資工線上助理]不同意教授更換申請郵件通知';
+			options.subject = '[交大資工線上助理]同意教授更換申請郵件通知';
 		}else{
 			options.subject = '[交大資工線上助理]不同意教授更換申請郵件通知';
 		}
@@ -579,7 +595,6 @@ table.researchSetReplace = function(req, res, next) {
 		transporter.sendMail(options, (error, info) => {
 			if (error) return Promise.reject(error);
 		});
-
 	})
 	.catch(error => {
 		console.log(error);
