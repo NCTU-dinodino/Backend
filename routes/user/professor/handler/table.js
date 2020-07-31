@@ -510,7 +510,99 @@ table.researchList = function(req, res, next){
 }
 
 table.researchSetReplace = function(req, res, next) {
-    if (req.session.profile) {
+	let promiseShowStudentInfo = (studentId) => {
+		query.ShowStudentInfo(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowStudentInfo. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowStudentInfo.');
+			else resolve(JSON.parse(result)[0]);
+		});
+	};
+
+	let promiseShowStudentResearchApplyForm = (studentId) => {
+		query.ShowStudentResearchApplyForm(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
+			else resolve(JSON.parse(result));
+		});
+	};
+
+	let promiseShowTeacherResearchApplyFormList = (teacherId) => {
+		query.ShowTeacherResearchApplyFormList(teacherId, '', (error, result) => {
+			if(error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
+			else resolve(JSON.parse(result));
+		});
+	};
+
+	let promiseDeleteResearch = (info) => {
+		query.DeleteResearch(info, (error, result) => {
+			if(error) reject('Cannot fetch DeleteResearch. Error message: ' + error);
+			resolve();
+		});
+	}
+
+	let promiseSetResearchReplace = (info) => {
+		query.SetResearchReplace(info, (error, result) => {
+			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
+			resolve();
+		});
+	};
+
+	promiseShowStudentInfo(req.body.student_id)
+	.then(result => result.email)
+	.then(email => {
+		if(req.body.agree_replace == 0){
+			let replaceInfo = {
+				student_id: req.body.student_id,
+				research_title: req.body.research_title,
+				semester: req.body.semester,
+				replace_pro: 0
+			};
+			return Promise.all([Promise.resolve(false), Promise.resolve(email), promiseSetResearchReplace(replaceInfo)]);
+		}else if(req.body.student_id == 1){
+			let deleteInfo = {
+				student_id: req.body.student_id,
+				first_second: req.body.first_second,
+				semester: req.body.semester
+			};
+			return Promise.all([Promise.resolve(true), Promise.resolve(email), promiseDeleteResearch(deleteInfo)]);
+		}
+	})
+	.then(result => {
+		let status = result[0];
+		let email = result[1];
+	
+		let transporter = nodemailer.createTransport({
+			service: 'Gmail',
+			auth: mail_info.auth
+		});
+
+		let options = {
+			from:		'nctucsca@gmail.com',
+			to:			email, 
+			cc:			'',
+			bcc:		'',
+			subject:	'[交大資工線上助理]專題申請狀態改變通知', // Subject line
+			html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡您的老師，謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+		};
+
+		if(status){
+			options.subject = '[交大資工線上助理]同意教授更換申請郵件通知';
+		}else{
+			options.subject = '[交大資工線上助理]不同意教授更換申請郵件通知';
+		}
+
+		transporter.sendMail(options, (error, info) => {
+			if (error) return Promise.reject(error);
+		});
+	})
+	.catch(error => {
+		console.log(error);
+		res.redirect('/');
+	});
+
+
+    /*if (req.session.profile) {
         var info = req.body;
         var set_content = { student_id: info.student_id, research_title: info.research_title, semester: info.semester, replace_pro: 0 };
         var del_content = { student_id: info.student_id, first_second: info.first_second, semester: info.semester };
@@ -530,25 +622,12 @@ table.researchSetReplace = function(req, res, next) {
     			auth: mail_info.auth
 			});
 			var options = {
-    			//寄件者
-    			from: 'nctucsca@gmail.com',
-    			//收件者
-    			to: student_email /*'joying62757@gmail.com'*/, 
-    			//副本
-    			cc: /*req.body.sender_email*/'',
-    			//密件副本
-    			bcc: '',
-    			//主旨
-    			subject: '[交大資工線上助理]專題申請狀態改變通知', // Subject line
-    			//純文字
-    			/*text: 'Hello world2',*/ // plaintext body
-    			//嵌入 html 的內文
+    			from:		'nctucsca@gmail.com',
+    			to:			student_email , 
+    			cc:			'',
+    			bcc:		'',
+    			subject:	'[交大資工線上助理]專題申請狀態改變通知', // Subject line
     			html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡您的老師，謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
-    			//附件檔案
-    			/*attachments: [ {
-        			filename: 'text01.txt',
-        			content: '聯候家上去工的調她者壓工，我笑它外有現，血有到同，民由快的重觀在保導然安作但。護見中城備長結現給都看面家銷先然非會生東一無中；內他的下來最書的從人聲觀說的用去生我，生節他活古視心放十壓心急我我們朋吃，毒素一要溫市歷很爾的房用聽調就層樹院少了紀苦客查標地主務所轉，職計急印形。團著先參那害沒造下至算活現興質美是為使！色社影；得良灣......克卻人過朋天點招？不族落過空出著樣家男，去細大如心發有出離問歡馬找事'
-    			}]*/
 			};
         	if (info.agree_replace) {
             	query.DeleteResearch(del_content, function(err, result) {
@@ -590,7 +669,7 @@ table.researchSetReplace = function(req, res, next) {
 		}, 800);
     } else {
         res.redirect('/');
-    }
+    }*/
 }
 
 table.researchChangeTeacherList = function(req, res, next){
@@ -787,7 +866,86 @@ table.researchApplySetAgree = function(req, res, next) {
 }
 
 table.researchApplyList = function(req, res, next){
-	if(req.session.profile){
+	let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
+		query.ShowStudentResearchInfo(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	let promiseShowTeacherResearchApplyFormList = (teacherId) => new Promise((resolve, reject) => {
+		query.ShowTeacherResearchApplyFormList(teacherId, (error, result) => {
+			if(error) reject('Cannot fetch ShowTeacherResearchApplyForm. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowTeacherResearchApplyForm.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	let promiseShowGradeTeacherResearchStudent = (teacherId) => new Promise((resolve, reject) => {
+		query.ShowGradeTeacherResearchStudent(teacherId, '', (error, result) => {
+			if(error) reject('Cannot fetch ShowGradeTeacherResearchStudent. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowGradeTeacherResearchStudent.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	Promise.all([promiseShowTeacherResearchApplyFormList(req.body.id), promiseShowGradeTeacherResearchStudent(req.body.id)])
+	.then(result => {
+		let applyFormList = result[0];
+		let studentList = result[1];
+
+		let projects = {};
+
+		applyFormList.forEach(applyForm => {
+			if(applyForm.agree == '3') return;
+			if(!projects[applyForm.research_title]){
+				let project = {
+					research_title: applyForm.research_title,
+					status: applyForm.agree,
+					year: applyForm.semester,
+					first_second: applyForm.first_second,
+					participants: []
+				};
+				projects[applyForm.research_title] = project;
+			}
+			let student = {
+				student_id:		applyForm.student_id,
+				sname:			applyForm.sname,
+				email:			applyForm.email,
+				phone:			applyForm.phone,
+				first_second:	applyForm.first_second,
+				student_status:	applyForm.status
+			};
+			projects[applyForm.research_title].participants.push(student);
+		});
+
+		projects = Object.values(projects);
+
+		let promiseList = projects.map(project => Promise.all(project.participants.map(student => promiseShowStudentResearchInfo(student.student_id))));
+		return Promise.all([Promise.resolve(projects), Promise.all(promiseList)]);
+	})
+	.then(result => {
+		let projects = result[0];
+		let studentInfos = result[1];
+
+		projects = projects.filter((project, idxProject) => {
+			if(project.participants.some((student, idxParticipant) => {
+				let record = studentInfos[idxProject][idxParticipant].find(info => info.first_second == '1');
+				if(!record) return false;
+				return record.replace_pro == '1';
+			})) return false;
+			return true;
+		});
+		req.list = projects;
+		next();
+	})
+	.catch(error => {
+		console.log(error);
+		res.redirect('/');
+	});
+
+	/*if(req.session.profile){
 		var teacher_id = res.locals.teacherId;
 		query.ShowTeacherResearchApplyFormList(teacher_id, (err, result) => {
 			if(err){
@@ -830,7 +988,7 @@ table.researchApplyList = function(req, res, next){
 			next();
 		});
 	}else
-		res.redirect('/');
+		res.redirect('/');*/
 }
 table.adviseeSemesterGradeList = function(req, res, next){
     if(req.session.profile){

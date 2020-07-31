@@ -680,6 +680,53 @@ table.courseMapPass = function(req, res, next){
 
 /*專題列表（包含申請中的專題）*/
 table.researchList = function(req, res, next){
+	let promiseShowStudentResearchApplyForm = new Promise((resolve, reject) => {
+		if(!req.session.profile) reject('Student profile not found.');
+		else{
+			query.ShowStudentResearchApplyForm(res.locals.studentId, (error, result) => {
+				if(error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
+				resolve(JSON.parse(result));
+			});
+		}
+	});
+
+	let promiseShowStudentResearchInfo = new Promise((resolve, reject) => {
+		if(!req.session.profile) reject('Student profile not found.');
+		else{
+			query.ShowStudentResearchInfo(res.locals.studentId, (error, result) => {
+				if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
+				resolve(JSON.parse(result));
+			});
+		}
+	});
+
+	Promise.all([promiseShowStudentResearchApplyForm, promiseShowStudentResearchInfo])
+	.then(([studentResearchApplyForm, studentResearchInfo]) => {
+		let result = [...studentResearchApplyForm, ...studentResearchInfo];
+		result = result.map((data) => (
+			{
+				student_id:		data.student_id,
+				tname:			data.tname,
+				title:			data.research_title,
+				score:			data.score == null ? null : parseInt(data.score),
+				semester:		data.semester,
+				comment:		data.comment,
+				first_second:	data.first_second == null ? null : parseInt(data.first_second),
+				department:		data.status == null ? null : parseInt(data.status),
+				status:			data.agree == null ? null : parseInt(data.agree),
+				add_status:		data.add_status == null ? null : parseInt(data.add_status),
+				replace_status:	data.replace_pro == null ? null : parseInt(data.replace_pro)
+			}
+		));
+		req.list = result;
+		next();
+	}).catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
+	/*
     if(req.session.profile){
         var studentId = res.locals.studentId;
         query.ShowStudentResearchApplyForm(studentId, function(err, form){
@@ -700,7 +747,21 @@ table.researchList = function(req, res, next){
                         }
                         else{
                             project = JSON.parse(project);
-                            req.list = [...project,...form];       
+                            req.list = [...project,...form].map((record) => (
+				{
+					student_id: record.student_id,
+					tname: record.tname,
+					title: record.research_title,
+					score: record.score == null ? null : parseInt(record.score),
+					semester: record.semester,
+					comment: record.comment,
+					first_second: parseInt(record.first_second),
+					department: parseInt(record.status),
+					status: record.agree,
+					add_status: record.add_status == null ? null : parseInt(record.add_status),
+					replace_status: record.replace_pro == null ? null : parseInt(record.replace_pro)
+				}
+			    )); 
                             if(req.list)
                                 next();
                             else
@@ -714,24 +775,55 @@ table.researchList = function(req, res, next){
     }
     else
         res.redirect('/');
-
+	*/
 }
 
 /*回傳該學生填專題表時的狀況（status代表啥看db的github）*/
 table.researchShowStudentStatus = function(req, res, next){
-    if(req.session.profile){ 
+    let promiseShowStudentResearchStatus = (studentId) => new Promise((resolve, reject) => {
+		if(!req.session.profile) reject('Student profile not found.');
+		else{
+			query.ShowStudentResearchStatus(studentId, (error, result) => {
+				if(error) reject('Cannot fetch ShowStudentResearchStatus. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowStudentResearchStatus.')
+				resolve(JSON.parse(result));
+			});
+		}
+	});
+
+	let promiseList = [];
+
+	req.body.members.forEach((student) => {promiseList.push(promiseShowStudentResearchStatus(student.student_id))});
+
+	Promise.all(promiseList)
+	.then((result) => {
+		result = result.reduce((acc, cur) => {acc.push(cur[0]); return acc;}, []).map((student) => {student.status = parseInt(student.status); return student;});
+		res.status = result;
+		next();
+	})
+	.catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
+	/*
+	if(req.session.profile){ 
         var group =[];
         for(var i = 0;i< req.body.participants.length; i++){
-            query.ShowStudentResearchStatus(req.body.participants[i], function(err,result){ 
+
+            query.ShowStudentResearchStatus(req.body.participants[i].student_id, function(err,result){ 
                 if(err){
                     throw err;                                                                                              
                     res.redirect('/');
                 }
                 if(!result)
                     res.redirect('/');      
-                else{                                                                                                       
-                    result = JSON.parse(result);                
-                    group =[...group, ...result];
+                else{                                                          
+		    query.ShowStudentResearchInfo(req.body.participants[i].student_id, (err, result_2) => {
+                    	result = JSON.parse(result);
+			result2 = JSON.parse(result_2);
+			result.status = (result2.some((record) => (record.first_second == '1'))) ? result.status : '6';
+                    	group =[...group, ...result];
+		    });
                 }
              }); 
         }
@@ -745,6 +837,7 @@ table.researchShowStudentStatus = function(req, res, next){
     }
     else
         res.redirect('/');
+	*/
 }
 
 /*編輯專題的資訊*/
@@ -848,14 +941,265 @@ table.researchSetReplace = function(req, res, next){
 
 /*建立專題申請，並發送信件給學生*/
 table.researchApplyCreate = function(req, res, next){
+	let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
+		query.ShowTeacherIdList((error, result) => {
+			if(error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowTeacherIdList.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	let promiseShowResearchTitleNumber = () => new Promise((resolve, reject) => {
+		if(!req.session.profile) reject('Student profile not found.');
+		else{
+			let queryData = {
+				tname: 			req.body.tname,
+				research_title:	req.body.title,
+				semester:		req.body.semester
+			};
+			query.ShowResearchTitleNumber(queryData, (error, result) => {
+				if(error) reject('Cannot fetch ShowResearchTitleNumber. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowResearchTitleNumber.');
+				resolve(JSON.parse(result));
+			});
+		}
+	});
+
+	let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
+		query.ShowStudentResearchInfo(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	let promiseCreateResearchApplyForm = (studentInfo) => new Promise((resolve, reject) => {
+		query.CreateResearchApplyForm(studentInfo, (error, result) => {
+			if(error) reject('Cannot fetch CreateResearchApplyForm. Error message: ' + error);
+			if(!result) reject('Cannot fetch CreateResearchApplyForm.');
+			else if(result == 'wrong') resolve(result);
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	let promiseSetResearchReplace = (studentInfo) => new Promise((resolve, reject) => {
+		query.SetResearchReplace(studentInfo, (error, result) => {
+			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
+			resolve({teacher_email: studentInfo.teacher_email, student_email: studentInfo.student_email});
+		});
+	});
+
+	let promiseCreateOrSetReplace = (student) => {
+		if(student.first_second == 1){
+			return promiseShowResearchTitleNumber()
+			.then(result => {
+				let num = parseInt(result[0].count);
+				let studentInfo = {
+					phone:			student.phone,
+					student_id:		student.student_id,
+					research_title:	req.body.title + (num != 1 ? '_' + num : ''),
+					tname:			req.body.tname,
+					first_second:	student.first_second,
+					email:			student.email,
+					semester:		req.body.semester,
+					program:		student.department,
+					name:			student.name
+				};
+				return promiseCreateResearchApplyForm(studentInfo);	
+			})
+			.then(result => {
+				if(result == 'wrong'){
+					return {student_mail: student.email, status: false, type: 'create'};
+				}else{
+					return {student_email: student.email, status: true, type: 'create'};
+				}
+			});
+		}else if(student.first_second == 2){
+			return promiseShowStudentResearchInfo(student.student_id)
+			.then((result) => {
+				let researchFirstObj = result.find(research => research.first_second == '1');
+				if(researchFirstObj) return Promise.all([promiseShowTeacherIdList(), researchFirstObj.tname]);
+				else return Promise.reject('Student ' + student.student_id + ' hasn\'t applied research 1.');
+			})
+			.then((result) => {
+				let teacherList = result[0];
+				let tname = result[1];
+
+				return teacherList.find(teacher => teacher.tname == tname).email;
+			})
+			.then(email => Promise.all([
+				Promise.resolve(email),
+				promiseShowStudentResearchInfo(student.student_id)
+			]))
+			.then(result => {
+				let email = result[0];
+				let info = result[1];
+				let research1Record = info.find(record => record.first_second == '1');
+
+				return {
+					title: research1Record.research_title,
+					semester: research1Record.semester,
+					teacher_email: email
+				};
+			})
+			.then(result => {
+				let studentInfo = {
+					student_id: student.student_id,
+					research_title: result.title,
+					semester: result.semester,
+					replace_pro: '1',
+					teacher_email: result.teacher_email,
+					student_email: student.email
+				};
+				return Promise.all([
+					promiseSetResearchReplace(studentInfo),
+					promiseShowResearchTitleNumber()
+					.then(result => {
+						let num = parseInt(result[0].count);
+						let studentInfo = {
+							phone:			student.phone,
+							student_id:		student.student_id,
+							research_title:	req.body.title + (num != 1 ? '_' + num : ''),
+							tname:			req.body.tname,
+							first_second:	student.first_second,
+							email:			student.email,
+							semester:		req.body.semester,
+							program:		student.department,
+							name:			student.name
+						};
+						return promiseCreateResearchApplyForm(studentInfo);	
+					})
+					.then(result => {
+						if(result == 'wrong'){
+							return {student_mail: student.email, status: false, type: 'create'};
+						}else{
+							return {student_email: student.email, status: true, type: 'create'};
+						}
+					})
+				]);
+			})
+			.then(result => {return {teacher_email: result.teacher_email, student_email: result.student_email, status: true, type: 'replace'}});
+		}
+	};
+
+	let promiseList = req.body.members.map((student) => promiseCreateOrSetReplace(student));
+
+	Promise.all(promiseList)
+	.then(result => {
+		if(result.every(r => r.type == 'create')){
+			if(result.every(status => status.status)){
+				res.status = 204;
+				let emails = result.map(r => r.student_email).join();
+				let transporter = nodemailer.createTransport({
+					service:	'Gmail',
+					auth:		mail_info.auth
+				});
+
+				let options = {
+					from:		'nctucsca@gmail.com',
+					to:			(process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
+					cc:			emails,
+					bcc:		'',
+					subject:	'[交大資工線上助理]專題申請郵件通知',
+					html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + emails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+				};
+
+				transporter.sendMail(options, (error, result) => {
+					if(error) return Promise.reject('Cannot send email. Error message: ' + error);
+				});
+			}else{
+				res.status = 403;
+			}
+		}else{
+			let transporter = nodemailer.createTransport({
+				service: 'Gmail',
+				auth: mail_info.auth
+			});
+
+			result.filter(info => info.type == 'replace').forEach(info => {
+				let options = {
+					from:		'nctucsca@gmail.com',
+					to:			(process.env.__ENV__ == 'DEV' ? '' : info.teacher_email),
+					cc:			'',
+					bcc:		'',
+					subject:	'[交大資工線上助理]學生申請<更換專題教授>通知', // Subject line
+					html: 		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 學生：' + info.student_email + ' 謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+				};
+
+				transporter.sendMail(options, (error, result) => {
+					if(error) return Promise.reject('Cannot send email. Error message: ' + error);
+				});
+			});
+		}
+	})
+	.then(_ => {
+		next();
+	})
+	.catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
+
+
+/*	promiseShowResearchTitleNumber()
+	.then((result) => {
+		let num = parseInt(result[0].count);
+		let promiseList = [];
+		req.body.members.forEach((student) => {
+			let studentInfo = {
+				phone:			student.phone,
+				student_id:		student.student_id,
+				research_title:	req.body.title + (num != 1 ? '_' + num : ''),
+				tname:			req.body.tname,
+				first_second:	student.first_second,
+				email:			student.email,
+				semester:		req.body.semester,
+				program:		student.department,
+				name:			student.name
+			};
+			promiseList.push(promiseCreateResearchApplyForm(studentInfo));
+		});
+		return Promise.all(promiseList);
+	})
+	.then((result) => {
+		if(result.some((status) => (status == 'wrong'))) res.status(403);
+		else res.status(204);
+	})
+	.then(() => {
+		let mails = req.body.members.reduce((acc, cur) => (acc + cur.email + ','), '');
+		
+		let transporter = nodemailer.createTransport({
+			service:	'Gmail',
+			auth:		mail_info.auth
+		});
+
+		let options = {
+			from:		'nctucsca@gmail.com',
+			to:			(process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
+			cc:			mails,
+			bcc:		'',
+			subject:	'[交大資工線上助理]專題申請郵件通知]',
+			html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + mails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+		};
+
+		transporter.sendMail(options, (error, result) => {
+			if(error) console.log(error);
+		});
+
+		next();
+	})
+	.catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
+
     if (req.session.profile) {
             var info = req.body;
             var data = {
                 tname: info.tname,
-                research_title: info.research_title,
+                research_title: info.title,
                 semester: info.semester
             };
-            var signal = {signal :1};   
             query.ShowResearchTitleNumber(data, function(error, result){
                 if(error){
                     throw error;
@@ -864,8 +1208,8 @@ table.researchApplyCreate = function(req, res, next){
                 if(!result)
                     res.redirect('/');
                 var num = JSON.parse(result)[0]['count'];
-                for(var i = 0;i< info.student_num; i++){
-                    var studentInfo = {phone : info.phones[i], student_id : info.participants[i], research_title : info.research_title, tname : info.tname,first_second : info.first_second[i], email : info.email[i], semester: info.semester, program : info.department[i], name : info.name[i]};
+                for(var i = 0;i< info.participants.length; i++){
+                    var studentInfo = {phone : info.participants[i].phones, student_id : info.participants[i].student_id, research_title : info.title, tname : info.tname,first_second : info.participants[i].first_second, email : info.participants[i].email, semester: info.semester, program : info.participants[i].department, name : info.participants[i].name};
                     if(num != "1")
                         studentInfo.research_title += "_" + num;
                         query.CreateResearchApplyForm(studentInfo, function(err, res1){
@@ -874,7 +1218,7 @@ table.researchApplyCreate = function(req, res, next){
                                 res.redirect('/');
                             }
                             if(res1 == 'wrong'){
-                                signal.signal = 0;
+                                res.status(403);
                             }
                         });
                 }
@@ -898,20 +1242,13 @@ table.researchApplyCreate = function(req, res, next){
                 //收件者
                 to: info.teacher_email, 
                 //副本
-                cc: /*req.body.sender_email*/mailString,
+                cc: mailString,
                 //密件副本
                 bcc: '',
                 //主旨
                 subject: '[交大資工線上助理]專題申請郵件通知', // Subject line
                 //純文字
-                /*text: 'Hello world2',*/ // plaintext body
-                //嵌入 html 的內文
                 html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：'+info.teacher_email + ',學生：' + mailString +'謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
-                //附件檔案
-                /*attachments: [ {
-                    filename: 'text01.txt',
-                    content: '聯候家上去工的調她者壓工，我笑它外有現，血有到同，民由快的重觀在保導然安作但。護見中城備長結現給都看面家銷先然非會生東一無中；內他的下來最書的從人聲觀說的用去生我，生節他活古視心放十壓心急我我們朋吃，毒素一要溫市歷很爾的房用聽調就層樹院少了紀苦客查標地主務所轉，職計急印形。團著先參那害沒造下至算活現興質美是為使！色社影；得良灣......克卻人過朋天點招？不族落過空出著樣家男，去細大如心發有出離問歡馬找事'
-                }]*/
             };
             
             transporter.sendMail(options, function(error, info){
@@ -920,8 +1257,8 @@ table.researchApplyCreate = function(req, res, next){
                 }
             });
             
-            req.create = signal;   
             if(req.create)
+		res.status(204);
                 next();
             else
                 return;
@@ -930,32 +1267,85 @@ table.researchApplyCreate = function(req, res, next){
     else {
         res.redirect('/');
     }
-
+*/
 }
 
 /*刪除專題申請*/
 table.researchApplyDelete = function(req, res, next){
-    if (req.session.profile) {
-        var info = req.body;
-        var formInfo = {research_title : info.research_title, tname : info.tname, first_second:info.first_second, semester: info.semester};
-        query.DeleteResearchApplyForm(formInfo);
-        
-        setTimeout(function(){
-            req.delete = {signal :1};   
-            if(req.delete)
-                next();
-            else
-                return;
-        },1000);
-    } 
-    else {
-        res.redirect('/');
-    }
+	let promiseSetResearchReplace = (studentInfo) => new Promise((resolve, reject) => {
+		query.SetResearchReplace(studentInfo, (error, result) => {
+			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
+			resolve(studentInfo.teacher_email);
+		});
+	});
+
+	let promiseDeleteResearchApplyForm = new Promise((resolve, reject) => {
+		if(!req.session.profile) reject('Student profile not found');
+		else{
+			let queryData = {
+				research_title:	req.body.title,
+				tname:			req.body.tname,
+				first_second:	req.body.first_second,
+				semester:		req.body.semester
+			};
+
+			query.DeleteResearchApplyForm(queryData, (error, result) => {
+				if(error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
+				if(!result) reject('Cannot fetch DeleteResearchApplyForm.');
+				resolve(result);
+			});
+		}
+	});
+
+
+
+	promiseDeleteResearchApplyForm
+	.then((result) => {
+		res.status(204);
+		next();
+	})
+	.catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
 
 }
 
 /*列出教授以前指導過的專題*/
 table.professorInfoPastResearch = function(req, res, next){
+	let promiseShowGradeTeacherResearchStudent = (teacherId) => new Promise((resolve, reject) => {
+		if(!req.session.profile) reject('Student profile not found.');
+		else{
+			query.ShowGradeTeacherResearchStudent(teacherId, '', (error, result) => {
+				if(error) reject('Cannot fetch ShowGradeTeacherResearchStudent. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowGradeTeacherResearchStudent.');
+				resolve(JSON.parse(result));
+			});
+		}
+	});
+
+	promiseShowGradeTeacherResearchStudent(req.body.teacher_id)
+	.then((result) => (result
+		.filter((record) => (record.first_second == '2'))
+		.map((record) => ({title: record.research_title, semester: record.semester}))
+	))
+	.then((result) => {
+		let map = {};
+		result.forEach((data) => {
+			map[data.title + data.semester] = data;
+		});
+		return Object.values(map).sort();
+	})
+	.then((result) => {
+		req.pastResearch = result;
+		next();
+	})
+	.catch((error) => {
+		console.log(error);
+		res.redirect('/');
+	});
+
+	/*
    if (req.session.profile) {
     var teacherId = req.body.teacher_id;
     var data = {teacher_id: teacherId };
@@ -997,7 +1387,7 @@ table.professorInfoPastResearch = function(req, res, next){
   } else {
     res.redirect('/');
   }  
-
+*/
 }
 
 /*列出教授列表，及各教授相關資訊*/

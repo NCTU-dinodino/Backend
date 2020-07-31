@@ -115,7 +115,7 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
 
  
   /*done*/
-	app.use((req, res, next) => {req.csca = {}; next();});
+	app.use((req, res, next) => {req.csca = {'raw_data': {}}; next();});
 	app.use(require('./routes/Backend_revise/public/src/router/student.js'));
 	app.use(require('./routes/Backend_revise/public/src/router/assistant.js'));
 
@@ -144,9 +144,8 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
   app.use(require('./routes/user/common/other'));
   app.use(require('./routes/user/common/mail'));
 /*add test route here*/
-	try{app.use(require('./routes/backend_test/testAPI.js'));}catch(e){}
-	try{app.use(require('./routes/backend_test/testAPI_2.js'));}catch(e){}
-  	try{app.use(require('./routes/backend_test/leodetest.js'));}catch(e){}
-  	try{app.use(require('./routes/backend_test/testDB.js'));}catch(e){}
+	if(process.env.__ENV__ == 'DEV'){
+  		app.use(require('./routes/BackendTest/TestPage.js'));
+	}
   return app;
 };
