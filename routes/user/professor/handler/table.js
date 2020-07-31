@@ -921,7 +921,7 @@ table.researchApplyList = function(req, res, next){
 		let projects = result[0];
 		let studentInfos = result[1];
 
-		projects.filter((project, idxProject) => {
+		projects = projects.filter((project, idxProject) => {
 			if(project.participants.some((student, idxParticipant) => {
 				let record = studentInfos[idxProject][idxParticipant].find(info => info.first_second == '1');
 				if(!record) return false;
