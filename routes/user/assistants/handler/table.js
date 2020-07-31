@@ -689,164 +689,161 @@ table.researchStudentListDownload = function(req, res, next) {
 
 /* 列出該教授的專題學生資訊 */
 table.researchProfessorList = function(req, res, next) {
-	if (req.session.profile) {
-        var accept_num_semester = req.body.year;
-        var year_semester = req.body.year + '-' + req.body.semester;
-    	var tid = { teacher_id:'' }
-    	query.ShowTeacherInfoResearchCnt(tid, function(err, ID_list) {
-        	if (err) {
-            	throw err;
-            	res.redirect('/');
-        	}
-        	if(!ID_list)
-            	res.redirect('/');
-        	else {
-            	var group = [];
-            	var Count = 0;
-            	var Index = [];
-            	ID_list = JSON.parse(ID_list);
-            	for (var i=0; i<ID_list.length; i++) {
-                	var list = {
-                    	professor_name:ID_list[i].tname,
-                    	accept_status:0,
-                    	pending_status:0,
-                    	gradeCnt:0,
-                    	accepted:{
-                        	projects:[]
-                    	},
-                    	pending:{
-                        	projects:[]
-                    	}
-                	}
-                    for (var j=0; j<ID_list[i].gradeCnt.length;j++) {
-                        if (ID_list[i].gradeCnt[j].grade == accept_num_semester) {
-                            list.gradeCnt = parseInt(ID_list[i].gradeCnt[j].scount);
-                            break;
-                        }
-                    }
-                	Index[ID_list[i].teacher_id] = Count;
-                	Count ++;
-                	if(list.gradeCnt === null)
-                    	list.gradeCnt = 0 ;
-                	group.push(list);
-            	}
-            	for (var i=0; i<ID_list.length; i++) {
-                	query.ShowGradeTeacherResearchStudent(ID_list[i].teacher_id,'', function(err, result) {
-                    	if (err) {
-                        	throw err;
-                        	return;
-                    	}
-                    	if (!result)
-                        	return;
-                    	else {
-                        	result = JSON.parse(result);
-                            var index = [];
-                        	var count = 0;
-                        	for (var j = 0; j<result.length; j++) { 
-                            	if ((index[result[j].research_title] == null) && (result[j].semester == year_semester) 
-                                    && ( (result[j].first_second == req.body.first_second) || ( (result[j].first_second == '3') && (req.body.first_second == '1') ) ) ){
-                                	var project = {
-                                        title: '',
-                                        students : [],
-                                    }
-                                	project.title = result[j].research_title;
-                                	var Id = Index[result[j].teacher_id];
-                                	group[Id].accepted.projects.push(project);
-                                	index[result[j].research_title] = count;
-                                	count++;
-                            	}  
-                        	}
-                        	for (var j = 0; j<result.length; j++) {
-                            	if ((result[j].semester == year_semester) && ((result[j].first_second == req.body.first_second) || ( (result[j].first_second == '3') && (req.body.first_second == '1') ))) {
-                                    var student = {
-                                    	id: '',
-                                    	name: '',
-                                    	program: '',
-                                    	semester:'',
-                                    	first_second:'',
-                                    	status: null,
-                                    	add_status: 0	
-                                	}
-                                    student.id = result[j].student_id;
-                                	student.name = result[j].sname;
-                                	student.program = result[j].class_detail;
-                                	student.semester = result[j].semester;
-                                	student.first_second = result[j].first_second;
-                                	student.status = result[j].status;
-                                	student.add_status = result[j].add_status;
-                                	var id = index[result[j].research_title];
-                                	var Id = Index[result[j].teacher_id];
-                                	group[Id].accepted.projects[id].students.push(student);
-                                    if((result[j].add_status == 0) && (group[Id].accept_status == 0))
-                                	group[Id].accept_status = 1;
-                            	}
-                        	}
-                        }
-                    });
+    let year = req.body.year;
+    let year_semester = req.body.year + '-' + req.body.semester;
+
+    let promiseShowTeacherInfoResearchCnt = () => new Promise((resolve, reject) => {
+        if (!req.session.profile)
+            reject('Student profile not found.');
+        else {
+            query.ShowTeacherInfoResearchCnt({ teacher_id:'' }, (error, result) => {
+                if(error) reject('Cannot fetch ShowTeacherInfoResearchCnt. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowTeacherInfoResearchCnt.');
+				resolve(JSON.parse(result));
+            });
+        }
+    });
+
+    let promiseShowGradeTeacherResearchStudent = (teacher_id) => new Promise((resolve, reject) => {
+        if (!req.session.profile)
+            reject('Student profile not found.');
+        else {
+            query.ShowGradeTeacherResearchStudent(teacher_id,'', (error, result) => {
+                if(error) reject('Cannot fetch ShowGradeTeacherResearchStudent. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowGradeTeacherResearchStudent.');
+				resolve(JSON.parse(result));
+            });
+        }
+    });
+
+    let promiseShowTeacherResearchApplyFormList = (teacher_id) => new Promise((resolve, reject) => {
+        if (!req.session.profile)
+            reject('Student profile not found.');
+        else {
+            query.ShowTeacherResearchApplyFormList(teacher_id, (error, result) => {
+                if(error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
+				if(!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
+				resolve(JSON.parse(result));
+            });
+        }
+    });
+
+    let teacher_list = [];
+    let teacher_index = {};
+    let promiseList_apply = [];
+    let promiseList = [];
+
+    promiseShowTeacherInfoResearchCnt()
+    .then((result) => {
+        let cnt = 0;
+        result.forEach((teacher) => {
+            let list = {
+                professor_name: teacher.tname,
+                professor_id: teacher.teacher_id,
+                accept_status: 0,
+                pending_status: 0,
+                gradeCnt: 0,
+                accepted:{
+                    projects: []
+                },
+                pending:{
+                    projects: []
                 }
-            	for (var i=0; i<ID_list.length; i++) {
-                	query.ShowTeacherResearchApplyFormList(ID_list[i].teacher_id, function(err, result){
-                    	if (err) {
-                        	throw err;
-                        	return;
-                    	}
-                    	if(!result)
-                        	return;
-                    	else {
-                        	result = JSON.parse(result);
-                        	var index = [];
-                        	var count = 0;
-                        	for (var j = 0; j<result.length; j++) {
-                            	if (index[result[j].research_title] == null && (result[j].semester == year_semester) && ((result[j].first_second == req.body.first_second) || ( (result[j].first_second == '3') && (req.body.first_second == '1') ))) {
-                                	var project = {
-                                        title: '',
-                                        students : [],
-                                	}
-                                	project.title = result[j].research_title;
-                                	var Id = Index[result[j].teacher_id];
-                                	group[Id].pending.projects.push(project);
-                                	index[result[j].research_title] = count;
-                                	count++;
-                                	if(group[Id].pending_status == 0)
-                                    	group[Id].pending_status = 1;
-                            	}  
-                        	}
-                        	for (var j = 0; j<result.length; j++) {	
-                                if((result[j].semester == year_semester) && ((result[j].first_second == req.body.first_second) || ( (result[j].first_second == '3') && (req.body.first_second == '1') ))) {
-                                    var student = {
-                                        id: '',
-                                        name: '',
-                                        program: '',
-                                        first_second:'',
-                                        semester:'',
-                                        status: null	
-                                    }
-                                    student.id = result[j].student_id;
-                                    student.name = result[j].sname;
-                                    student.program = result[j].program;
-                                    student.first_second = result[j].first_second;
-                                    student.semester = result[j].semester;
-                                    student.status = result[j].status;
-                                    var id = index[result[j].research_title];
-                                    var Id = Index[result[j].teacher_id];
-                                    group[Id].pending.projects[id].students.push(student);
-                                }
-                        	}	
-                    	}
-                	});
-            	}
-            	setTimeout(function() {
-                	req.professorList = group;
-					if (req.professorList)
-						next();
-					else
-						return;
-            	}, 1000);
-        	}
-    	});	
-	}
-	else
-    	res.redirect('/');
+            };
+            let flag = 0;
+            teacher.gradeCnt.forEach((gradeCnt) => {
+                if (flag == 0 && gradeCnt.grade == year) {
+                    list.gradeCnt = parseInt(gradeCnt.scount);
+                    flag == 1;
+                }
+            });
+            teacher_index[teacher.teacher_id] = cnt;
+            cnt++;
+            if(list.gradeCnt === null)
+                list.gradeCnt = 0 ;
+            teacher_list.push(list);
+            promiseList.push(promiseShowGradeTeacherResearchStudent(teacher.teacher_id));
+            promiseList_apply.push(promiseShowTeacherResearchApplyFormList(teacher.teacher_id));
+        });
+
+        return Promise.all(promiseList);
+    })
+    .then((result) => {
+        let research_index = {};
+        result.forEach((students_of_techer) => {
+            students_of_techer.forEach((student) => {
+                if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ( (student.first_second == '3') && (req.body.first_second == '1') ))) {
+                    if (research_index[student.research_title + '_' + student.teacher_id] == null){
+                        let project = {
+                            title: student.research_title,
+                            students : [],
+                        }
+                        let teacher_idx = teacher_index[student.teacher_id];
+                        research_index[student.research_title + '_' + student.teacher_id] = teacher_list[teacher_idx].accepted.projects.length;
+                        teacher_list[teacher_idx].accepted.projects.push(project);
+                    }
+
+                    let student_info = {
+                        id: student.student_id,
+                        name: student.sname,
+                        program: student.class_detail,
+                        semester: student.semester,
+                        first_second: student.first_second,
+                        status: student.status,
+                        add_status: student.add_status,
+                        score: student.score == null ? null : parseInt(student.score),
+                        comment: student.comment
+                    }
+                    let research_idx = research_index[student.research_title + '_' + student.teacher_id];
+                    let teacher_idx = teacher_index[student.teacher_id];
+                    teacher_list[teacher_idx].accepted.projects[research_idx].students.push(student_info);
+                    if((student.add_status == 0) && (teacher_list[teacher_idx].accept_status == 0))
+                        teacher_list[teacher_idx].accept_status = 1;
+                }
+            });
+        });
+        return Promise.all(promiseList_apply);
+    })
+    .then((result) => {
+        let research_index = {};
+        result.forEach((students_of_techer) => {
+            students_of_techer.forEach((student) => {
+                if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ( (student.first_second == '3') && (req.body.first_second == '1') ))) {
+                    if (research_index[student.research_title + '_' + student.teacher_id] == null){
+                        let project = {
+                            title: student.research_title,
+                            students : [],
+                        }
+                        let teacher_idx = teacher_index[student.teacher_id];
+                        research_index[student.research_title + '_' + student.teacher_id] = teacher_list[teacher_idx].pending.projects.length;
+                        teacher_list[teacher_idx].pending.projects.push(project);
+                        if(teacher_list[teacher_idx].pending_status == 0)
+                            teacher_list[teacher_idx].pending_status = 1;
+                    }
+
+                    let student_info = {
+                        id: student.student_id,
+                        name: student.sname,
+                        program: student.class_detail,
+                        semester: student.semester,
+                        first_second: student.first_second,
+                        status: student.status,
+                    }
+                    let research_idx = research_index[student.research_title + '_' + student.teacher_id];
+                    let teacher_idx = teacher_index[student.teacher_id];
+                    teacher_list[teacher_idx].pending.projects[research_idx].students.push(student_info);
+                }
+            });
+        });
+        
+        req.professorList = teacher_list;
+        if (req.professorList)
+			next();
+    })
+    .catch((error) => {
+		console.log(error);
+		res.redirect('/');
+    });
 }
 
 /*  列出該學期專題一或二的所有成績資訊 */
@@ -1069,6 +1066,65 @@ table.researchSendWarningEmail = function(req, res, next) {
 		res.status = 403;
 		next();
 	});
+
+/* 回傳選課有選專題但不在專題和專題申請表的學生學號 */
+table.researchNotInSystemList = function(req, res, next) {
+    if (req.session.profile) { 
+        var input = {semester: req.body.semester};
+        query.ShowOnCosButNotInDBStudentList(input, function(err,result) {
+            if (err) {
+                throw err;
+                res.redirect('/');
+            }
+            if (!result)
+                res.redirect('/');
+            result = JSON.parse(result)
+            var list = result.map((student) => {
+                student['id'] = student['student_id'];
+                student['name'] = student['sname'];
+                delete student['student_id'];
+                delete student['sname'];
+                return student;
+            })
+            req.notInSystemList = list;
+            if (req.notInSystemList)
+                next();
+            else
+                return;
+        }); 
+    }
+    else
+        res.redirect('/');
+}
+
+/* 回傳在專題或專題申請表但選課沒有選專題的學生 */
+table.researchNotOnCosList = function(req, res, next) {
+	if (req.session.profile) { 
+    	var input = {semester: req.body.semester};
+    	query.ShowInDBButNotOnCosStudentList(input, function(err,result) {
+        	if (err) {
+            	throw err;
+            	res.redirect('/');
+       		}
+        	if (!result)
+            	res.redirect('/');
+			result = JSON.parse(result)
+            var list = result.map((student) => {
+                student['id'] = student['student_id'];
+                student['name'] = student['sname'];
+                delete student['student_id'];
+                delete student['sname'];
+                return student;
+            })
+			req.notOnCosList = list;
+			if (req.notOnCosList)
+				next();
+			else
+				return;
+    	});	
+	}
+	else
+    	res.redirect('/');
 }
 
 // --------------------------------------------------------------------research table

@@ -259,10 +259,16 @@ table.dataUpload = function(req, res, next){
         var input = req.body;
         const buffer = Buffer.from(input.file_data, 'base64');
         var readStream = new Readable();
-        var now = new Date();
-        var date = now.toLocaleString().split(" ")[0];
-        var time = now.toLocaleString().split(" ")[1];
-        var fileName = input.data_type + '_' + date + '_' + time + '.xlsx';
+        var fileName = '';
+		if(input.data_type == '專題選課名單'){
+			fileName = input.semester + '-' + input.data_type;
+		}
+		else{
+			var now = new Date();
+			var date = now.toLocaleString().split(" ")[0];
+			var time = now.toLocaleString().split(" ")[1];
+			fileName = input.data_type + '_' + date + '_' + time + '.xlsx';
+		}
         var writeStream = fs.createWriteStream(data_path + '/' + fileName);
         readStream.push(buffer);
         readStream.push(null);

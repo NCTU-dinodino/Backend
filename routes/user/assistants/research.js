@@ -16,6 +16,8 @@ var researchSetAddStatus = table.table.researchSetAddStatus;
 var researchSetFirstSecond = table.table.researchSetFirstSecond;
 var researchStudentListDownload = table.table.researchStudentListDownload;
 var researchSendWarningEmail = table.table.researchSendWarningEmail;
+var researchNotInSystemList = table.table.researchNotInSystemList;
+var researchNotOnCosList = table.table.researchNotOnCosList;
 
 router.post('/assistants/research/studentList', csrfProtection, researchStudentList, function(req, res) {
 // router.post('/assistants/project/StudentResearchList', csrfProtection, researchStudentList, function(req, res) {
@@ -64,6 +66,14 @@ router.post('/assistants/research/professorListDownload', csrfProtection, resear
 
 router.post('/assistants/research/SendWarningEmail', csrfProtection, researchSendWarningEmail, (req, res) => {
 	res.send();
+});
+
+router.post('/assistants/research/notInSystemList', csrfProtection, researchNotInSystemList, function(req, res) {
+    res.send(req.notInSystemList);
+});
+
+router.post('/assistants/research/notOnCosList', csrfProtection, researchNotOnCosList, function(req, res) {
+    res.send(req.notOnCosList);
 });
 
 module.exports = router;
