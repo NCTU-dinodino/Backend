@@ -13,7 +13,7 @@ router.post('/professors/researchApply/setAgree' , csrfProtection,researchApplyS
     res.send(req.setAgree);
 });
 
-router.get('/professors/researchApply/list',TeacherId, researchApplyList, function(req, res){
+router.post('/professors/researchApply/list', researchApplyList, function(req, res){
 	res.send(req.list);
 });
 

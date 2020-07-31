@@ -1025,15 +1025,30 @@ table.researchApplyCreate = function(req, res, next){
 				let teacherList = result[0];
 				let tname = result[1];
 
-				return {email: teacherList.find(teacher => teacher.tname == tname).email};
+				return teacherList.find(teacher => teacher.tname == tname).email;
 			})
-			.then((result) => {
+			.then(email => Promise.all([
+				Promise.resolve(email),
+				promiseShowStudentResearchInfo(student.student_id)
+			]))
+			.then(result => {
+				let email = result[0];
+				let info = result[1];
+				let research1Record = info.find(record => record.first_second == '1');
+
+				return {
+					title: research1Record.research_title,
+					semester: research1Record.semester,
+					teacher_email: email
+				};
+			})
+			.then(result => {
 				let studentInfo = {
 					student_id: student.student_id,
-					research_title: req.body.title,
-					semester: req.body.semester,
+					research_title: result.title,
+					semester: result.semester,
 					replace_pro: '1',
-					teacher_email: result,
+					teacher_email: result.teacher_email,
 					student_email: student.email
 				};
 				return Promise.all([
@@ -1054,14 +1069,14 @@ table.researchApplyCreate = function(req, res, next){
 						};
 						return promiseCreateResearchApplyForm(studentInfo);	
 					})
+					.then(result => {
+						if(result == 'wrong'){
+							return {student_mail: student.email, status: false, type: 'create'};
+						}else{
+							return {student_email: student.email, status: true, type: 'create'};
+						}
+					})
 				]);
-			})
-			.then(result => {
-				if(result == 'wrong'){
-					return {student_mail: student.email, status: false, type: 'create'};
-				}else{
-					return {student_email: student.email, status: true, type: 'create'};
-				}
 			})
 			.then(result => {return {teacher_email: result.teacher_email, student_email: result.student_email, status: true, type: 'replace'}});
 		}

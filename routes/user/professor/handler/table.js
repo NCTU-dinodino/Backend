@@ -858,6 +858,14 @@ table.researchApplySetAgree = function(req, res, next) {
 }
 
 table.researchApplyList = function(req, res, next){
+	let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
+		query.ShowStudentResearchInfo(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
 	let promiseShowTeacherResearchApplyFormList = (teacherId) => new Promise((resolve, reject) => {
 		query.ShowTeacherResearchApplyFormList(teacherId, (error, result) => {
 			if(error) reject('Cannot fetch ShowTeacherResearchApplyForm. Error message: ' + error);
@@ -905,9 +913,18 @@ table.researchApplyList = function(req, res, next){
 		});
 
 		projects = Object.values(projects);
-		projects.filter(project => {
-			if(project.participants.some(student => {
-				studentList.find(data => data.student_id == student.student_id).replace_pro == '1';
+
+		let promiseList = projects.map(project => Promise.all(project.participants.map(student => promiseShowStudentResearchInfo(student.student_id))));
+		return Promise.all([Promise.resolve(projects), Promise.all(promiseList)]);
+	.then(result => {
+		let projects = result[0];
+		let studentInfos = result[1];
+
+		projects.filter((project, idxProject) => {
+			if(project.participants.some((student, idxParticipant) => {
+				let record = studentInfos[idxProject][idxParticipant].find(info => info.first_second == '1');
+				if(!record) return false;
+				return record.replace_pro == '1';
 			})) return false;
 			return true;
 		});
