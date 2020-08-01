@@ -796,10 +796,13 @@ table.researchShowStudentStatus = function(req, res, next){
 	Promise.all(promiseList)
 	.then((result) => {
 		result = result.map(r => r[0]).map((student, idx) => {
-			const status = parseInt(student.status);
+			let status = parseInt(student.status);
+			if(status == 1 && req.body.members[idx].first_second == '2') status = 6;
+			else if(req.body.members[idx].first_second == '1' && status == 2) status = 5;
+
 			return {
 				student_id: student.student_id,
-				status:		(status == 1 && req.body.members[idx].first_second == '2' ? 6 : 1)
+				status:		status
 			};
 		});
 		res.status = result;
