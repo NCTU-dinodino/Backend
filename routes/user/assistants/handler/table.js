@@ -1066,6 +1066,7 @@ table.researchSendWarningEmail = function(req, res, next) {
 		res.status = 403;
 		next();
 	});
+}
 
 /* 回傳選課有選專題但不在專題和專題申請表的學生學號 */
 table.researchNotInSystemList = function(req, res, next) {
