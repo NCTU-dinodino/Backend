@@ -799,7 +799,7 @@ table.researchShowStudentStatus = function(req, res, next){
 			const status = parseInt(student.status);
 			return {
 				student_id: student.student_id,
-				status:		(status == 1 && req.body.members[idx].first_second == '2' ? 6 : 1);
+				status:		(status == 1 && req.body.members[idx].first_second == '2' ? 6 : 1)
 			};
 		});
 		res.status = result;
