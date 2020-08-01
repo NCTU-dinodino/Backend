@@ -375,7 +375,7 @@ table.dataLogDeleteAll = function(req, res, next){
 
 // other table-----------------------------------------------------------------------
 
-table.createApplyPeriod = function(req, res, next){
+/*table.createApplyPeriod = function(req, res, next){
     if (req.session.profile) {
         var input = req.body; 
         var info = {semester: '', type:'', begin:'', end: ''};
@@ -412,13 +412,12 @@ table.createApplyPeriod = function(req, res, next){
     }
     else
         res.redirect('/');
-}
+}*/
 
 table.setApplyPeriod = function(req, res, next){
     if (req.session.profile) {
         var input = req.body; 
-        var info = {semester: '', type:'', begin:'', end: ''};
-        info.semester = input.semester;
+        var info = {type:'', begin:'', end: ''};
         if(input.hasOwnProperty('graduation')) {
             info.type = 'graduation';
             info.begin = input.graduation.begin;
@@ -455,9 +454,9 @@ table.setApplyPeriod = function(req, res, next){
 
 table.showApplyPeriod = function(req, res, next){
     if(req.session.profile) {
-        var input = req.body;
+        //var input = req.body;
         //var input = {semester: '108-1'};
-        query.ShowApplyPeriod(input, function(err, result) {
+        query.ShowApplyPeriod(function(err, result) {
             if (err) {
                 throw err;
                 res.redirect('/');    

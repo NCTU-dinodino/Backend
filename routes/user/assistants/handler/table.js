@@ -930,17 +930,22 @@ table.researchSetScore = function(req, res, next) {
             new_comment: req.body.new_comment
         };
         query.SetResearchScoreComment(content, function(err, result) {
-            if (err) 
+            if (err){
+				req.signal = 403;
                 throw err;
-			var signal = { signal: 1 };
-			req.setScore = signal;
-			if (req.setScore)
+			}
+			if(!result){
+				req.signal = 403;
 				next();
-			else
-				return;	
-            res.send(result);
+			}
+			else{
+				req.signal = 200;
+				next();
+			}
         });
     }
+	else
+		res.redirect('/');
 }
 
 /* 刪除該學生的專題資訊(讓助理可以刪掉CPE未過但被教授同意的人的專題) */
@@ -948,22 +953,22 @@ table.researchDelete = function(req, res, next) {
 	if (req.session.profile) {
     	var info = { student_id: req.body.student_id, first_second: req.body.first_second, semester: req.body.semester };
     	query.DeleteResearch(info, function(err, result) {
-        	if (err) {
-            	throw err;
-            	res.redirect('/');
-        	}
-        	if (!result)
-        	    res.redirect('/');
-        	result = JSON.parse(result);
-        	req.delete = result;
-			if (req.delete)
+            if (err){
+				req.signal = 403;
+                throw err;
+			}
+			if(!result){
+				req.signal = 403;
 				next();
-			else
-				return;
-    	});	 
+			}
+			else{
+				req.signal = 200;
+				next();
+			}
+    	});
 	} else {
     	res.redirect('/');
-	} 
+	}
 }
 
 /* 修改專題資料的 add_status, 0代表尚未加選 1代表已加選 */
