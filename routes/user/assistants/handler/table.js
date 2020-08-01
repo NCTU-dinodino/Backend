@@ -929,20 +929,11 @@ table.researchSetScore = function(req, res, next) {
             new_score: parseInt(req.body.new_score),
             new_comment: req.body.new_comment
         };
-        query.SetResearchScoreComment(content, function(err, result) {
-            if (err){
-				req.signal = 403;
-                throw err;
-			}
-			if(!result){
-				req.signal = 403;
-				next();
-			}
-			else{
-				req.signal = 200;
-				next();
-			}
-        });
+        query.SetResearchScoreComment(content);
+		setTimeout(function(){
+            req.signal = 200;
+            next();
+        },800);
     }
 	else
 		res.redirect('/');
