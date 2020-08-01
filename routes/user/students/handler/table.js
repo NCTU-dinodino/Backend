@@ -791,13 +791,17 @@ table.researchShowStudentStatus = function(req, res, next){
 		}
 	});
 
-	let promiseList = [];
-
-	req.body.members.forEach((student) => {promiseList.push(promiseShowStudentResearchStatus(student.student_id))});
+	let promiseList = req.body.members.map(student => promiseShowStudentResearchStatus(student.student_id));
 
 	Promise.all(promiseList)
 	.then((result) => {
-		result = result.reduce((acc, cur) => {acc.push(cur[0]); return acc;}, []).map((student) => {student.status = parseInt(student.status); return student;});
+		result = result.map(r => r[0]).map((student, idx) => {
+			const status = parseInt(student.status);
+			return {
+				student_id: student.student_id,
+				status:		(status == 1 && req.body.members[idx].first_second == '2' ? 6 : 1);
+			};
+		});
 		res.status = result;
 		next();
 	})
