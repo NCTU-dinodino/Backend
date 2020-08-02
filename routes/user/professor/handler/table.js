@@ -526,6 +526,14 @@ table.researchSetReplace = function(req, res, next) {
 		});
 	};
 
+	let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
+		query.ShowTeacherIdList((error, result) => {
+			if(error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowTeacherIdList.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
 	let promiseShowTeacherResearchApplyFormList = (teacherId) => {
 		query.ShowTeacherResearchApplyFormList(teacherId, '', (error, result) => {
 			if(error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
@@ -534,44 +542,81 @@ table.researchSetReplace = function(req, res, next) {
 		});
 	};
 
-	let promiseDeleteResearch = (info) => {
+	let promiseDeleteResearch = (studentId, firstSecond, semester) => {
+		let info = {
+			student_id:		studentId,
+			first_second:	firstSecond,
+			semester:		semester
+		};
 		query.DeleteResearch(info, (error, result) => {
 			if(error) reject('Cannot fetch DeleteResearch. Error message: ' + error);
 			resolve();
 		});
 	}
 
-	let promiseSetResearchReplace = (info) => {
-		query.SetResearchReplace(info, (error, result) => {
+	let promiseSetResearchReplace = (studentId, firstSecond, semester) => {
+		let deleteInfo = {
+			student_id: 	studentId,
+			first_second:	firstSecond,
+			semester: 		semester
+		};
+		query.SetResearchReplace(deleteInfo, (error, result) => {
 			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
 			resolve();
 		});
 	};
 
+	let promiseDeleteResearchApplyForm = (title, tname, firstSecond, semester) => {
+		let info = {
+			research_title:	title,
+			tname:			tname,
+			first_second:	firstSecond,
+			semester:		semester
+		};
+
+		query.DeleteResearchApplyForm(info, (error, result) => {
+			if(error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
+			resolve();
+		});
+	};
+
+	let promiseGetStudentsInSameApplyForm = (studentId, semester) => promise.ShowStudentResearchApplyForm(studentId)
+		.then(applyFormList => applyFromList.find(applyForm => applyForm.semester == semester))
+		.then(applyForm => Promise.all([
+			Promise.resolve(applyForm.tname),
+			promiseShowTeacherIdList(),
+			Promise.resolve(applyForm.research_title),
+		]))
+		.then([tname, teacherIdList, title] => [teacherIdList.find(teacher => teacher.tname == tname).teacher_id, title, tname])
+		.then([teacherId, title, tname] => Promise.all([
+			promiseShowTeacherResearchApplyFormList(teacherId),
+			Promise.resolve(title),
+			Promise.resolve(tname),
+		]))
+		.then([applyFormList, title, tname] => {
+			return {
+				title:			title,
+				tname:			tname,
+				student_id:		applyFormList.filter(applyForm => applyForm.research_title == title && applyForm.semester == semester).map(applyForm => applyForm.student_id)
+			};
+		});
+
 	promiseShowStudentInfo(req.body.student_id)
 	.then(result => result.email)
 	.then(email => {
-		if(req.body.agree_replace == 0){
-			let replaceInfo = {
-				student_id: req.body.student_id,
-				research_title: req.body.research_title,
-				semester: req.body.semester,
-				replace_pro: 0
-			};
-			return Promise.all([Promise.resolve(false), Promise.resolve(email), promiseSetResearchReplace(replaceInfo)]);
-		}else if(req.body.student_id == 1){
-			let deleteInfo = {
-				student_id: req.body.student_id,
-				first_second: req.body.first_second,
-				semester: req.body.semester
-			};
-			return Promise.all([Promise.resolve(true), Promise.resolve(email), promiseDeleteResearch(deleteInfo)]);
-		}
+		if(req.body.agree_replace == 0)
+			return promiseGetStudentsInSameApplyForm(req.body.student_id, req.body.semester)
+				.then(result => Promise.all([
+					...result.student_id.map(studentId => promiseSetResearchReplace(studentId, 0)),
+					promiseDeleteResearchApplyForm(result.title, result.tname, req.body.first_second, req.body.semester)
+				]))
+				.then(_ => [false, email]);
+		else if(req.body.agree_replace == 1)
+			return promiseSetResearchReplace(req.body.student_id, 0)
+				.then(_ => promiseDeleteResearch(req.body.student_id, req.body.first_second, req.body.semester))
+				.then(_ => [true, email]);
 	})
-	.then(result => {
-		let status = result[0];
-		let email = result[1];
-	
+	.then([status, email] => {
 		let transporter = nodemailer.createTransport({
 			service: 'Gmail',
 			auth: mail_info.auth
@@ -596,9 +641,14 @@ table.researchSetReplace = function(req, res, next) {
 			if (error) return Promise.reject(error);
 		});
 	})
+	.then(_ => {
+		res.status(203);
+		next();
+	})
 	.catch(error => {
 		console.log(error);
-		res.redirect('/');
+		res.status(403);
+		next();
 	});
 
 
@@ -882,30 +932,19 @@ table.researchApplyList = function(req, res, next){
 		});
 	});
 
-	let promiseShowGradeTeacherResearchStudent = (teacherId) => new Promise((resolve, reject) => {
-		query.ShowGradeTeacherResearchStudent(teacherId, '', (error, result) => {
-			if(error) reject('Cannot fetch ShowGradeTeacherResearchStudent. Error message: ' + error);
-			if(!result) reject('Cannot fetch ShowGradeTeacherResearchStudent.');
-			else resolve(JSON.parse(result));
-		});
-	});
-
-	Promise.all([promiseShowTeacherResearchApplyFormList(req.body.id), promiseShowGradeTeacherResearchStudent(req.body.id)])
-	.then(result => {
-		let applyFormList = result[0];
-		let studentList = result[1];
-
+	promiseShowTeacherResearchApplyFormList(req.body.id)
+	.then(applyFormList => {
 		let projects = {};
 
 		applyFormList.forEach(applyForm => {
 			if(applyForm.agree == '3') return;
 			if(!projects[applyForm.research_title]){
 				let project = {
-					research_title: applyForm.research_title,
-					status: applyForm.agree,
-					year: applyForm.semester,
-					first_second: applyForm.first_second,
-					participants: []
+					research_title:	applyForm.research_title,
+					status: 		applyForm.agree,
+					year: 			applyForm.semester,
+					first_second: 	applyForm.first_second,
+					participants: 	[]
 				};
 				projects[applyForm.research_title] = project;
 			}
@@ -915,27 +954,19 @@ table.researchApplyList = function(req, res, next){
 				email:			applyForm.email,
 				phone:			applyForm.phone,
 				first_second:	applyForm.first_second,
-				student_status:	applyForm.status
+				student_status:	applyForm.status,
+				replace_pro:	applyForm.replace_pro
 			};
 			projects[applyForm.research_title].participants.push(student);
 		});
 
 		projects = Object.values(projects);
-
-		let promiseList = projects.map(project => Promise.all(project.participants.map(student => promiseShowStudentResearchInfo(student.student_id))));
-		return Promise.all([Promise.resolve(projects), Promise.all(promiseList)]);
+		return projects;
 	})
-	.then(result => {
-		let projects = result[0];
-		let studentInfos = result[1];
-
-		projects = projects.filter((project, idxProject) => {
+	.then(projects => {
+		projects = projects.filter(project => {
 			if(project.first_second == '1') return true;
-			if(project.participants.some((student, idxParticipant) => {
-				let record = studentInfos[idxProject][idxParticipant].find(info => info.first_second == '1');
-				if(!record) return false;
-				return record.replace_pro == '1';
-			})) return false;
+			if(project.participants.some(student => student.replace_pro == '1') return false;
 			return true;
 		});
 		req.list = projects;
