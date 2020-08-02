@@ -970,7 +970,7 @@ table.researchApplyCreate = function(req, res, next){
 	});
 
 	let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
-		query.ShowStudentResearchStatus(studentId, (error, result) => {
+		query.ShowStudentResearchInfo(studentId, (error, result) => {
 			if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
 			if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
 			else resolve(JSON.parse(result));

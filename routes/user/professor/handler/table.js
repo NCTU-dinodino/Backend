@@ -518,6 +518,14 @@ table.researchSetReplace = function(req, res, next) {
 		});
 	};
 
+	let promiseShowStudentResearchInfo = (studentId) => {
+		query.ShowStudentResearchInfo(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
+			else resolve(JSON.parse(result));
+		});
+	};
+
 	let promiseShowStudentResearchApplyForm = (studentId) => {
 		query.ShowStudentResearchApplyForm(studentId, (error, result) => {
 			if(error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
@@ -587,17 +595,20 @@ table.researchSetReplace = function(req, res, next) {
 			promiseShowTeacherIdList(),
 			Promise.resolve(applyForm.research_title),
 		]))
-		.then([tname, teacherIdList, title] => [teacherIdList.find(teacher => teacher.tname == tname).teacher_id, title, tname])
-		.then([teacherId, title, tname] => Promise.all([
+		.then([tname, teacherIdList, title] => [teacherIdList.find(teacher => teacher.tname == tname).teacher_id, teacherIdList.find(teacher => teacher.tname == tname).email, title, tname])
+		.then([teacherId, teacherEmail, title, tname] => Promise.all([
 			promiseShowTeacherResearchApplyFormList(teacherId),
+			Promise.resolve(teacherEmail),
 			Promise.resolve(title),
 			Promise.resolve(tname),
 		]))
-		.then([applyFormList, title, tname] => {
+		.then([applyFormList, teacherEmail, title, tname] => {
 			return {
 				title:			title,
+				teacher_email:	teacherEmail,
 				tname:			tname,
-				student_id:		applyFormList.filter(applyForm => applyForm.research_title == title && applyForm.semester == semester).map(applyForm => applyForm.student_id)
+				student_id:		applyFormList.filter(applyForm => applyForm.research_title == title && applyForm.semester == semester).map(applyForm => applyForm.student_id),
+				student_email:	applyFormList.filter(applyForm => applyForm.research_title == title && applyForm.semester == semester).map(applyForm => applyForm.email)
 			};
 		});
 
@@ -613,7 +624,35 @@ table.researchSetReplace = function(req, res, next) {
 				.then(_ => [false, email]);
 		else if(req.body.agree_replace == 1)
 			return promiseSetResearchReplace(req.body.student_id, 0)
-				.then(_ => promiseDeleteResearch(req.body.student_id, req.body.first_second, req.body.semester))
+				.then(_ => promiseGetStudentsInSameApplyForm(req.body.student_id, req.body.semester))
+				.then(result => Promise.all([
+					Promise.all(result.student_id.map(studentId => promiseShowStudentResearchInfo(studentId))),
+					Promise.resolve(result.student_email),
+					Promise.resolve(result.teacher_email),
+					promiseDeleteResearch(req.body.student_id, req.body.first_second, req.body.semester
+				])))
+				.then([studentResearchInfos, studentEmails, teacherEmail, _] => {
+					if(studentResearchInfos.every(researchInfo => researchInfo.every(info => info.replace_pro == '0'))) {
+						let emails = studentEmails.join();
+						let transporter = nodemailer.createTransport({
+							service:	'Gmail',
+							auth:		mail_info.auth
+						});
+
+						let options = {
+							from:		'nctucsca@gmail.com',
+							to:			(process.env.__ENV__ == 'DEV' ? '' : teacherEmail),
+							cc:			emails,
+							bcc:		'',
+							subject:	'[交大資工線上助理]專題申請郵件通知',
+							html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + teacherEmail + ',學生：' + emails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+						};
+
+						transporter.sendMail(options, (error, result) => {
+							if(error) return Promise.reject('Cannot send email. Error message: ' + error);
+						});
+					}
+				})
 				.then(_ => [true, email]);
 	})
 	.then([status, email] => {
