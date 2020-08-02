@@ -930,6 +930,7 @@ table.researchApplyList = function(req, res, next){
 		let studentInfos = result[1];
 
 		projects = projects.filter((project, idxProject) => {
+			if(project.first_second == '1') return true;
 			if(project.participants.some((student, idxParticipant) => {
 				let record = studentInfos[idxProject][idxParticipant].find(info => info.first_second == '1');
 				if(!record) return false;
