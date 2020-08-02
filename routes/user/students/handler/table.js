@@ -1093,7 +1093,7 @@ table.researchApplyCreate = function(req, res, next){
 					to:			(process.env.__ENV__ == 'DEV' ? '' : info.teacher_email),
 					cc:			'',
 					bcc:		'',
-					subject:	'[交大資工線上助理]學生申請<更換專題教授>通知', // Subject line
+					subject:	'[交大資工線上助理]學生申請<更換專題教授、更換組員>通知', // Subject line
 					html: 		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 學生：' + info.student_email + ' 謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
 				};
 
