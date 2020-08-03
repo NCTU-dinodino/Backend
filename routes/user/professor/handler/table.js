@@ -602,7 +602,7 @@ table.researchSetReplace = function(req, res, next) {
 			Promise.resolve(title),
 			Promise.resolve(tname),
 		]))
-		.then([applyFormList, teacherEmail, title, tname] => {
+		.then(([applyFormList, teacherEmail, title, tname]) => {
 			return {
 				title:			title,
 				teacher_email:	teacherEmail,
