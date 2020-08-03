@@ -845,16 +845,19 @@ table.researchApplySetAgree = function(req, res, next) {
     if (req.session.profile) {
         var info = req.body;
         if (info.agree =='1') {
-            for (var i = 0; i < info.student.length; i++) {
-                var req_member = { student_id : info.student[i].student_id, tname:info.tname, research_title:info.research_title, first_second:info.first_second, semester: info.year};
-                query.CreateNewResearch(req_member, function(err) {
-                    if (err) {
-                        throw err;
-                        res.redirect('/');
-                    }
-                });
-                                
-            }
+			let data = {
+				student_id:		info.student.map(student => student_id),
+				tname:			info.tname,
+				research_title:	info.researech_title,
+				first_second:	info.first_second,
+				semester:		info.semester
+			};
+			query.CreateNewGroupResearch(data, (error) => {
+				if(error) {
+					throw error;
+					res.redirect('/');
+				}
+			});
             var formInfo = {research_title:info.research_title, tname : info.tname, first_second:info.first_second, semester:info.year};
             query.DeleteResearchApplyForm(formInfo);
             
