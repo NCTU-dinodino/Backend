@@ -859,7 +859,7 @@ table.researchApplySetAgree = function(req, res, next) {
 				}
 			});
             var formInfo = {research_title:info.research_title, tname : info.tname, first_second:info.first_second, semester:info.year};
-            query.DeleteResearchApplyForm(formInfo);
+            query.DeleteResearchApplyForm(formInfo, () => {});
             
             setTimeout(function(){
                 var mailString= '';
