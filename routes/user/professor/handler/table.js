@@ -629,8 +629,8 @@ table.researchSetReplace = function(req, res, next) {
 					Promise.all(result.student_id.map(studentId => promiseShowStudentResearchInfo(studentId))),
 					Promise.resolve(result.student_email),
 					Promise.resolve(result.teacher_email),
-					promiseDeleteResearch(req.body.student_id, req.body.first_second, req.body.semester
-				])))
+					promiseDeleteResearch(req.body.student_id, req.body.first_second, req.body.semester)
+				]))
 				.then([studentResearchInfos, studentEmails, teacherEmail, _] => {
 					if(studentResearchInfos.every(researchInfo => researchInfo.every(info => info.replace_pro == '0'))) {
 						let emails = studentEmails.join();
