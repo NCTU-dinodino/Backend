@@ -848,7 +848,7 @@ table.researchApplySetAgree = function(req, res, next) {
 			let data = {
 				student_id:		info.student.map(student => student.student_id),
 				tname:			info.tname,
-				research_title:	info.researech_title,
+				research_title:	info.research_title,
 				first_second:	info.first_second,
 				semester:		info.semester
 			};
