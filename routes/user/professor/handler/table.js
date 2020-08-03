@@ -850,7 +850,7 @@ table.researchApplySetAgree = function(req, res, next) {
 				tname:			info.tname,
 				research_title:	info.research_title,
 				first_second:	info.first_second,
-				semester:		info.semester
+				semester:		info.year
 			};
 			query.CreateNewGroupResearch(data, (error) => {
 				if(error) {
