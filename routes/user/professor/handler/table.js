@@ -846,7 +846,7 @@ table.researchApplySetAgree = function(req, res, next) {
         var info = req.body;
         if (info.agree =='1') {
 			let data = {
-				student_id:		info.student.map(student => student_id),
+				student_id:		info.student.map(student => student.student_id),
 				tname:			info.tname,
 				research_title:	info.researech_title,
 				first_second:	info.first_second,
