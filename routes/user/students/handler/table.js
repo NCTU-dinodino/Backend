@@ -1046,7 +1046,7 @@ table.researchApplyCreate = function(req, res, next){
 				if(result == 'wrong') return Promise.reject('Cannot create research apply form.');
 				return Promise.all([promiseShowStudentResearchInfo(student.student_id), promiseShowTeacherIdList()]);
 			})
-			.then([researchInfo, teacherIdList] => {
+			.then(([researchInfo, teacherIdList]) => {
 				let originalTeacherName = researchInfo.find(r => r.first_second == '1').tname;
 				let originalTeacherEmail = teacherIdList.find(r => r.tname == originalTeacherName).email;
 				return {
