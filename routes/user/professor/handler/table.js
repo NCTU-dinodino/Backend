@@ -595,8 +595,8 @@ table.researchSetReplace = function(req, res, next) {
 			promiseShowTeacherIdList(),
 			Promise.resolve(applyForm.research_title),
 		]))
-		.then([tname, teacherIdList, title] => [teacherIdList.find(teacher => teacher.tname == tname).teacher_id, teacherIdList.find(teacher => teacher.tname == tname).email, title, tname])
-		.then([teacherId, teacherEmail, title, tname] => Promise.all([
+		.then(([tname, teacherIdList, title]) => [teacherIdList.find(teacher => teacher.tname == tname).teacher_id, teacherIdList.find(teacher => teacher.tname == tname).email, title, tname])
+		.then(([teacherId, teacherEmail, title, tname]) => Promise.all([
 			promiseShowTeacherResearchApplyFormList(teacherId),
 			Promise.resolve(teacherEmail),
 			Promise.resolve(title),
