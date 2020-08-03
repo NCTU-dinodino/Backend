@@ -23,7 +23,7 @@ router.post('/professors/research/list',csrfProtection, researchList, function(r
     res.send(req.list);
 });
 router.post('/professors/research/setReplace', csrfProtection, researchSetReplace, function(req, res) {
-    res.send(req.reply);
+    res.send();
 });
 router.post('/professors/research/changeTeacherList',csrfProtection, researchChangeTeacherList, function(req, res){
     res.send(req.changeTeacherList);
