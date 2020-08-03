@@ -631,7 +631,7 @@ table.researchSetReplace = function(req, res, next) {
 					Promise.resolve(result.teacher_email),
 					promiseDeleteResearch(req.body.student_id, req.body.first_second, req.body.semester)
 				]))
-				.then([studentResearchInfos, studentEmails, teacherEmail, _] => {
+				.then(([studentResearchInfos, studentEmails, teacherEmail, _]) => {
 					if(studentResearchInfos.every(researchInfo => researchInfo.every(info => info.replace_pro == '0'))) {
 						let emails = studentEmails.join();
 						let transporter = nodemailer.createTransport({
@@ -655,7 +655,7 @@ table.researchSetReplace = function(req, res, next) {
 				})
 				.then(_ => [true, email]);
 	})
-	.then([status, email] => {
+	.then(([status, email]) => {
 		let transporter = nodemailer.createTransport({
 			service: 'Gmail',
 			auth: mail_info.auth
