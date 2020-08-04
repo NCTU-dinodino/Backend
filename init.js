@@ -43,7 +43,7 @@ module.exports.init = function(){
 	});
 
 	app.use('/students', (req, res, next) => {
-		if(JSON.parse(req.session.profile).personStatus != 'w' && JSON.parse(req.session.profile).personStatus != 's') res.redirect('/');
+		if(JSON.parse(req.session.profile).personStatus != 'w' && JSON.parse(req.session.profile).personStatus != 's') res.redirect('/?fail=1');
 		next();
 	});
 
