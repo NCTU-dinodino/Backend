@@ -32,12 +32,12 @@ module.exports.init = function(){
   app.use(require('./middleware/setProfile').setProfile);
 
 	app.use('/', (req, res, next) => {
-		if(req.profile == 'Not Found') res.redirect('?fail=1');
+		if(!req.query.fail && req.profile == 'Not Found') res.redirect('?fail=1');
 		next();	
 	});
   
 	app.use('/^\/assistants|\/teachers|\/students/', (req, res, next) => {
-		if(!req.profile) res.redirect('?fail=2');
+		if(!req.profile) res.redirect('/');
 		next();
 	});
 
@@ -47,7 +47,7 @@ module.exports.init = function(){
 	});
 
 	app.use('/students', (req, res, next) => {
-		if(JSON.parse(req.session.profile).personStatus != 'w' && JSON.parse(req.session.profile).personStatus != 's') res.redirect('?fail=3');
+		if(JSON.parse(req.session.profile).personStatus != 'w' && JSON.parse(req.session.profile).personStatus != 's') res.redirect('/');
 		next();
 	});
 
