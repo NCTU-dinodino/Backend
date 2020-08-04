@@ -14,7 +14,7 @@ module.exports.setProfile = function(req, res, next){
                 		return;
           		}
           		result = JSON.parse(result);
-          		if(result.length && result){
+          		if(result){
               			req.profile = result;
               			next();
           		}
