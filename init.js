@@ -33,7 +33,7 @@ module.exports.init = function(){
   
 	app.use('/^\/assistants|\/teachers|\/students/', (req, res, next) => {
 		if(!req.profile)
-			res.redirect('/');
+			res.redirect('/?fail=1');
 		next();
 	});
 
@@ -43,7 +43,7 @@ module.exports.init = function(){
 	});
 
 	app.use('/students', (req, res, next) => {
-		if(JSON.parse(req.session.profile).personStatus != 'w' && JSON.parse(req.session.profile).personStatus != 's') res.redirect('/?fail=1');
+		if(JSON.parse(req.session.profile).personStatus != 'w' && JSON.parse(req.session.profile).personStatus != 's') res.redirect('/?fail=2');
 		next();
 	});
 
