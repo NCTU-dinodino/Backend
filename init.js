@@ -30,9 +30,13 @@ module.exports.init = function(){
   app.use(csrfProtection);
   app.use(require('./middleware/setCsrf').setCsrf);
   app.use(require('./middleware/setProfile').setProfile);
+
+	app.use('/auth', (req, res, next) => {
+		if(req.profile == []) res.redirect('/?fail=1');
+		next();	
+	});
   
 	app.use('/^\/assistants|\/teachers|\/students/', (req, res, next) => {
-		if(req.profile == []) res.redirect('/?fail=1');
 		if(!req.profile) res.redirect('/?fail=2');
 		next();
 	});
