@@ -31,7 +31,7 @@ module.exports.init = function(){
   app.use(require('./middleware/setCsrf').setCsrf);
   app.use(require('./middleware/setProfile').setProfile);
 
-	app.use('/auth', (req, res, next) => {
+	app.use('/', (req, res, next) => {
 		if(req.profile == []) res.redirect('/?fail=1');
 		next();	
 	});
