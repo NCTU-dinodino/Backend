@@ -15,12 +15,10 @@ module.exports.setProfile = function(req, res, next){
           		}
           		result = JSON.parse(result);
           		if(result){
-              			req.profile = result;
-              			next();
+					if(result.length == 0) req.profile = 'Not Found';
+              		else req.profile = result;
           		}
-          		else{
-              			next();
-          		}
+				next();
 	 		//query.close();
       		});
       //}

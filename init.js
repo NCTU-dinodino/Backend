@@ -32,7 +32,7 @@ module.exports.init = function(){
   app.use(require('./middleware/setProfile').setProfile);
 
 	app.use('/', (req, res, next) => {
-		if(req.profile == []) res.redirect('/?fail=1');
+		if(req.profile == 'Not Found') res.redirect('/?fail=1');
 		next();	
 	});
   
