@@ -1058,7 +1058,19 @@ table.researchApplyCreate = function(req, res, next){
 		}
 	};
 
-	let promiseList = req.body.members.map((student) => promiseCreateOrSetReplace(student));
+	//let promiseList = req.body.members.map((student) => promiseCreateOrSetReplace(student));
+
+    let promiseList = (members) => {
+		let unique = [];
+		members.forEach(student => {
+			if(!unique.includes(student.student_id))
+				unique.push(student.student_id)
+		});
+		if(unique.length !== members.length)
+			throw new Error('There are duplicate members.');
+		else
+			return members.map((student) => promiseCreateOrSetReplace(student));
+	}
 
 	Promise.all(promiseList)
 	.then(result => {
