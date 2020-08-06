@@ -41,12 +41,12 @@ router.post('/assistants/research/gradeDownload', csrfProtection, researchGradeD
 
 router.post('/assistants/research/setScore', csrfProtection, researchSetScore, function(req, res) {
 // router.post('/assistants/SetResearchGrade', csrfProtection, researchSetScore, function(req, res) {
-    res.send(req.setScore);
+    res.send();
 });
 
 router.post('/assistants/research/delete', csrfProtection, researchDelete, function(req, res) {
 // router.post('/assistants/DeleteResearch', csrfProtection, researchDelete, function(req, res) {
-    res.send(req.delete);
+    res.send();
 });
 
 router.post('/assistants/research/setAddStatus', csrfProtection, researchSetAddStatus, function(req, res) {

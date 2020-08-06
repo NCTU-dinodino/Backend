@@ -922,7 +922,7 @@ table.researchSetScore = function(req, res, next) {
         };
         query.SetResearchScoreComment(content);
         setTimeout(function() {
-            req.signal = 200;
+            res.status = 200;
             next();
         }, 800);
     } else
@@ -931,6 +931,58 @@ table.researchSetScore = function(req, res, next) {
 
 /* 刪除該學生的專題資訊(讓助理可以刪掉CPE未過但被教授同意的人的專題) */
 table.researchDelete = function(req, res, next) {
+    if (req.session.profile) {
+        var info = { student_id: req.body.student_id, first_second: req.body.first_second, semester: req.body.semester };
+
+        let promiseDeleteResearch = (info) => new Promise((resolve, reject) => {
+            query.DeleteResearch(info, (error, result) => {
+                if (error) reject('Cannot fetch CreateResearchApplyForm. Error message: ' + error);
+                if (!result) reject('Cannot fetch CreateResearchApplyForm.');
+                else resolve();
+            });
+        });
+
+        let promiseShowUserInfo = (id) => new Promise((resolve, reject) => {
+            query.ShowUserInfo(id, (error, result) => {
+                if (error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowUserInfo.');
+                else resolve(JSON.parse(result)[0]);
+            });
+        });
+
+        Promise.all(promiseDeleteResearch(info), promiseShowUserInfo(req.body.student_id))
+            .then(result => {
+                let email = result.email
+                let options = {
+                    from: 'nctucsca@gmail.com',
+                    to: email,
+                    cc: /*req.body.sender_email*/ '',
+                    bcc: '',
+                    subject: '', // Subject line
+                    html: '同學好,<p><br/>您的專題(一)申請未通過。可能的原因如下：<p>1.如為多人一組：貴組專題（一）成員中有學生尚未通過「基礎程式設計課程」，故無法受理貴組的專題（一）申請，請重新提送申請單。<p>2.如為個人申請：您尚未通過「基礎程式設計課程」，不可選修專題（一）。<p>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>'
+                };
+
+                transporter.sendMail(options, function(error, info) {
+                    if (error) {
+                        return Promise.reject('Error sending emails.');
+                    }
+                });
+                res.status = 200;
+                next();
+            })
+            .catch((error) => {
+                console.log(error);
+                res.status = 403;
+                next();
+            });
+
+    } else {
+        res.redirect('/');
+    }
+}
+
+/* 刪除該學生的專題資訊(讓助理可以刪掉CPE未過但被教授同意的人的專題) */
+/*table.researchDelete = function(req, res, next) {
     if (req.session.profile) {
         var info = { student_id: req.body.student_id, first_second: req.body.first_second, semester: req.body.semester };
         query.DeleteResearch(info, function(err, result) {
@@ -949,7 +1001,7 @@ table.researchDelete = function(req, res, next) {
     } else {
         res.redirect('/');
     }
-}
+}*/
 
 /* 修改專題資料的 add_status, 0代表尚未加選 1代表已加選 */
 table.researchSetAddStatus = function(req, res, next) {
