@@ -821,6 +821,7 @@ table.researchProfessorList = function(req, res, next) {
                             semester: student.semester,
                             first_second: student.first_second,
                             status: student.status,
+                            CPEStatus: student.CPEStatus
                         }
                         let research_idx = research_index[student.research_title + '_' + student.teacher_id];
                         let teacher_idx = teacher_index[student.teacher_id];
@@ -1031,26 +1032,21 @@ table.researchSetAddStatus = function(req, res, next) {
         res.redirect('/');
 }
 
-/* CPE未通過申請專題:first_second = 3, 助理確認CPE通過後可將 3 改為 1 */
-table.researchSetFirstSecond = function(req, res, next) {
+table.researchSetCPEStatus = function(req, res, next) {
     if (req.session.profile) {
-        let student_id = { student_id: req.body.student_id };
-        query.SetFirstSecond(student_id, function(err, result) {
+        let input = { student_id: req.body.student_id, cpe_result: req.body.new_cpe_status };
+        query.SetCPEStatus(input, function(err, result) {
             if (err) {
+                res.status = 403;
                 throw err;
-                res.redirect('/');
             }
-            if (!result)
-                res.redirect('/');
-            result = JSON.parse(result);
-            var signal = {
-                signal: (parseInt(result.info.affectedRows) > 0) ? 1 : 0
-            }
-            req.setFirstSecond = signal;
-            if (req.setFirstSecond)
+            if (!result) {
+                res.status = 403;
                 next();
-            else
-                return;
+            } else {
+                res.status = 200;
+                next();
+            }
         });
     } else {
         res.redirect('/');
@@ -1154,6 +1150,34 @@ table.researchNotOnCosList = function(req, res, next) {
             })
             req.notOnCosList = list;
             if (req.notOnCosList)
+                next();
+            else
+                return;
+        });
+    } else
+        res.redirect('/');
+}
+
+table.researchGetCPEStatus = function(req, res, next) {
+    if (req.session.profile) {
+        var input = { semester: req.body.semester, CPEStatus: req.body.cpe_status };
+		query.ShowStudentNotPassCPE(input, function(err, result) {
+            if (err) {
+                throw err;
+                res.redirect('/');
+            }
+            if (!result)
+                res.redirect('/');
+            result = JSON.parse(result)
+            var list = result.map((student) => {
+                student['id'] = student['student_id'];
+                student['name'] = student['sname'];
+                delete student['student_id'];
+                delete student['sname'];
+                return student;
+            })
+            req.getCPEStatus = list;
+            if (req.getCPEStatus)
                 next();
             else
                 return;
