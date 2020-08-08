@@ -1034,7 +1034,7 @@ table.researchSetAddStatus = function(req, res, next) {
 
 table.researchSetCPEStatus = function(req, res, next) {
     if (req.session.profile) {
-        let input = { student_id: req.body.student_id, cpe_result: req.body.new_cpe_status };
+        let input = { student_id: req.body.student_id, cpe_result: parseInt(req.body.new_cpe_status) };
         query.SetCPEStatus(input, function(err, result) {
             if (err) {
                 res.status = 403;
@@ -1160,7 +1160,7 @@ table.researchNotOnCosList = function(req, res, next) {
 
 table.researchGetCPEStatus = function(req, res, next) {
     if (req.session.profile) {
-        var input = { semester: req.body.semester, cpe_status: req.body.cpe_status };
+        var input = { semester: req.body.semester, cpe_status: parseInt(req.body.cpe_status) };
 		query.ShowStudentNotPassCPE(input, function(err, result) {
             if (err) {
                 throw err;
