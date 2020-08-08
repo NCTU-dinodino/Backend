@@ -1107,7 +1107,7 @@ table.researchSendWarningEmail = function(req, res, next) {
 /* 回傳選課有選專題但不在專題和專題申請表的學生學號 */
 table.researchNotInSystemList = function(req, res, next) {
     if (req.session.profile) {
-        var input = { semester: req.body.semester };
+        var input = { semester: req.body.semester, first_second: parseInt(req.body.first_second) };
         query.ShowOnCosButNotInDBStudentList(input, function(err, result) {
             if (err) {
                 throw err;
@@ -1136,7 +1136,7 @@ table.researchNotInSystemList = function(req, res, next) {
 /* 回傳在專題或專題申請表但選課沒有選專題的學生 */
 table.researchNotOnCosList = function(req, res, next) {
     if (req.session.profile) {
-        var input = { semester: req.body.semester };
+        var input = { semester: req.body.semester, first_second: parseInt(req.body.first_second) };
         query.ShowInDBButNotOnCosStudentList(input, function(err, result) {
             if (err) {
                 throw err;

@@ -254,7 +254,69 @@ table.dataFormDownload = function(req, res, next){
         res.redirect('/');
 }
 
-table.dataUpload = function(req, res, next){
+table.dataUpload = function(req, res, next) {
+    if (req.session.profile) {
+        var input = req.body;
+        const buffer = Buffer.from(input.file_data, 'base64');
+        var readStream = new Readable();
+        var fileName = '';
+        if (input.data_type == '專題選課名單') {
+            fileName = input.semester + '-' + input.data_type;
+        } else {
+            var now = new Date();
+            var date = now.toLocaleString().split(" ")[0];
+            var time = now.toLocaleString().split(" ")[1];
+            fileName = input.data_type + '_' + date + '_' + time + '.xlsx';
+        }
+
+        let promiseResearchOnCos = (type) => new Promise((resolve, reject) => {
+            if (type == '專題選課名單') {
+                var semester = input.semester;
+                var first_second = input.first_second;
+
+                const workbook = XLSX.readFile(data_path + '/' + fileName);
+                const sheetNames = workbook.SheetNames;
+                const worksheet = workbook.Sheets[sheetNames[0]];
+                const json_result = XLSX.utils.sheet_to_json(worksheet)
+                var student_ids = json_result.map(item => Object.values(item)[0]);
+                const new_worksheet_data = [
+                    ['學號', '學期', '專題一或二']
+                ]
+                student_ids.forEach(id => {
+                    new_worksheet_data.push([id, semester, parseInt(first_second)])
+                })
+                const new_worksheet = XLSX.utils.aoa_to_sheet(new_worksheet_data)
+                let new_workbook = XLSX.utils.book_new()
+                XLSX.utils.book_append_sheet(new_workbook, new_worksheet, 'SheetJS')
+                XLSX.writeFile(new_workbook, data_path + '/' + fileName)
+            }
+            resolve()
+        });
+
+        var writeStream = fs.createWriteStream(data_path + '/' + fileName);
+        readStream.push(buffer);
+        readStream.push(null);
+        readStream.pipe(writeStream);
+        writeStream.on('finish', function(err) {
+            if (err) {
+                throw err;
+                res.redirect('/');
+            } else {
+                promiseResearchOnCos(input.data_type)
+                    .then(() => {
+                        query.InsertNewData({ file_name: fileName, data_type: input.data_type, semester: input.semester });
+                    })
+                    .then(() => {
+                        req.signal = { signal: 1 };
+                        next()
+                    })
+            }
+        });
+    } else
+        res.redirect('/');
+}
+
+/*table.dataUpload = function(req, res, next){
     if(req.session.profile){
         var input = req.body;
         const buffer = Buffer.from(input.file_data, 'base64');
@@ -292,7 +354,7 @@ table.dataUpload = function(req, res, next){
     }
     else
         res.redirect('/');
-}
+}*/
 
 table.dataLogShow = function(req, res, next){
     if(req.session.profile){
