@@ -1160,7 +1160,7 @@ table.researchNotOnCosList = function(req, res, next) {
 
 table.researchGetCPEStatus = function(req, res, next) {
     if (req.session.profile) {
-        var input = { semester: req.body.semester, CPEStatus: req.body.cpe_status };
+        var input = { semester: req.body.semester, cpe_status: req.body.cpe_status };
 		query.ShowStudentNotPassCPE(input, function(err, result) {
             if (err) {
                 throw err;
