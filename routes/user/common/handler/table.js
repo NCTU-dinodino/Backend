@@ -5,6 +5,7 @@ var nodemailer = require('nodemailer');
 var query = require('../../../../db/msql');
 var data_path = "/home/nctuca/dinodino-extension/automation/data";
 var sample_path = "/home/nctuca/dinodino-extension/automation/sample";
+var XLSX = require('xlsx')
 
 table.mailSend = function(req, res, next){
     if(req.session.profile){
