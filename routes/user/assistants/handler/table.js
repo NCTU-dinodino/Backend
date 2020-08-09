@@ -785,7 +785,8 @@ table.researchProfessorList = function(req, res, next) {
                             status: student.status,
                             add_status: student.add_status,
                             score: student.score == null ? null : parseInt(student.score),
-                            comment: student.comment
+                            comment: student.comment,
+                            CPEStatus: student.CPEStatus   
                         }
                         let research_idx = research_index[student.research_title + '_' + student.teacher_id];
                         let teacher_idx = teacher_index[student.teacher_id];
