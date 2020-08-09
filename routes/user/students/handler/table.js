@@ -1467,7 +1467,8 @@ table.professorInfoScount = (req, res, next) => {
 
 	promiseShowTeacherInfoResearchCnt
 	.then(result => result.map(r => {
-		let scount = r.gradeCnt.find(record => record.grade == req.body.year).scount;
+		let scount = r.gradeCnt.find(record => record.grade == req.body.year);
+		scount = scount == null ? null : scount.scount;
 		return {
 			teacher_id:	r.teacher_id,
 			scount:		scount
