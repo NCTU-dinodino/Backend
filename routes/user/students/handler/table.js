@@ -1475,6 +1475,10 @@ table.professorInfoScount = (req, res, next) => {
 	}))
 	.then(result => {
 		req.scount = result;
+	})
+	.catch(error => {
+		console.log(error);
+		res.redirect('/');
 	});
 }
 
