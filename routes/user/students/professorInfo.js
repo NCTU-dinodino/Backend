@@ -9,6 +9,8 @@ var StudentId = getStudentId.getStudentId.studentId;
 var professorInfoPastResearch = table.table.professorInfoPastResearch;
 var professorInfoList = table.table.professorInfoList;
 var professorInfoGetMentor = table.table.professorInfoGetMentor;
+var professorInfoScount = table.table.professorInfoScount;
+
 router.post('/students/professorInfo/pastResearch',csrfProtection,professorInfoPastResearch, function(req, res){
 	res.send(req.pastResearch);
 });
@@ -17,8 +19,14 @@ router.get('/students/professorInfo/list',csrfProtection, professorInfoList, fun
 
 	res.send(req.list);
 });
+
 router.get('/students/professorInfo/getMentor', StudentId,professorInfoGetMentor, function(req, res){
 
     res.send(req.getMentor);
 });
+
+router.get('/students/professorInfo/scount', professorInfoScount, (req, res) => {
+	res.send(req.scount);
+});
+
 module.exports = router;
