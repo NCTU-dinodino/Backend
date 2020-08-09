@@ -31,6 +31,15 @@ module.exports.init = function(){
   app.use(require('./middleware/setCsrf').setCsrf);
   app.use(require('./middleware/setProfile').setProfile);
 
+
+
+	/*add test route here*/
+	if(process.env.__ENV__ == 'DEV'){
+  		app.use(require('./routes/BackendTest/TestPage.js'));
+	}
+
+
+
 	app.use('/', (req, res, next) => {
 		if(!req.query.fail && req.profile == 'Not Found') res.redirect('?fail=1');
 		next();	
@@ -147,9 +156,5 @@ app.use('/teachers/course', express.static('./public', {index: 'index.html'}));
   app.use(require('./routes/user/common/dataUpload'));
   app.use(require('./routes/user/common/other'));
   app.use(require('./routes/user/common/mail'));
-/*add test route here*/
-	if(process.env.__ENV__ == 'DEV'){
-  		app.use(require('./routes/BackendTest/TestPage.js'));
-	}
   return app;
 };
