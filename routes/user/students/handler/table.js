@@ -1467,4 +1467,33 @@ table.professorInfoGetMentor = function(req, res, next){
     }
 
 }
+
+table.professorInfoScount = (req, res, next) => {
+	let promiseShowTeacherInfoResearchCnt = new Promise((resolve, reject) => {
+		query.ShowTeacherInfoResearchCnt({teacher_id: ''}, (error, result) => {
+			if(error) reject('Cannot fetch ShowTeacherInfoResearchCnt. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowTeacherInfoResearchCnt.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	promiseShowTeacherInfoResearchCnt
+	.then(result => result.map(r => {
+		let scount = r.gradeCnt.find(record => record.grade == req.query.year);
+		scount = (scount == null ? 0 : parseInt(scount.scount));
+		return {
+			teacher_id:	r.teacher_id,
+			scount:		scount
+		};
+	}))
+	.then(result => {
+		req.scount = result;
+		next();
+	})
+	.catch(error => {
+		console.log(error);
+		res.redirect('/');
+	});
+}
+
 exports.table = table;
