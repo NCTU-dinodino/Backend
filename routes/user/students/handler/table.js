@@ -1476,6 +1476,7 @@ table.professorInfoScount = (req, res, next) => {
 	}))
 	.then(result => {
 		req.scount = result;
+		next();
 	})
 	.catch(error => {
 		console.log(error);
