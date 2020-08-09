@@ -692,7 +692,7 @@ table.researchProfessorList = function(req, res, next) {
             query.ShowTeacherInfoResearchCnt({ teacher_id: '' }, (error, result) => {
                 if (error) reject('Cannot fetch ShowTeacherInfoResearchCnt. Error message: ' + error);
                 if (!result) reject('Cannot fetch ShowTeacherInfoResearchCnt.');
-                resolve(JSON.parse(result));
+				else resolve(JSON.parse(result));
             });
         }
     });
@@ -704,7 +704,7 @@ table.researchProfessorList = function(req, res, next) {
             query.ShowGradeTeacherResearchStudent(teacher_id, '', (error, result) => {
                 if (error) reject('Cannot fetch ShowGradeTeacherResearchStudent. Error message: ' + error);
                 if (!result) reject('Cannot fetch ShowGradeTeacherResearchStudent.');
-                resolve(JSON.parse(result));
+				else resolve(JSON.parse(result));
             });
         }
     });
@@ -716,7 +716,7 @@ table.researchProfessorList = function(req, res, next) {
             query.ShowTeacherResearchApplyFormList(teacher_id, (error, result) => {
                 if (error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
                 if (!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
-                resolve(JSON.parse(result));
+				else resolve(JSON.parse(result));
             });
         }
     });
