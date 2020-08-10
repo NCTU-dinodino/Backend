@@ -26,6 +26,7 @@ module.exports.setProfile = function(req, res, next){
 		//next();
    } 
     else {
-      next();
+		req.profile = 'Not Found';
+      	next();
     }
 }
