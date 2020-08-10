@@ -1008,6 +1008,7 @@ table.researchApplyList = function(req, res, next){
 	.then(projects => {
 		projects = projects.filter(project => {
 			if(project.first_second == '1') return true;
+            if(project.participants.some(student => student.CPEStatus == '0')) return false;
 			if(project.participants.some(student => student.replace_pro == '1')) return false;
 			return true;
 		});

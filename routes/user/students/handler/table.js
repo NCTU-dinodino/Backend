@@ -1072,7 +1072,7 @@ table.researchApplyCreate = function(req, res, next){
 			return members.map((student) => promiseCreateOrSetReplace(student));
 	}
 
-	Promise.all(promiseList)
+	Promise.all(promiseList(req.body.members))
 	.then(result => {
 		if(result.every(r => r.type == 'create')){
 			let emails = result.map(r => r.student_email).join();
