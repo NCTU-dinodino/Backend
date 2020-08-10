@@ -42,27 +42,27 @@ module.exports.init = function(){
 
 	app.use('/', (req, res, next) => {
 		if(!req.query.fail && req.profile && (req.profile == 'Not Found' || req.profile.status == 'c')) res.redirect('?fail=1');
-		next();	
+		else next();	
 	});
   
 	app.use('/^\/assistants|\/teachers|\/students/', (req, res, next) => {
 		if(!req.profile) res.redirect('/');
-		next();
+		else next();
 	});
 
 	app.use('/assistants', (req, res, next) => {
 		if(JSON.parse(req.session.profile).personStatus != 'a') res.redirect('/');
-		next();
+		else next();
 	});
 
 	app.use('/students', (req, res, next) => {
 		if(JSON.parse(req.session.profile).personStatus != 'w' && JSON.parse(req.session.profile).personStatus != 's') res.redirect('/');
-		next();
+		else next();
 	});
 
 	app.use('/teachers', (req, res, next) => {
 		if(JSON.parse(req.session.profile).personStatus != 'p') res.redirect('/');
-		next();
+		else next();
 	});
 
   //app.use(bodyParser.json());
