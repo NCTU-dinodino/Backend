@@ -786,7 +786,7 @@ table.researchProfessorList = function(req, res, next) {
                             add_status: student.add_status,
                             score: student.score == null ? null : parseInt(student.score),
                             comment: student.comment,
-                            CPEStatus: student.CPEStatus   
+                            cpe_status: student.CPEStatus   
                         }
                         let research_idx = research_index[student.research_title + '_' + student.teacher_id];
                         let teacher_idx = teacher_index[student.teacher_id];
@@ -822,7 +822,7 @@ table.researchProfessorList = function(req, res, next) {
                             semester: student.semester,
                             first_second: student.first_second,
                             status: student.status,
-                            CPEStatus: student.CPEStatus
+                            cpe_status: student.CPEStatus
                         }
                         let research_idx = research_index[student.research_title + '_' + student.teacher_id];
                         let teacher_idx = teacher_index[student.teacher_id];
