@@ -17,7 +17,7 @@ module.exports.setProfile = function(req, res, next){
           		if(result){
 					if(result.length == 0) req.profile = 'Not Found';
               		else req.profile = result;
-          		}
+          		}else req.profile = 'Not Found';
 				next();
 	 		//query.close();
       		});
