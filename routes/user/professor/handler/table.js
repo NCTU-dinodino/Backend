@@ -510,29 +510,29 @@ table.researchList = function(req, res, next){
 }
 
 table.researchSetReplace = function(req, res, next) {
-	let promiseShowUserInfo = (studentId) => {
+	let promiseShowUserInfo = (studentId) => new Promise((resolve, reject) => {
 		query.ShowUserInfo(studentId, (error, result) => {
 			if(error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
 			if(!result) reject('Cannot fetch ShowUserInfo.');
 			else resolve(JSON.parse(result)[0]);
 		});
-	};
+	});
 
-	let promiseShowStudentResearchInfo = (studentId) => {
+	let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
 		query.ShowStudentResearchInfo(studentId, (error, result) => {
 			if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
 			if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
 			else resolve(JSON.parse(result));
 		});
-	};
+	});
 
-	let promiseShowStudentResearchApplyForm = (studentId) => {
+	let promiseShowStudentResearchApplyForm = (studentId) => new Promise((resolve, reject) => {
 		query.ShowStudentResearchApplyForm(studentId, (error, result) => {
 			if(error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
 			if(!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
 			else resolve(JSON.parse(result));
 		});
-	};
+	});
 
 	let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
 		query.ShowTeacherIdList((error, result) => {
@@ -542,15 +542,15 @@ table.researchSetReplace = function(req, res, next) {
 		});
 	});
 
-	let promiseShowTeacherResearchApplyFormList = (teacherId) => {
+	let promiseShowTeacherResearchApplyFormList = (teacherId) => new Promise((resolve, reject) => {
 		query.ShowTeacherResearchApplyFormList(teacherId, '', (error, result) => {
 			if(error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
 			if(!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
 			else resolve(JSON.parse(result));
 		});
-	};
+	});
 
-	let promiseDeleteResearch = (studentId, firstSecond, semester) => {
+	let promiseDeleteResearch = (studentId, firstSecond, semester) => new Promise((resolve, reject) => {
 		let info = {
 			student_id:		studentId,
 			first_second:	firstSecond,
@@ -560,9 +560,9 @@ table.researchSetReplace = function(req, res, next) {
 			if(error) reject('Cannot fetch DeleteResearch. Error message: ' + error);
 			resolve();
 		});
-	}
+	});
 
-	let promiseSetResearchReplace = (studentId, firstSecond, semester) => {
+	let promiseSetResearchReplace = (studentId, firstSecond, semester) => new Promise((resolve, reject) => {
 		let deleteInfo = {
 			student_id: 	studentId,
 			first_second:	firstSecond,
@@ -572,9 +572,9 @@ table.researchSetReplace = function(req, res, next) {
 			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
 			resolve();
 		});
-	};
+	});
 
-	let promiseDeleteResearchApplyForm = (title, tname, firstSecond, semester) => {
+	let promiseDeleteResearchApplyForm = (title, tname, firstSecond, semester) => new Promise((resolve, reject) => {
 		let info = {
 			research_title:	title,
 			tname:			tname,
@@ -586,9 +586,9 @@ table.researchSetReplace = function(req, res, next) {
 			if(error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
 			resolve();
 		});
-	};
+	});
 
-	let promiseGetStudentsInSameApplyForm = (studentId, semester) => promise.ShowStudentResearchApplyForm(studentId)
+	let promiseGetStudentsInSameApplyForm = (studentId, semester) => promiseShowStudentResearchApplyForm(studentId)
 		.then(applyFormList => applyFromList.find(applyForm => applyForm.semester == semester))
 		.then(applyForm => Promise.all([
 			Promise.resolve(applyForm.tname),
