@@ -1038,7 +1038,7 @@ table.researchApplyCreate = function(req, res, next){
 			return promiseShowStudentResearchStatus(student.student_id)
 			.then(result => {
 				let status = parseInt(result[0].status);
-				if(status != 2) return Promise.reject('Student ' + student.student_id + ' hasn\'t applied research 1.');
+				if(status != 2 && status != 4) return Promise.reject('Student ' + student.student_id + ' hasn\'t applied research 1.');
 				else return promiseSetResearchReplace(student.student_id, 1)
 			})
 			.then(_ => promiseCreate(student))
