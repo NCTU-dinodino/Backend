@@ -510,10 +510,10 @@ table.researchList = function(req, res, next){
 }
 
 table.researchSetReplace = function(req, res, next) {
-	let promiseShowStudentInfo = (studentId) => {
-		query.ShowStudentInfo(studentId, (error, result) => {
-			if(error) reject('Cannot fetch ShowStudentInfo. Error message: ' + error);
-			if(!result) reject('Cannot fetch ShowStudentInfo.');
+	let promiseShowUserInfo = (studentId) => {
+		query.ShowUserInfo(studentId, (error, result) => {
+			if(error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowUserInfo.');
 			else resolve(JSON.parse(result)[0]);
 		});
 	};
@@ -612,7 +612,7 @@ table.researchSetReplace = function(req, res, next) {
 			};
 		});
 
-	promiseShowStudentInfo(req.body.student_id)
+	promiseShowUserInfo(req.body.student_id)
 	.then(result => result.email)
 	.then(email => {
 		if(req.body.agree_replace == 0)
