@@ -41,7 +41,7 @@ module.exports.init = function(){
 
 
 	app.use('/', (req, res, next) => {
-		if(!req.query.fail && req.profile && (req.profile == 'Not Found' || req.profile.status == 'c')) res.redirect('?fail=1');
+		if(!req.query.fail && req.profile && (req.profile == 'Not Found' || req.profile[0].status == 'c')) res.redirect('?fail=1');
 		else next();	
 	});
   
