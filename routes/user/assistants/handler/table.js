@@ -930,8 +930,123 @@ table.researchSetScore = function(req, res, next) {
         res.redirect('/');
 }
 
-/* 刪除該學生的專題資訊(讓助理可以刪掉CPE未過但被教授同意的人的專題) */
+/* 刪除該學生的專題資訊(讓助理可以刪掉沒選課的人的專題)
+有人沒有選課, 刪掉他個人的資料, 並且寄"沒有選課的信"給個人, cc給教授 */
 table.researchDelete = function(req, res, next) {
+    if (req.session.profile) {
+
+        let promiseDeleteResearch = (info) => new Promise((resolve, reject) => {
+            query.DeleteResearch(info, (error, result) => {
+                if (error) reject('Cannot fetch DeleteResearch. Error message: ' + error);
+                if (!result) reject('Cannot fetch DeleteResearch.');
+                else resolve();
+            });
+        });
+
+        let promiseDeleteResearchApplyForm = (info) => new Promise((resolve, reject) => {
+            query.DeleteResearchApplyForm(info, (error, result) => {
+                if (error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
+                if (!result) reject('Cannot fetch DeleteResearchApplyForm.');
+                else resolve();
+            });
+        });
+
+        let promiseShowUserInfo = (id) => new Promise((resolve, reject) => {
+            query.ShowUserInfo(id, (error, result) => {
+                if (error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowUserInfo.');
+                else resolve(JSON.parse(result)[0]);
+            });
+        });
+
+        let promiseShowStudentResearchInfo = (id) => new Promise((resolve, reject) => {
+            query.ShowStudentResearchInfo(id, (error, result) => {
+                if (error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowStudentResearchInfo.');
+                else resolve(JSON.parse(result)[0]);
+            });
+        });
+
+        let promiseShowStudentResearchApplyForm = (id) => new Promise((resolve, reject) => {
+            query.ShowStudentResearchApplyForm(id, (error, result) => {
+                if (error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
+                else resolve(JSON.parse(result)[0]);
+            });
+        });
+
+        let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
+            query.ShowShowTeacherIdList((error, result) => {
+                if (error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowTeacherIdList.');
+                else resolve(JSON.parse(result));
+            });
+        });
+
+        let promiseDelete = (first_second) => {
+            if (first_second == '1') {
+                Promise.all([promiseShowStudentResearchApplyForm(req.body.student_id), promiseShowTeacherIdList])
+                    .then(([researchApplyInfo, teacherIdList]) => {
+                        let tname = researchApplyInfo.tname;
+                        var teacher = teacherIdList.find(teacher => teacher.tname == tname);
+                        let teacherEmail = teacher.email;
+                        let studentEmail = researchApplyInfo.email;
+                        let info = { research_title: researchApplyInfo.research_title, tname: tname, first_second: 1, semester: researchApplyInfo.semester}
+                        return Promise.all([
+                            teacherEmail,
+                            studentEmail,
+                            promiseDeleteResearchApplyForm(info)
+                        ])
+                    });
+            } else if (first_second == '2') {
+                Promise.all([promiseShowStudentResearchInfo(req.body.student_id), promiseShowUserInfo(req.body.student_id), promiseShowTeacherIdList])
+                    .then(([researchInfo, userInfo, teacherIdList]) => {
+                        let tname = researchInfo.tname;
+                        var teacher = teacherIdList.find(teacher => teacher.tname == tname);
+                        let teacherEmail = teacher.email;
+                        let studentEmail = userInfo.email;
+                        let info = { student_id: req.body.student_id, first_second: req.body.first_second, semester: req.body.semester };
+                        return Promise.all([
+                            teacherEmail,
+                            studentEmail,
+                            promiseDeleteResearch(info)
+                        ])
+                    });
+            }
+        }
+
+        Promise.all(promiseDelete(req.body.first_second))
+            .then(([teacherEmail, studentEmail, _]) => {
+                let options = {
+                    from: 'nctucsca@gmail.com',
+                    to: 'nctudinodino@gmail.com',//studentEmail,
+                    cc: //teacherEmail,
+                    bcc: '',
+                    subject: '[交大資工線上助理]專題郵件通知', // Subject line
+                    html: '同學好,<p><br/>您的專題申請被退回。原因如下：<p>1.      本學期未完成專題選課。<p><br/>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>'
+                };
+
+                transporter.sendMail(options, function(error, info) {
+                    if (error) {
+                        return Promise.reject('Error sending emails.');
+                    }
+                });
+                res.status = 200;
+                next();
+            })
+            .catch((error) => {
+                console.log(error);
+                res.status = 403;
+                next();
+            });
+
+    } else {
+        res.redirect('/');
+    }
+}
+
+/* 刪除該學生的專題資訊(讓助理可以刪掉CPE未過但被教授同意的人的專題) */
+/*table.researchDelete = function(req, res, next) {
     if (req.session.profile) {
         var info = { student_id: req.body.student_id, first_second: req.body.first_second, semester: req.body.semester };
 
@@ -957,7 +1072,7 @@ table.researchDelete = function(req, res, next) {
                 let options = {
                     from: 'nctucsca@gmail.com',
                     to: email,
-                    cc: /*req.body.sender_email*/ '',
+                    cc: '',
                     bcc: '',
                     subject: '', // Subject line
                     html: '同學好,<p><br/>您的專題(一)申請未通過。可能的原因如下：<p>1.如為多人一組：貴組專題（一）成員中有學生尚未通過「基礎程式設計課程」，故無法受理貴組的專題（一）申請，請重新提送申請單。<p>2.如為個人申請：您尚未通過「基礎程式設計課程」，不可選修專題（一）。<p>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>'
@@ -980,7 +1095,7 @@ table.researchDelete = function(req, res, next) {
     } else {
         res.redirect('/');
     }
-}
+}*/
 
 /* 刪除該學生的專題資訊(讓助理可以刪掉CPE未過但被教授同意的人的專題) */
 /*table.researchDelete = function(req, res, next) {
@@ -1032,7 +1147,121 @@ table.researchSetAddStatus = function(req, res, next) {
         res.redirect('/');
 }
 
+/* CPE沒過, 拒絕申請單不刪掉資料庫資料, 並且寄"有人CPE沒過的信"給他們的組員還有他 */
 table.researchSetCPEStatus = function(req, res, next) {
+    if (req.session.profile) {
+        let input = { student_id: req.body.student_id, cpe_result: parseInt(req.body.new_cpe_status) };
+        
+        let promiseShowStudentResearchApplyForm = (id) => new Promise((resolve, reject) => {
+            query.ShowStudentResearchApplyForm(id, (error, result) => {
+                if (error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
+                else resolve(JSON.parse(result)[0]);
+            });
+        });
+
+        let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
+            query.ShowShowTeacherIdList((error, result) => {
+                if (error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowTeacherIdList.');
+                else resolve(JSON.parse(result));
+            });
+        });
+
+        let promiseShowTeacherResearchApplyFormList = (teacherId) => new Promise((resolve, reject) => {
+            query.ShowShowTeacherResearchApplyFormList(teacherId, (error, result) => {
+                if (error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
+                else resolve(JSON.parse(result));
+            });
+        });
+
+        let promiseSetResearchApplyFormStatus = (title, tname, first_second, semester) => new Promise((resolve, reject) => {
+            query.SetResearchApplyFormStatus({ research_title: title, tname: tname, first_second: first_second, agree: 3, semester: semester })
+            resolve();
+        });
+
+        let promiseSetCPEStatus = (info) => new Promise((resolve, reject) => {
+            query.SetCPEStatus(info, (error, result) => {
+                if (error) reject('Cannot fetch SetCPEStatus. Error message: ' + error);
+                else if (!result) reject('Cannot fetch SetCPEStatus.');
+                else resolve();
+            });
+        });
+
+        let promiseList = [];
+        promiseList.push(promiseShowStudentResearchApplyForm(req.body.student_id));
+        promiseList.push(promiseShowTeacherIdList);
+        promiseList.push(promiseSetCPEStatus(input));
+
+        let promiseCPENotPass = () => Promise.all(promiseList)
+            .then(([applyForm, teacherIdList, _]) => {
+                var teacher = teacherIdList.find(teacher => teacher.tname == applyForm.tname);
+                return Promise.all([
+                    promiseShowTeacherResearchApplyFormList(teacher.teacherId),
+                    promiseSetResearchApplyFormStatus(applyForm.title, teacher.tname, applyForm.first_second, applyForm.semester)
+                ]);
+            })
+            .then(([applyFormList, _]) => {
+                memberIdList = applyFormList.filter(applyForm => applyForm.research_title == info.title && applyForm.semester == info.semester).map(applyForm => applyForm.student_id)
+                memberEmailList = applyFormList.filter(applyForm => applyForm.research_title == info.title && applyForm.semester == info.semester).map(applyForm => applyForm.email)
+                return [memberIdList, memberEmailList]
+            })
+            .then(([memberIdList, memberEmailList]) => {
+                let memberEmails = memberEmailList.join();
+                let transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: mail_info.auth
+                });
+
+                let options = {
+                    from: 'nctucsca@gmail.com',
+                    to: 'nctudinodino@gmail.com',//memberEmails,
+                    cc: '',
+                    bcc: '',
+                    subject: '[交大資工線上助理]專題申請郵件通知',
+                    html: '同學好,<p><br/>您的專題(一)申請未通過。可能的原因如下：<p>1.如為多人一組：貴組專題（一）成員中有學生尚未通過「基礎程式設計課程」，故無法受理貴組的專題（一）申請，請重新提送申請單。<p>2.如為個人申請：您尚未通過「基礎程式設計課程」，不可選修專題（一）。<p>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>'
+                };
+
+                transporter.sendMail(options, (error, result) => {
+                    if (error) return Promise.reject('Cannot send email. Error message: ' + error);
+                });
+            })
+            .then(_ => {
+                res.status(200);
+                next();
+            })
+            .catch(error => {
+                console.log(error);
+                res.status(403);
+                next();
+            });
+
+        if (req.body.new_cpe_status == '2'){
+            promiseCPENotPass();
+        }
+        else {
+            query.SetCPEStatus(input, function(err, result) {
+                if (err) {
+                    res.status = 403;
+                    throw err;
+                }
+                if (!result) {
+                    res.status = 403;
+                    next();
+                } else {
+                    res.status = 200;
+                    next();
+                }
+            });
+        }
+
+    } else {
+        res.redirect('/');
+    }
+}
+
+/*table.researchSetCPEStatus = function(req, res, next) {
     if (req.session.profile) {
         let input = { student_id: req.body.student_id, cpe_result: parseInt(req.body.new_cpe_status) };
         query.SetCPEStatus(input, function(err, result) {
@@ -1051,7 +1280,7 @@ table.researchSetCPEStatus = function(req, res, next) {
     } else {
         res.redirect('/');
     }
-}
+}*/
 
 table.researchSendWarningEmail = function(req, res, next) {
     let promiseList = [];
