@@ -589,7 +589,7 @@ table.researchSetReplace = function(req, res, next) {
 	});
 
 	let promiseGetStudentsInSameApplyForm = (studentId, semester) => promiseShowStudentResearchApplyForm(studentId)
-		.then(applyFormList => applyFromList.find(applyForm => applyForm.semester == semester))
+		.then(applyFormList => applyFormList.find(applyForm => applyForm.semester == semester))
 		.then(applyForm => Promise.all([
 			Promise.resolve(applyForm.tname),
 			promiseShowTeacherIdList(),
