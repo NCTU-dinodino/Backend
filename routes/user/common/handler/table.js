@@ -262,7 +262,7 @@ table.dataUpload = function(req, res, next) {
         var readStream = new Readable();
         var fileName = '';
         if (input.data_type == '專題選課名單') {
-            fileName = input.semester + '-' + input.data_type;
+            fileName = input.data_type + '.xlsx';
         } else {
             var now = new Date();
             var date = now.toLocaleString().split(" ")[0];
@@ -283,9 +283,13 @@ table.dataUpload = function(req, res, next) {
                 const new_worksheet_data = [
                     ['學號', '學期', '專題一或二']
                 ]
-                student_ids.forEach(id => {
-                    new_worksheet_data.push([id, semester, parseInt(first_second)])
-                })
+                if (student_ids.length == 0) {
+                    new_worksheet_data.push(['空', semester, parseInt(first_second)])
+                } else {
+                    student_ids.forEach(id => {
+                        new_worksheet_data.push([id, semester, parseInt(first_second)])
+                    })
+                }
                 const new_worksheet = XLSX.utils.aoa_to_sheet(new_worksheet_data)
                 let new_workbook = XLSX.utils.book_new()
                 XLSX.utils.book_append_sheet(new_workbook, new_worksheet, 'SheetJS')
