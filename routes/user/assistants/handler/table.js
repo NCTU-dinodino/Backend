@@ -1209,8 +1209,8 @@ table.researchSetCPEStatus = function(req, res, next) {
                 ]);
             })
             .then(([applyFormList, _]) => {
-                memberIdList = applyFormList.filter(applyForm => applyForm.research_title == info.title && applyForm.semester == info.semester).map(applyForm => applyForm.student_id)
-                memberEmailList = applyFormList.filter(applyForm => applyForm.research_title == info.title && applyForm.semester == info.semester).map(applyForm => applyForm.email)
+                let memberIdList = applyFormList.filter(applyForm => applyForm.research_title == info.title && applyForm.semester == info.semester).map(applyForm => applyForm.student_id)
+                let memberEmailList = applyFormList.filter(applyForm => applyForm.research_title == info.title && applyForm.semester == info.semester).map(applyForm => applyForm.email)
                 return [memberIdList, memberEmailList]
             })
             .then(([memberIdList, memberEmailList]) => {
