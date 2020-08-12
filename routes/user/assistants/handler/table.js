@@ -829,7 +829,12 @@ table.researchProfessorList = function(req, res, next) {
                     }
                 });
             });
-
+            teacher_list.forEach(teacher => {
+                teacher.pending.projects = teacher.pending.projects.filter(project => {
+                    if (project.students.some(student => student.cpe_status == '2'))
+                        return false;
+                });
+            })
             req.professorList = teacher_list;
             if (req.professorList)
                 next();
