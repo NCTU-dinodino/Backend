@@ -833,6 +833,7 @@ table.researchProfessorList = function(req, res, next) {
                 teacher.pending.projects = teacher.pending.projects.filter(project => {
                     if (project.students.some(student => student.cpe_status == '2'))
                         return false;
+                    else return true;
                 });
             })
             req.professorList = teacher_list;
@@ -981,7 +982,7 @@ table.researchDelete = function(req, res, next) {
         });
 
         let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
-            query.ShowShowTeacherIdList((error, result) => {
+            query.ShowTeacherIdList((error, result) => {
                 if (error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
                 else if (!result) reject('Cannot fetch ShowTeacherIdList.');
                 else resolve(JSON.parse(result));
@@ -990,7 +991,7 @@ table.researchDelete = function(req, res, next) {
 
         let promiseDelete = (first_second) => {
             if (first_second == '1') {
-                Promise.all([promiseShowStudentResearchApplyForm(req.body.student_id), promiseShowTeacherIdList])
+                Promise.all([promiseShowStudentResearchApplyForm(req.body.student_id), promiseShowTeacherIdList()])
                     .then(([researchApplyInfo, teacherIdList]) => {
                         let tname = researchApplyInfo.tname;
                         var teacher = teacherIdList.find(teacher => teacher.tname == tname);
@@ -1004,7 +1005,7 @@ table.researchDelete = function(req, res, next) {
                         ])
                     });
             } else if (first_second == '2') {
-                Promise.all([promiseShowStudentResearchInfo(req.body.student_id), promiseShowUserInfo(req.body.student_id), promiseShowTeacherIdList])
+                Promise.all([promiseShowStudentResearchInfo(req.body.student_id), promiseShowUserInfo(req.body.student_id), promiseShowTeacherIdList()])
                     .then(([researchInfo, userInfo, teacherIdList]) => {
                         let tname = researchInfo.tname;
                         var teacher = teacherIdList.find(teacher => teacher.tname == tname);
@@ -1166,7 +1167,7 @@ table.researchSetCPEStatus = function(req, res, next) {
         });
 
         let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
-            query.ShowShowTeacherIdList((error, result) => {
+            query.ShowTeacherIdList((error, result) => {
                 if (error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
                 else if (!result) reject('Cannot fetch ShowTeacherIdList.');
                 else resolve(JSON.parse(result));
@@ -1174,7 +1175,7 @@ table.researchSetCPEStatus = function(req, res, next) {
         });
 
         let promiseShowTeacherResearchApplyFormList = (teacherId) => new Promise((resolve, reject) => {
-            query.ShowShowTeacherResearchApplyFormList(teacherId, (error, result) => {
+            query.ShowTeacherResearchApplyFormList(teacherId, (error, result) => {
                 if (error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
                 else if (!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
                 else resolve(JSON.parse(result));
@@ -1196,7 +1197,7 @@ table.researchSetCPEStatus = function(req, res, next) {
 
         let promiseList = [];
         promiseList.push(promiseShowStudentResearchApplyForm(req.body.student_id));
-        promiseList.push(promiseShowTeacherIdList);
+        promiseList.push(promiseShowTeacherIdList());
         promiseList.push(promiseSetCPEStatus(input));
 
         let promiseCPENotPass = () => Promise.all(promiseList)
