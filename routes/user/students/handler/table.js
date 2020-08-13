@@ -986,9 +986,9 @@ table.researchApplyCreate = function(req, res, next) {
     });
 
     let promiseCreateGroupResearchApplyForm = (input) => new Promise((resolve, reject) => {
-        query.CreateResearchApplyForm(input, (error, result) => {
-            if (error) reject('Cannot fetch CreateResearchApplyForm. Error message: ' + error);
-            if (!result) reject('Cannot fetch CreateResearchApplyForm.');
+        query.CreateGroupResearchApplyForm(input, (error, result) => {
+            if (error) reject('Cannot fetch CreateGroupResearchApplyForm. Error message: ' + error);
+            if (!result) reject('Cannot fetch CreateGroupResearchApplyForm.');
             else if (result == 'wrong') resolve(result);
             else resolve(JSON.parse(result));
         });
@@ -1026,7 +1026,7 @@ table.researchApplyCreate = function(req, res, next) {
             };
             input.push(studentInfo);
         });
-        return promiseCreateResearchApplyForm(input);
+        return promiseCreateGroupResearchApplyForm(input);
     };
 
     let promiseSetResearchReplace = (studentId, replace) => new Promise((resolve, reject) => {
@@ -1056,27 +1056,28 @@ table.researchApplyCreate = function(req, res, next) {
                     }
                 });
         } else if (student.first_second == 2) {
-            let promiseSetReplace = (studentId) => promiseShowStudentResearchStatus(student.student_id)
-                .then(result => {
-                    let status = parseInt(result[0].status);
-                    if (status != 2 && status != 4) return Promise.reject('Student ' + student.student_id + ' hasn\'t applied research 1.');
-                    else return promiseSetResearchReplace(student.student_id, 1)
+            return Promise.all(students.map((student) => promiseShowStudentResearchStatus(student.student_id)))
+                .then(results => {
+                    if (results.some(result => result[0].status != 2 && result[0].status != 4))
+                        return Promise.reject('One student hasn\'t applied research 1.');
+                    else
+                        return Promise.all(students.map((student) => promiseSetResearchReplace(student.student_id, 1)))
                 })
-                .then(_ => promiseCreate(student))
+                .then(_ => promiseCreate(students))
                 .then(result => {
                     if (result == 'wrong') return Promise.reject('Cannot create research apply form.');
-                    return Promise.all([promiseShowStudentResearchInfo(student.student_id), promiseShowTeacherIdList()]);
+                    return Promise.all([promiseShowStudentResearchInfo(student), promiseShowTeacherIdList()]);
                 })
                 .then(([researchInfo, teacherIdList]) => {
                     let originalTeacherName = researchInfo.find(r => r.first_second == '1').tname;
                     let originalTeacherEmail = teacherIdList.find(r => r.tname == originalTeacherName).email;
+                    let emails = students.map(student => student.student_email).join();
                     return {
                         teacher_email: originalTeacherEmail,
-                        student_email: student.email,
+                        student_emails: emails,
                         type: 'replace'
                     };
                 });
-            return students.map((student) => promiseSetReplace(student.student_id));
         }
     };
 
@@ -1091,7 +1092,7 @@ table.researchApplyCreate = function(req, res, next) {
         if (unique.length !== members.length)
             throw new Error('There are duplicate members.');
         else
-            return promiseCreateOrSetReplace(members);
+            return [promiseCreateOrSetReplace(members)];
     }
 
     Promise.all(promiseList(req.body.members))
