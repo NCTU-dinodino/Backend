@@ -533,7 +533,7 @@ table.researchStudentListDownload = function(req, res, next) {
                             var index = [];
                             var count = 0;
                             for (var j = 0; j < result.length; j++) {
-                                if (index[result[j].research_title] == null && result[j].semester == req.body.semester) {
+                                if (index[result[j].unique_id] == null && result[j].semester == req.body.semester) {
                                     var project = {
                                         title: '',
                                         students: [],
@@ -542,7 +542,7 @@ table.researchStudentListDownload = function(req, res, next) {
                                     project.title = result[j].research_title;
                                     var Id = Index[result[j].teacher_id];
                                     group[Id].accepted.projects.push(project);
-                                    index[result[j].research_title] = count;
+                                    index[result[j].unique_id] = count;
                                     count++;
                                 }
                             }
@@ -564,7 +564,7 @@ table.researchStudentListDownload = function(req, res, next) {
                                     student.first_second = result[j].first_second;
                                     student.status = result[j].status;
                                     student.add_status = result[j].add_status;
-                                    var id = index[result[j].research_title];
+                                    var id = index[result[j].unique_id];
                                     var Id = Index[result[j].teacher_id];
                                     group[Id].accepted.projects[id].students.push(student);
                                     student_cnt++;
@@ -587,7 +587,7 @@ table.researchStudentListDownload = function(req, res, next) {
                             var index = [];
                             var count = 0;
                             for (var j = 0; j < result.length; j++) {
-                                if (index[result[j].research_title] == null) {
+                                if (index[result[j].unique_id] == null) {
                                     var project = {
                                         title: '',
                                         students: [],
@@ -596,7 +596,7 @@ table.researchStudentListDownload = function(req, res, next) {
                                     project.title = result[j].research_title;
                                     var Id = Index[result[j].teacher_id];
                                     group[Id].pending.projects.push(project);
-                                    index[result[j].research_title] = count;
+                                    index[result[j].unique_id] = count;
                                     count++;
 
                                     if (group[Id].pending_status == 0) group[Id].pending_status = 1;
@@ -615,7 +615,7 @@ table.researchStudentListDownload = function(req, res, next) {
                                 student.program = result[j].program;
                                 student.first_second = result[j].first_second;
                                 student.status = result[j].status;
-                                var id = index[result[j].research_title];
+                                var id = index[result[j].unique_id];
                                 var Id = Index[result[j].teacher_id];
                                 group[Id].pending.projects[id].students.push(student);
                                 student_cnt++;
@@ -766,13 +766,13 @@ table.researchProfessorList = function(req, res, next) {
             result.forEach((students_of_techer) => {
                 students_of_techer.forEach((student) => {
                     if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ((student.first_second == '3') && (req.body.first_second == '1')))) {
-                        if (research_index[student.research_title + '_' + student.teacher_id] == null) {
+                        if (research_index[student.unique_id] == null) {
                             let project = {
                                 title: student.research_title,
                                 students: [],
                             }
                             let teacher_idx = teacher_index[student.teacher_id];
-                            research_index[student.research_title + '_' + student.teacher_id] = teacher_list[teacher_idx].accepted.projects.length;
+                            research_index[student.unique_id] = teacher_list[teacher_idx].accepted.projects.length;
                             teacher_list[teacher_idx].accepted.projects.push(project);
                         }
 
@@ -787,7 +787,7 @@ table.researchProfessorList = function(req, res, next) {
                             score: student.score == null ? null : parseInt(student.score),
                             comment: student.comment,
                         }
-                        let research_idx = research_index[student.research_title + '_' + student.teacher_id];
+                        let research_idx = research_index[student.unique_id];
                         let teacher_idx = teacher_index[student.teacher_id];
                         teacher_list[teacher_idx].accepted.projects[research_idx].students.push(student_info);
                         if ((student.add_status == 0) && (teacher_list[teacher_idx].accept_status == 0))
@@ -802,13 +802,13 @@ table.researchProfessorList = function(req, res, next) {
             result.forEach((students_of_techer) => {
                 students_of_techer.forEach((student) => {
                     if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ((student.first_second == '3') && (req.body.first_second == '1')))) {
-                        if (research_index[student.research_title + '_' + student.teacher_id] == null) {
+                        if (research_index[student.unique_id] == null) {
                             let project = {
                                 title: student.research_title,
                                 students: [],
                             }
                             let teacher_idx = teacher_index[student.teacher_id];
-                            research_index[student.research_title + '_' + student.teacher_id] = teacher_list[teacher_idx].pending.projects.length;
+                            research_index[student.unique_id] = teacher_list[teacher_idx].pending.projects.length;
                             teacher_list[teacher_idx].pending.projects.push(project);
                             if (teacher_list[teacher_idx].pending_status == 0)
                                 teacher_list[teacher_idx].pending_status = 1;
@@ -823,7 +823,7 @@ table.researchProfessorList = function(req, res, next) {
                             status: student.status,
                             cpe_status: student.CPEStatus
                         }
-                        let research_idx = research_index[student.research_title + '_' + student.teacher_id];
+                        let research_idx = research_index[student.unique_id];
                         let teacher_idx = teacher_index[student.teacher_id];
                         teacher_list[teacher_idx].pending.projects[research_idx].students.push(student_info);
                     }
@@ -1209,8 +1209,9 @@ table.researchSetCPEStatus = function(req, res, next) {
                 ]);
             })
             .then(([applyFormList, _]) => {
-                let memberIdList = applyFormList.filter(applyForm => applyForm.research_title == info.title && applyForm.semester == info.semester).map(applyForm => applyForm.student_id)
-                let memberEmailList = applyFormList.filter(applyForm => applyForm.research_title == info.title && applyForm.semester == info.semester).map(applyForm => applyForm.email)
+                var unique_id = applyFormList.find(applyForm => applyForm.student_id == studentId).unique_id;
+                let memberIdList = applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id)
+                let memberEmailList = applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.email)
                 return [memberIdList, memberEmailList]
             })
             .then(([memberIdList, memberEmailList]) => {

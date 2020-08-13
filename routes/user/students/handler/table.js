@@ -947,372 +947,391 @@ table.researchSetReplace = function(req, res, next){
 }
 
 /*建立專題申請，並發送信件給學生*/
-table.researchApplyCreate = function(req, res, next){
-	let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
-		query.ShowTeacherIdList((error, result) => {
-			if(error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
-			if(!result) reject('Cannot fetch ShowTeacherIdList.');
-			else resolve(JSON.parse(result));
-		});
-	});
+table.researchApplyCreate = function(req, res, next) {
+    let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
+        query.ShowTeacherIdList((error, result) => {
+            if (error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowTeacherIdList.');
+            else resolve(JSON.parse(result));
+        });
+    });
 
-	let promiseShowResearchTitleNumber = () => new Promise((resolve, reject) => {
-		let queryData = {
-			tname: 			req.body.tname,
-			research_title:	req.body.title,
-			semester:		req.body.semester
-		};
-		query.ShowResearchTitleNumber(queryData, (error, result) => {
-			if(error) reject('Cannot fetch ShowResearchTitleNumber. Error message: ' + error);
-			if(!result) reject('Cannot fetch ShowResearchTitleNumber.');
-			else resolve(JSON.parse(result));
-		});
-	});
+    /*let promiseShowResearchTitleNumber = () => new Promise((resolve, reject) => {
+    	let queryData = {
+    		tname: 			req.body.tname,
+    		research_title:	req.body.title,
+    		semester:		req.body.semester
+    	};
+    	query.ShowResearchTitleNumber(queryData, (error, result) => {
+    		if(error) reject('Cannot fetch ShowResearchTitleNumber. Error message: ' + error);
+    		if(!result) reject('Cannot fetch ShowResearchTitleNumber.');
+    		else resolve(JSON.parse(result));
+    	});
+    });*/
 
-	let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
-		query.ShowStudentResearchInfo(studentId, (error, result) => {
-			if(error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
-			if(!result) reject('Cannot fetch ShowStudentResearchInfo.');
-			else resolve(JSON.parse(result));
-		});
-	});
+    let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
+        query.ShowStudentResearchInfo(studentId, (error, result) => {
+            if (error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowStudentResearchInfo.');
+            else resolve(JSON.parse(result));
+        });
+    });
 
-	let promiseShowStudentResearchStatus = (studentId) => new Promise((resolve, reject) => {
-		query.ShowStudentResearchStatus(studentId, (error, result) => {
-			if(error) reject('Cannot fetch ShowStudentResearchStatus. Error message: ' + error);
-			if(!result) reject('Cannot fetch ShowStudentResearchStatus.');
-			else resolve(JSON.parse(result));
-		});
-	});
+    let promiseShowStudentResearchStatus = (studentId) => new Promise((resolve, reject) => {
+        query.ShowStudentResearchStatus(studentId, (error, result) => {
+            if (error) reject('Cannot fetch ShowStudentResearchStatus. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowStudentResearchStatus.');
+            else resolve(JSON.parse(result));
+        });
+    });
 
-	let promiseCreateResearchApplyForm = (studentInfo) => new Promise((resolve, reject) => {
-		query.CreateResearchApplyForm(studentInfo, (error, result) => {
-			if(error) reject('Cannot fetch CreateResearchApplyForm. Error message: ' + error);
-			if(!result) reject('Cannot fetch CreateResearchApplyForm.');
-			else if(result == 'wrong') resolve(result);
-			else resolve(JSON.parse(result));
-		});
-	});
+    let promiseCreateGroupResearchApplyForm = (input) => new Promise((resolve, reject) => {
+        query.CreateResearchApplyForm(input, (error, result) => {
+            if (error) reject('Cannot fetch CreateResearchApplyForm. Error message: ' + error);
+            if (!result) reject('Cannot fetch CreateResearchApplyForm.');
+            else if (result == 'wrong') resolve(result);
+            else resolve(JSON.parse(result));
+        });
+    });
 
-	let promiseCreate = (student) => {
-		return promiseShowResearchTitleNumber()
-		.then(result => {
-			let num = parseInt(result[0].count);
-			let studentInfo = {
-				phone:			student.phone,
-				student_id:		student.student_id,
-				research_title:	req.body.title + (num != 1 ? '_' + num : ''),
-				tname:			req.body.tname,
-				first_second:	student.first_second,
-				email:			student.email,
-				semester:		req.body.semester,
-				program:		student.department,
-				name:			student.name
-			};
-			return promiseCreateResearchApplyForm(studentInfo);
-		});
-	};
+    let promiseCreate = (students) => {
+        /*return promiseShowResearchTitleNumber()
+        .then(result => {
+        	let num = parseInt(result[0].count);
+        	let studentInfo = {
+        		phone:			student.phone,
+        		student_id:		student.student_id,
+        		research_title:	req.body.title + (num != 1 ? '_' + num : ''),
+        		tname:			req.body.tname,
+        		first_second:	student.first_second,
+        		email:			student.email,
+        		semester:		req.body.semester,
+        		program:		student.department,
+        		name:			student.name
+        	};
+        	return promiseCreateResearchApplyForm(studentInfo);
+        });*/
+        let input = [];
+        students.forEach(student => {
+            let studentInfo = {
+                phone: student.phone,
+                student_id: student.student_id,
+                research_title: req.body.title,
+                tname: req.body.tname,
+                first_second: student.first_second,
+                email: student.email,
+                semester: req.body.semester,
+                program: student.department,
+                name: student.name
+            };
+            input.push(studentInfo);
+        });
+        return promiseCreateResearchApplyForm(input);
+    };
 
-	let promiseSetResearchReplace = (studentId, replace) => new Promise((resolve, reject) => {
-		let info = {
-			student_id:		studentId,
-			replace_pro:	replace
-		};
-		query.SetResearchReplace(info, (error, result) => {
-			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
-			resolve();
-		});
-	});
+    let promiseSetResearchReplace = (studentId, replace) => new Promise((resolve, reject) => {
+        let info = {
+            student_id: studentId,
+            replace_pro: replace
+        };
+        query.SetResearchReplace(info, (error, result) => {
+            if (error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
+            resolve();
+        });
+    });
 
-	let promiseCreateOrSetReplace = (student) => {
-		if(student.first_second == 1){
-			return promiseCreate(student)
-			.then(result => {
-				if(result == 'wrong'){
-					return Promise.reject('Cannot create research apply form.');
-				}else{
-					return {student_email: student.email, type: 'create'};
-				}
-			});
-		}else if(student.first_second == 2){
-			return promiseShowStudentResearchStatus(student.student_id)
-			.then(result => {
-				let status = parseInt(result[0].status);
-				if(status != 2 && status != 4) return Promise.reject('Student ' + student.student_id + ' hasn\'t applied research 1.');
-				else return promiseSetResearchReplace(student.student_id, 1)
-			})
-			.then(_ => promiseCreate(student))
-			.then(result => {
-				if(result == 'wrong') return Promise.reject('Cannot create research apply form.');
-				return Promise.all([promiseShowStudentResearchInfo(student.student_id), promiseShowTeacherIdList()]);
-			})
-			.then(([researchInfo, teacherIdList]) => {
-				let originalTeacherName = researchInfo.find(r => r.first_second == '1').tname;
-				let originalTeacherEmail = teacherIdList.find(r => r.tname == originalTeacherName).email;
-				return {
-					teacher_email:	originalTeacherEmail,
-					student_email:	student.email,
-					type:			'replace'
-				};
-			});
-		}
-	};
+    let promiseCreateOrSetReplace = (students) => {
+        let student = students[0];
+        if (student.first_second == 1) {
+            return promiseCreate(students)
+                .then(result => {
+                    if (result == 'wrong') {
+                        return Promise.reject('Cannot create research apply form.');
+                    } else {
+                        let emails = students.map(student => student.student_email).join();
+                        return {
+                            student_emails: emails,
+                            type: 'create'
+                        };
+                    }
+                });
+        } else if (student.first_second == 2) {
+            let promiseSetReplace = (studentId) => promiseShowStudentResearchStatus(student.student_id)
+                .then(result => {
+                    let status = parseInt(result[0].status);
+                    if (status != 2 && status != 4) return Promise.reject('Student ' + student.student_id + ' hasn\'t applied research 1.');
+                    else return promiseSetResearchReplace(student.student_id, 1)
+                })
+                .then(_ => promiseCreate(student))
+                .then(result => {
+                    if (result == 'wrong') return Promise.reject('Cannot create research apply form.');
+                    return Promise.all([promiseShowStudentResearchInfo(student.student_id), promiseShowTeacherIdList()]);
+                })
+                .then(([researchInfo, teacherIdList]) => {
+                    let originalTeacherName = researchInfo.find(r => r.first_second == '1').tname;
+                    let originalTeacherEmail = teacherIdList.find(r => r.tname == originalTeacherName).email;
+                    return {
+                        teacher_email: originalTeacherEmail,
+                        student_email: student.email,
+                        type: 'replace'
+                    };
+                });
+            return students.map((student) => promiseSetReplace(student.student_id));
+        }
+    };
 
-	//let promiseList = req.body.members.map((student) => promiseCreateOrSetReplace(student));
+    //let promiseList = req.body.members.map((student) => promiseCreateOrSetReplace(student));
 
     let promiseList = (members) => {
-		let unique = [];
-		members.forEach(student => {
-			if(!unique.includes(student.student_id))
-				unique.push(student.student_id)
-		});
-		if(unique.length !== members.length)
-			throw new Error('There are duplicate members.');
-		else
-			return members.map((student) => promiseCreateOrSetReplace(student));
-	}
-
-	Promise.all(promiseList(req.body.members))
-	.then(result => {
-		if(result.every(r => r.type == 'create')){
-			let emails = result.map(r => r.student_email).join();
-			let transporter = nodemailer.createTransport({
-				service:	'Gmail',
-				auth:		mail_info.auth
-			});
-
-			let options = {
-				from:		'nctucsca@gmail.com',
-				to:			(process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
-				cc:			emails,
-				bcc:		'',
-				subject:	'[交大資工線上助理]專題申請郵件通知',
-				html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + emails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
-			};
-
-			transporter.sendMail(options, (error, result) => {
-				if(error) return Promise.reject('Cannot send email. Error message: ' + error);
-			});
-		}else{
-			let transporter = nodemailer.createTransport({
-				service: 'Gmail',
-				auth: mail_info.auth
-			});
-
-			result.filter(info => info.type == 'replace').forEach(info => {
-				let options = {
-					from:		'nctucsca@gmail.com',
-					to:			(process.env.__ENV__ == 'DEV' ? '' : info.teacher_email),
-					cc:			'',
-					bcc:		'',
-					subject:	'[交大資工線上助理]學生申請<更換專題教授、更換組員>通知', // Subject line
-					html: 		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 學生：' + info.student_email + ' 謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
-				};
-
-				transporter.sendMail(options, (error, result) => {
-					if(error) return Promise.reject('Cannot send email. Error message: ' + error);
-				});
-			});
-		}
-	})
-	.then(_ => {
-		res.status(204);
-		next();
-	})
-	.catch((error) => {
-		console.log(error);
-		res.status(403);
-		next();
-	});
-
-
-/*	promiseShowResearchTitleNumber()
-	.then((result) => {
-		let num = parseInt(result[0].count);
-		let promiseList = [];
-		req.body.members.forEach((student) => {
-			let studentInfo = {
-				phone:			student.phone,
-				student_id:		student.student_id,
-				research_title:	req.body.title + (num != 1 ? '_' + num : ''),
-				tname:			req.body.tname,
-				first_second:	student.first_second,
-				email:			student.email,
-				semester:		req.body.semester,
-				program:		student.department,
-				name:			student.name
-			};
-			promiseList.push(promiseCreateResearchApplyForm(studentInfo));
-		});
-		return Promise.all(promiseList);
-	})
-	.then((result) => {
-		if(result.some((status) => (status == 'wrong'))) res.status(403);
-		else res.status(204);
-	})
-	.then(() => {
-		let mails = req.body.members.reduce((acc, cur) => (acc + cur.email + ','), '');
-		
-		let transporter = nodemailer.createTransport({
-			service:	'Gmail',
-			auth:		mail_info.auth
-		});
-
-		let options = {
-			from:		'nctucsca@gmail.com',
-			to:			(process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
-			cc:			mails,
-			bcc:		'',
-			subject:	'[交大資工線上助理]專題申請郵件通知]',
-			html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + mails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
-		};
-
-		transporter.sendMail(options, (error, result) => {
-			if(error) console.log(error);
-		});
-
-		next();
-	})
-	.catch((error) => {
-		console.log(error);
-		res.redirect('/');
-	});
-
-    if (req.session.profile) {
-            var info = req.body;
-            var data = {
-                tname: info.tname,
-                research_title: info.title,
-                semester: info.semester
-            };
-            query.ShowResearchTitleNumber(data, function(error, result){
-                if(error){
-                    throw error;
-                    res.redirect('/');
-                }
-                if(!result)
-                    res.redirect('/');
-                var num = JSON.parse(result)[0]['count'];
-                for(var i = 0;i< info.participants.length; i++){
-                    var studentInfo = {phone : info.participants[i].phones, student_id : info.participants[i].student_id, research_title : info.title, tname : info.tname,first_second : info.participants[i].first_second, email : info.participants[i].email, semester: info.semester, program : info.participants[i].department, name : info.participants[i].name};
-                    if(num != "1")
-                        studentInfo.research_title += "_" + num;
-                        query.CreateResearchApplyForm(studentInfo, function(err, res1){
-                            if(err){
-                                throw err;
-                                res.redirect('/');
-                            }
-                            if(res1 == 'wrong'){
-                                res.status(403);
-                            }
-                        });
-                }
-        }); 
-        
-        setTimeout(function(){
-            var mailString= '';
-            var nameString='';
-            for(var j = 0; j< info.email.length; j++){
-                mailString = mailString + info.email[j] + ',';
-                nameString = nameString + info.participants[j] + ',';
-            }
-            var transporter = nodemailer.createTransport({
-                service: 'Gmail',
-                auth: mail_info.auth
-            });
-            
-            var options = {
-                //寄件者
-                from: 'nctucsca@gmail.com',
-                //收件者
-                to: info.teacher_email, 
-                //副本
-                cc: mailString,
-                //密件副本
-                bcc: '',
-                //主旨
-                subject: '[交大資工線上助理]專題申請郵件通知', // Subject line
-                //純文字
-                html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：'+info.teacher_email + ',學生：' + mailString +'謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
-            };
-            
-            transporter.sendMail(options, function(error, info){
-                if(error){
-                    console.log(error);
-                }
-            });
-            
-            if(req.create)
-		res.status(204);
-                next();
-            else
-                return;
-        },1000);
-    } 
-    else {
-        res.redirect('/');
+        let unique = [];
+        members.forEach(student => {
+            if (!unique.includes(student.student_id))
+                unique.push(student.student_id)
+        });
+        if (unique.length !== members.length)
+            throw new Error('There are duplicate members.');
+        else
+            return promiseCreateOrSetReplace(members);
     }
-*/
+
+    Promise.all(promiseList(req.body.members))
+        .then(result => {
+            if (result.every(r => r.type == 'create')) {
+                let emails = result.student_emails;
+                let transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: mail_info.auth
+                });
+
+                let options = {
+                    from: 'nctucsca@gmail.com',
+                    to: (process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
+                    cc: emails,
+                    bcc: '',
+                    subject: '[交大資工線上助理]專題申請郵件通知',
+                    html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + emails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+                };
+
+                transporter.sendMail(options, (error, result) => {
+                    if (error) return Promise.reject('Cannot send email. Error message: ' + error);
+                });
+            } else {
+                let transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: mail_info.auth
+                });
+
+                result.filter(info => info.type == 'replace').forEach(info => {
+                    let options = {
+                        from: 'nctucsca@gmail.com',
+                        to: (process.env.__ENV__ == 'DEV' ? '' : info.teacher_email),
+                        cc: '',
+                        bcc: '',
+                        subject: '[交大資工線上助理]學生申請<更換專題教授、更換組員>通知', // Subject line
+                        html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 學生：' + info.student_email + ' 謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+                    };
+
+                    transporter.sendMail(options, (error, result) => {
+                        if (error) return Promise.reject('Cannot send email. Error message: ' + error);
+                    });
+                });
+            }
+        })
+        .then(_ => {
+            res.status(204);
+            next();
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(403);
+            next();
+        });
+
+
+    /*	promiseShowResearchTitleNumber()
+    	.then((result) => {
+    		let num = parseInt(result[0].count);
+    		let promiseList = [];
+    		req.body.members.forEach((student) => {
+    			let studentInfo = {
+    				phone:			student.phone,
+    				student_id:		student.student_id,
+    				research_title:	req.body.title + (num != 1 ? '_' + num : ''),
+    				tname:			req.body.tname,
+    				first_second:	student.first_second,
+    				email:			student.email,
+    				semester:		req.body.semester,
+    				program:		student.department,
+    				name:			student.name
+    			};
+    			promiseList.push(promiseCreateResearchApplyForm(studentInfo));
+    		});
+    		return Promise.all(promiseList);
+    	})
+    	.then((result) => {
+    		if(result.some((status) => (status == 'wrong'))) res.status(403);
+    		else res.status(204);
+    	})
+    	.then(() => {
+    		let mails = req.body.members.reduce((acc, cur) => (acc + cur.email + ','), '');
+    		
+    		let transporter = nodemailer.createTransport({
+    			service:	'Gmail',
+    			auth:		mail_info.auth
+    		});
+    		let options = {
+    			from:		'nctucsca@gmail.com',
+    			to:			(process.env.__ENV__ == 'DEV' ? '' : req.body.teacher_email),
+    			cc:			mails,
+    			bcc:		'',
+    			subject:	'[交大資工線上助理]專題申請郵件通知]',
+    			html:		'<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + mails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+    		};
+    		transporter.sendMail(options, (error, result) => {
+    			if(error) console.log(error);
+    		});
+    		next();
+    	})
+    	.catch((error) => {
+    		console.log(error);
+    		res.redirect('/');
+    	});
+        if (req.session.profile) {
+                var info = req.body;
+                var data = {
+                    tname: info.tname,
+                    research_title: info.title,
+                    semester: info.semester
+                };
+                query.ShowResearchTitleNumber(data, function(error, result){
+                    if(error){
+                        throw error;
+                        res.redirect('/');
+                    }
+                    if(!result)
+                        res.redirect('/');
+                    var num = JSON.parse(result)[0]['count'];
+                    for(var i = 0;i< info.participants.length; i++){
+                        var studentInfo = {phone : info.participants[i].phones, student_id : info.participants[i].student_id, research_title : info.title, tname : info.tname,first_second : info.participants[i].first_second, email : info.participants[i].email, semester: info.semester, program : info.participants[i].department, name : info.participants[i].name};
+                        if(num != "1")
+                            studentInfo.research_title += "_" + num;
+                            query.CreateResearchApplyForm(studentInfo, function(err, res1){
+                                if(err){
+                                    throw err;
+                                    res.redirect('/');
+                                }
+                                if(res1 == 'wrong'){
+                                    res.status(403);
+                                }
+                            });
+                    }
+            }); 
+            
+            setTimeout(function(){
+                var mailString= '';
+                var nameString='';
+                for(var j = 0; j< info.email.length; j++){
+                    mailString = mailString + info.email[j] + ',';
+                    nameString = nameString + info.participants[j] + ',';
+                }
+                var transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: mail_info.auth
+                });
+                
+                var options = {
+                    //寄件者
+                    from: 'nctucsca@gmail.com',
+                    //收件者
+                    to: info.teacher_email, 
+                    //副本
+                    cc: mailString,
+                    //密件副本
+                    bcc: '',
+                    //主旨
+                    subject: '[交大資工線上助理]專題申請郵件通知', // Subject line
+                    //純文字
+                    html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：'+info.teacher_email + ',學生：' + mailString +'謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+                };
+                
+                transporter.sendMail(options, function(error, info){
+                    if(error){
+                        console.log(error);
+                    }
+                });
+                
+                if(req.create)
+    		res.status(204);
+                    next();
+                else
+                    return;
+            },1000);
+        } 
+        else {
+            res.redirect('/');
+        }
+    */
 }
 
 /*刪除專題申請*/
-table.researchApplyDelete = function(req, res, next){
-	let promiseSetResearchReplace = (studentId, replace) => new Promise((resolve, reject) => {
-		let info = {
-			student_id:		studentId,
-			replace_pro:	replace
-		};
-		query.SetResearchReplace(info, (error, result) => {
-			if(error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
-			resolve();
-		});
-	});
+table.researchApplyDelete = function(req, res, next) {
+    let promiseSetResearchReplace = (studentId, replace) => new Promise((resolve, reject) => {
+        let info = {
+            student_id: studentId,
+            replace_pro: replace
+        };
+        query.SetResearchReplace(info, (error, result) => {
+            if (error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
+            resolve();
+        });
+    });
 
-	let promiseDeleteResearchApplyForm = () => new Promise((resolve, reject) => {
-		let queryData = {
-			research_title:	req.body.title,
-			tname:			req.body.tname,
-			first_second:	req.body.first_second,
-			semester:		req.body.semester
-		};
+    let promiseDeleteResearchApplyForm = () => new Promise((resolve, reject) => {
+        let queryData = {
+            research_title: req.body.title,
+            tname: req.body.tname,
+            first_second: req.body.first_second,
+            semester: req.body.semester
+        };
 
-		query.DeleteResearchApplyForm(queryData, (error, result) => {
-			if(error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
-			if(!result) reject('Cannot fetch DeleteResearchApplyForm.');
-			resolve(result);
-		});
-	});
+        query.DeleteResearchApplyForm(queryData, (error, result) => {
+            if (error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
+            if (!result) reject('Cannot fetch DeleteResearchApplyForm.');
+            resolve(result);
+        });
+    });
 
-	let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
-		query.ShowTeacherIdList((error, result) => {
-			if(error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
-			if(!result) reject('Cannot fetch ShowTeacherIdList.');
-			else resolve(JSON.parse(result));
-		});
-	});
+    let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
+        query.ShowTeacherIdList((error, result) => {
+            if (error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowTeacherIdList.');
+            else resolve(JSON.parse(result));
+        });
+    });
 
-	let promiseShowTeacherResearchApplyFormList = (teacherId) => new Promise((resolve, reject) => {
-		query.ShowTeacherResearchApplyFormList(teacherId, (error, result) => {
-			if(error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
-			if(!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
-			else resolve(JSON.parse(result));
-		});
-	});
+    let promiseShowTeacherResearchApplyFormList = (teacherId) => new Promise((resolve, reject) => {
+        query.ShowTeacherResearchApplyFormList(teacherId, (error, result) => {
+            if (error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
+            else resolve(JSON.parse(result));
+        });
+    });
 
-	promiseShowTeacherIdList()
-	.then(result => result.find(r => r.tname == req.body.tname).teacher_id)
-	.then(teacherId => promiseShowTeacherResearchApplyFormList(teacherId))
-	.then(applyFormList => applyFormList.filter(applyForm => applyForm.research_title == req.body.title && applyForm.semester == req.body.semester).map(applyForm => applyForm.student_id))
-	.then(studentIdList => Promise.all(studentIdList.map(studentId => promiseSetResearchReplace(studentId, 0))))
-	.then(_ => promiseDeleteResearchApplyForm())
-	.then(_ => {
-		res.status(204);
-		next();
-	})
-	.catch(error => {
-		console.log(error);
-		res.status(403);
-	});
+    promiseShowTeacherIdList()
+        .then(result => result.find(r => r.tname == req.body.tname).teacher_id)
+        .then(teacherId => promiseShowTeacherResearchApplyFormList(teacherId))
+        .then(applyFormList => applyFormList.find(applyForm => applyForm.student_id == req.body.student_id).unique_id)
+        .then(unique_id => applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id))
+        .then(studentIdList => Promise.all(studentIdList.map(studentId => promiseSetResearchReplace(studentId, 0))))
+        .then(_ => promiseDeleteResearchApplyForm())
+        .then(_ => {
+            res.status(204);
+            next();
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(403);
+        });
 }
 
 /*列出教授以前指導過的專題*/

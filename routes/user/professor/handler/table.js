@@ -367,6 +367,7 @@ table.researchSetTitle = function(req, res, next){
         res.redirect('/');
 
 }
+
 table.researchList = function(req, res, next){
     if (req.session.profile) {
 
@@ -416,7 +417,7 @@ table.researchList = function(req, res, next){
                         project.research_title = result[i].research_title;
                         project.first_second = result[i].first_second;
                         projects.groups.push(project);
-                        index[result[i].research_title] = count;
+                        index[result[i].unique_id] = count;
                         count++;
                     }  
                 }
@@ -437,7 +438,7 @@ table.researchList = function(req, res, next){
                     student.detail = result[i].class_detail;
                     student.comment = result[i].comment;
                     student.replace_pro = parseInt(result[i].replace_pro);
-                    var id = index[result[i].research_title];
+                    var id = index[result[i].unique_id];
                     projects.groups[id].participants.push(student);
                     
                     query.ShowStudentResearchInfo(student.student_id, function(error, res){
@@ -593,22 +594,23 @@ table.researchSetReplace = function(req, res, next) {
 		.then(applyForm => Promise.all([
 			Promise.resolve(applyForm.tname),
 			promiseShowTeacherIdList(),
-			Promise.resolve(applyForm.research_title),
+            Promise.resolve(applyForm.student_id)
 		]))
-		.then(([tname, teacherIdList, title]) => [teacherIdList.find(teacher => teacher.tname == tname).teacher_id, teacherIdList.find(teacher => teacher.tname == tname).email, title, tname])
-		.then(([teacherId, teacherEmail, title, tname]) => Promise.all([
+		.then(([tname, teacherIdList, studentId]) => [teacherIdList.find(teacher => teacher.tname == tname).teacher_id, teacherIdList.find(teacher => teacher.tname == tname).email, tname, studentId])
+		.then(([teacherId, teacherEmail, tname, studentId]) => Promise.all([
 			promiseShowTeacherResearchApplyFormList(teacherId),
 			Promise.resolve(teacherEmail),
-			Promise.resolve(title),
 			Promise.resolve(tname),
+            Promise.resolve(studentId)
 		]))
-		.then(([applyFormList, teacherEmail, title, tname]) => {
+		.then(([applyFormList, teacherEmail, tname, studentId]) => {
+            var unique_id = applyFormList.find(applyForm => applyForm.student_id == studentId).unique_id;
 			return {
 				title:			title,
 				teacher_email:	teacherEmail,
 				tname:			tname,
-				student_id:		applyFormList.filter(applyForm => applyForm.research_title == title && applyForm.semester == semester).map(applyForm => applyForm.student_id),
-				student_email:	applyFormList.filter(applyForm => applyForm.research_title == title && applyForm.semester == semester).map(applyForm => applyForm.email)
+				student_id:		applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id),
+				student_email:	applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.email)
 			};
 		});
 
@@ -663,7 +665,7 @@ table.researchSetReplace = function(req, res, next) {
 
 		let options = {
 			from:		'nctucsca@gmail.com',
-			to:			email, 
+			to:			email,
 			cc:			'',
 			bcc:		'',
 			subject:	'[交大資工線上助理]專題申請狀態改變通知', // Subject line
@@ -712,7 +714,7 @@ table.researchSetReplace = function(req, res, next) {
 			});
 			var options = {
     			from:		'nctucsca@gmail.com',
-    			to:			student_email , 
+    			to:			student_email ,
     			cc:			'',
     			bcc:		'',
     			subject:	'[交大資工線上助理]專題申請狀態改變通知', // Subject line
@@ -766,8 +768,8 @@ table.researchChangeTeacherList = function(req, res, next){
 
         var info = req.body;
         var teacher_id = info.teacherId;
-        var sem = info.sem; 
-        
+        var sem = info.sem;
+
         query.ShowGradeTeacherResearchStudent(teacher_id,'', function(err, result){
             if(err){
                 throw err;
@@ -775,9 +777,9 @@ table.researchChangeTeacherList = function(req, res, next){
             }
             if(!result)
                 res.redirect('/');
-            
-            result = JSON.parse(result);  
-            
+
+            result = JSON.parse(result);
+
             if(result.length != 0){
                 var index = [];
                 var temp = result[0].research_title;
@@ -785,7 +787,7 @@ table.researchChangeTeacherList = function(req, res, next){
                 var groups = [];
                 var replace_index = [];
 				var replace_groups = [];
-    
+
                 for(var i = 0; i<result.length; i++){
                     if(index[result[i].research_title] == null){
                         if(result[i].semester != sem) continue;
@@ -799,10 +801,10 @@ table.researchChangeTeacherList = function(req, res, next){
                         project.research_title = result[i].research_title;
                         project.first_second = result[i].first_second;
                         groups.push(project);
-                        index[result[i].research_title] = count;
+                        index[result[i].unique_id] = count;
                         replace_index[count] = 0;
                         count++;
-                    }  
+                    }
                 }
                 for(var i = 0; i<result.length; i++){
                     if(result[i].semester != sem) continue;
@@ -818,7 +820,7 @@ table.researchChangeTeacherList = function(req, res, next){
                     student.phone = result[i].phone;
                     student.email = result[i].email;
                     student.replace_pro = parseInt(result[i].replace_pro);
-                    var id = index[result[i].research_title];
+                    var id = index[result[i].unique_id];
                     if(student.replace_pro == 1) replace_index[id] = 1;
                     groups[id].participants.push(student);
                 }
@@ -831,11 +833,11 @@ table.researchChangeTeacherList = function(req, res, next){
                     if(req.changeTeacherList)
                         next();
                     else
-                        return; 
+                        return;
                 },1000);
             }
-        });            
-    } 
+        });
+    }
     else{
         res.redirect('/');
     }
@@ -988,7 +990,7 @@ table.researchApplyList = function(req, res, next){
 					first_second: 	applyForm.first_second,
 					participants: 	[]
 				};
-				projects[applyForm.research_title] = project;
+				projects[applyForm.unique_id] = project;
 			}
 			let student = {
 				student_id:		applyForm.student_id,
@@ -1000,7 +1002,7 @@ table.researchApplyList = function(req, res, next){
 				replace_pro:	applyForm.replace_pro,
                 CPEStatus:		applyForm.CPEStatus
 			};
-			projects[applyForm.research_title].participants.push(student);
+			projects[applyForm.unique_id].participants.push(student);
 		});
 
 		projects = Object.values(projects);
@@ -1008,7 +1010,7 @@ table.researchApplyList = function(req, res, next){
 	})
 	.then(projects => {
 		projects = projects.filter(project => {
-            if(project.participants.some(student => student.CPEStatus == '0' || student.CPEStatus == '2')) return false;
+            if(project.participants.some(student => student.CPEStatus == '2')) return false;
 			if(project.first_second == '1') return true;
 			if(project.participants.some(student => student.replace_pro == '1')) return false;
 			return true;
@@ -1030,10 +1032,8 @@ table.researchApplyList = function(req, res, next){
 			}
 			if(!result)
 				res.redirect('/');
-
 			var apply_forms = JSON.parse(result);
 			var projects = [];
-
 			apply_forms.forEach((apply_form) => {
 				if(apply_form.agree == '3')
 					return;
@@ -1047,7 +1047,6 @@ table.researchApplyList = function(req, res, next){
 					};
 					projects[project.research_title] = project;
 				}
-
 				let student = {
 					student_id:apply_form.student_id,
 					sname:apply_form.sname,
@@ -1066,6 +1065,7 @@ table.researchApplyList = function(req, res, next){
 	}else
 		res.redirect('/');*/
 }
+
 table.adviseeSemesterGradeList = function(req, res, next){
     if(req.session.profile){
         var input = req.body.student_id;                
