@@ -1296,6 +1296,23 @@ table.researchSendWarningEmail = function(req, res, next) {
         auth: mail_info.auth
     });
 
+    let type = parseInt(req.body.type);
+
+    let studentGoToDinoApplyResearchMailContent = '同學好,<p><br/>本學期您已選修「資訊工程專題（一）」，但尚未至本系dinodino系統（https://dinodino.nctu.edu.tw/）送出專題（一）申請，敬請於開學一週內完成填送，以免影響期末評分作業。<p>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><p>請進入交大資工線上助理填寫申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>';
+    let studentGoToSelectCosMailContent = '同學好,<p><br/>本學期您已於本系dinodino系統送出專題（一）申請，但尚未完成選修「資訊工程專題（一）」課程。敬請於加退選結束前依公告完成選課。加退選結束後未完成專題（一）選修者，將退回dinodino系統專題（一）申請。<p>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>';
+    let professorGoToSetFirstScoreMailContent = '老師好：<p><br/>提醒您，您尚有專題（一）課程未完成評分，敬請登入本系dinodino系統（https://dinodino.nctu.edu.tw/）完成評分。<p>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>';
+    let professorGoToSetSecondScoreMailContent = '老師好：<p><br/>提醒您，您尚有專題（二）課程未完成評分，敬請登入本系dinodino系統（https://dinodino.nctu.edu.tw/）完成評分。<p>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>';
+    let professorGoToSetApplyFormStatusMailContent = '老師好：<p><br/>提醒您，您尚有專題（一）申請表未完成簽核，敬請登入本系dinodino系統（https://dinodino.nctu.edu.tw/）完成簽核，並於開學後二週內送出。<p>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>';
+
+    let studentGoToDinoApplyResearchMailSubject = '［資工系］提醒您至本系dinodino系統送出專題（一）申請';
+    let studentGoToSelectCosMailSubject = '［資工系］提醒您完成選修資訊工程專題（一）課程';
+    let professorGoToSetFirstScoreMailSubject = '[提醒］專題（一）評分';
+    let professorGoToSetSecondScoreMailSubject = '[提醒］專題（二）評分';
+    let professorGoToSetApplyFormStatusMailSubject = '[提醒］專題（一）申請簽核';
+
+    let mailContentList = [studentGoToDinoApplyResearchMailContent, studentGoToSelectCosMailContent, professorGoToSetFirstScoreMailContent, professorGoToSetSecondScoreMailContent, professorGoToSetApplyFormStatusMailContent];
+    let mailSubjectList = [studentGoToDinoApplyResearchMailSubject, studentGoToSelectCosMailSubject, professorGoToSetFirstScoreMailSubject, professorGoToSetSecondScoreMailSubject, professorGoToSetApplyFormStatusMailSubject];
+
     let promiseShowUserInfo = (id) => new Promise((resolve, reject) => {
         query.ShowUserInfo(id, (error, result) => {
             if (error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
@@ -1317,8 +1334,8 @@ table.researchSendWarningEmail = function(req, res, next) {
                 to: emails,
                 cc: /*req.body.sender_email*/ '',
                 bcc: '',
-                subject: '', // Subject line
-                html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+                subject: mailSubjectList[type], // Subject line
+                html: mailContentList[type]
             };
 
             transporter.sendMail(options, function(error, info) {

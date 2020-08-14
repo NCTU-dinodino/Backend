@@ -405,7 +405,7 @@ table.researchList = function(req, res, next){
                 var count = 0;
     
                 for(var i = 0; i<result.length; i++){
-                    if(index[result[i].research_title] == null){
+                    if(index[result[i].unique_id] == null){
                         if(result[i].semester != sem) continue;
                         var project = {
                                 research_title: '',
@@ -429,15 +429,17 @@ table.researchList = function(req, res, next){
                         sname: '',
                         detail: '',
                         comment: '',
-                        replace_pro:0,
-                        score: null
+                        //replace_pro:0,
+                        score: null,
+                        student_status: 0
                     }
                     student.student_id = result[i].student_id;
                     student.score = parseInt(result[i].score);
                     student.sname = result[i].sname;
                     student.detail = result[i].class_detail;
                     student.comment = result[i].comment;
-                    student.replace_pro = parseInt(result[i].replace_pro);
+                    //student.replace_pro = parseInt(result[i].replace_pro);
+                    student.student_status = parseInt(result[i].status);
                     var id = index[result[i].unique_id];
                     projects.groups[id].participants.push(student);
                     
