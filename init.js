@@ -31,6 +31,12 @@ module.exports.init = function(){
   app.use(require('./middleware/setCsrf').setCsrf);
   app.use(require('./middleware/setProfile').setProfile);
 
+	//app.use(bodyParser.json());
+	app.use(bodyParser.json({limit: '50mb'}));
+	app.use(bodyParser.urlencoded({
+		limit: '50mb',
+		extended: true
+	}));
 
 
 	/*add test route here*/
@@ -65,12 +71,6 @@ module.exports.init = function(){
 		else next();
 	});
 
-  //app.use(bodyParser.json());
-  app.use(bodyParser.json({limit: '50mb'}));
-  app.use(bodyParser.urlencoded({
-    limit: '50mb',
-    extended: true
-  }));
 
 //  app.use('/students/*', require('./middleware/verifyUser').verifyUser, require('./middleware/verifyUser').verifyStudents, require('./middleware/verifyUser').verifyGrade, require('./middleware/verifyUser').verifyProgram);
 //  app.use('/assistants/*', require('./middleware/verifyUser').verifyUser, require('./middleware/verifyUser').verifyAssistants);
