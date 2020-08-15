@@ -766,6 +766,79 @@ table.researchSetReplace = function(req, res, next) {
 }
 
 table.researchChangeTeacherList = function(req, res, next){
+	let promiseShowGradeTeacherResearchStudent = (teacherId) => new Promise((resolve, reject) => {
+		query.ShowGradeTeacherResearchStudent(teacherId, '', (error, result) => {
+			if(error) reject('Cannot fetch ShowGradeTeacherResearchStudent. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowGradeTeacherResearchStudent.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	let promiseShowResearchGroupByUniqueID = (uid) => new Promise((resolve, reject) => {
+		query.ShowResearchGroupByUniqueID({unique_id: uid}, (error, result) => {
+			if(error) reject('Cannot fetch ShowResearchGroupByUniqueID. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowResearchGroupByUniqueID.');
+			else resolve(JSON.parse(result));			
+		});
+	});
+
+	let promiseGetGroup = (studentInfo) => {
+		return promiseShowResearchGroupByUniqueID(studentInfo.unique_id)
+		.then(groupMembers => {
+			return {
+				sname:			studentInfo.sname,
+				student_id:		studentInfo.student_id,
+				email:			studentInfo.email,
+				phone:			studentInfo.phone,
+				replace_pro:	studentInfo.replace_pro,
+				research_title:	studentInfo.research_title,
+				year:			studentInfo.semester,
+				first_second:	studentInfo.first_second,
+				participants:	groupMembers
+			};
+		});
+	};
+
+	let changeTeacherList = [];
+
+	promiseShowGradeTeacherResearchStudent(req.body.teacherId)
+	.then(result => result.filter(r => r.semester == req.body.sem))
+	.then(students => Promise.all(students.map(student => promiseGetGroup(student))))
+	.then(records => {
+		records.forEach(record => {
+			let groupOfStudent = changeTeacherList.find(group => group.participants.some(participants => participants.student_id == record.student_id));
+			
+			if(!groupOfStudent){
+				groupOfStudent = {
+					research_title:	record.research_title,
+					year:			record.year,
+					first_second:	record.first_second,
+					participants:	record.participants
+				};
+				changeTeacherList.push(groupOfStudent);
+			}
+
+			let studentData = groupOfStudent.participants.find(participant => participant.student_id == record.student_id);
+			
+			Object.assign(studentData, {
+				sname:			record.sname,
+				email:			record.email,
+				phone:			record.phone,
+				replace_pro:	parseInt(record.replace_pro)
+			});
+		});
+	})
+	.then(_ => {
+		changeTeacherList = changeTeacherList.filter(e => e.participants.some(participant => participant.replace_pro == 1));
+		req.changeTeacherList = changeTeacherList;
+		next();
+	})
+	.catch(error => {
+		console.log(error);
+		res.redirect('/');
+	});
+
+/*
     if (req.session.profile) {
 
         var info = req.body;
@@ -843,6 +916,7 @@ table.researchChangeTeacherList = function(req, res, next){
     else{
         res.redirect('/');
     }
+*/
 }
 
 table.researchApplySetAgree = function(req, res, next) {
