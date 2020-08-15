@@ -16,17 +16,24 @@ table.mailSend = (req, res, next) => {
 		});
 	});
 
+	let promiseSendMail = (options) => new Promise((resolve, reject) => {
+        let transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: require('../../../auth/nctu/mail_info').auth
+        });
+
+        transporter.sendMail(options, (error, info) => {
+			if(error) reject('Cannot send mail. Error message: ' + error);
+        	else resolve();
+		});
+	});
+
 	Promise.all([
 		Promise.all(req.body.to.map(id => promiseShowUserInfo(id))),
 		Promise.all(req.body.cc.map(id => promiseShowUserInfo(id))),
 		Promise.all(req.body.bcc.map(id => promiseShowUserInfo(id)))
 	])
 	.then(([toMails, ccMails, bccMails]) => {
-        let transporter = nodemailer.createTransport({
-            service: 'Gmail',
-            auth: require('../../../auth/nctu/mail_info').auth
-        });
-
         let options = {
             from:		'nctucsca@gmail.com',
             to:			toMails.join(),
@@ -35,12 +42,12 @@ table.mailSend = (req, res, next) => {
             subject:	req.body.subject, // Subject line
             html:		req.body.content
         };
-        
-        transporter.sendMail(options, (error, info) => {
-			if(error) return Promise.reject('Cannot send mail. Error message: ' + error);
-			res.status(200);
-			next();
-        });
+
+		return promiseSendMail(options);
+	})
+	.then(_ => {
+		res.status(200);
+		next();
 	})
 	.catch(error => {
 		console.log(error);
