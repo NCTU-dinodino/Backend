@@ -787,6 +787,7 @@ table.researchChangeTeacherList = function(req, res, next){
 		.then(groupMembers => {
 			return {
 				sname:			studentInfo.sname,
+				student_id:		studentInfo.student_id,
 				email:			studentInfo.email,
 				phone:			studentInfo.phone,
 				replace_pro:	studentInfo.replace_pro,
