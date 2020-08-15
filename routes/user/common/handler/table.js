@@ -36,7 +36,7 @@ table.mailSend = (req, res, next) => {
             html:		req.body.content
         };
         
-        transporter.sendMail(options, (error, info){
+        transporter.sendMail(options, (error, info) => {
 			if(error) return Promise.reject('Cannot send mail. Error message: ' + error);
 			res.status(200);
 			next();
