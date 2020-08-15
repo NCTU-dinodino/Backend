@@ -819,7 +819,7 @@ table.researchChangeTeacherList = function(req, res, next){
 					research_title:	record.research_title,
 					year:			record.year,
 					first_second:	record.first_second,
-					participants:	record.groupMembers
+					participants:	record.participants
 				});
 			}
 		});
