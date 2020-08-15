@@ -33,7 +33,7 @@ table.mailSend = (req, res, next) => {
 		Promise.all(req.body.cc.map(id => promiseShowUserInfo(id))),
 		Promise.all(req.body.bcc.map(id => promiseShowUserInfo(id)))
 	])
-	.then(([to, cc, bcc]) => [to.map(r => r.email), cc.map(r => r.email), bcc.map(r => r.email)])
+	.then(([to, cc, bcc]) => [to.map(r => r[0].email), cc.map(r => r[0].email), bcc.map(r => r[0].email)])
 	.then(([toMails, ccMails, bccMails]) => {
         let options = {
             from:		'nctucsca@gmail.com',
