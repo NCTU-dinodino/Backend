@@ -984,7 +984,7 @@ table.researchApplyList = function(req, res, next){
 
 		applyFormList.forEach(applyForm => {
 			if(applyForm.agree == '3') return;
-			if(!projects[applyForm.research_title]){
+			if(!projects[applyForm.unique_id]){
 				let project = {
 					research_title:	applyForm.research_title,
 					status: 		applyForm.agree,
