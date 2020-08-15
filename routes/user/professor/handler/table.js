@@ -825,7 +825,7 @@ table.researchChangeTeacherList = function(req, res, next){
 		});
 	})
 	.then(_ => {
-		changeTeacherList = changeTeacherList.filter(e => e.participants.some(participant.replace_pro == 1));
+		changeTeacherList = changeTeacherList.filter(e => e.participants.some(participant => participant.replace_pro == 1));
 		req.changeTeacherList = changeTeacherList;
 		next();
 	})
