@@ -7,6 +7,50 @@ var data_path = "/home/nctuca/dinodino-extension/automation/data";
 var sample_path = "/home/nctuca/dinodino-extension/automation/sample";
 var XLSX = require('xlsx')
 
+table.mailSend = (req, res, next) => {
+	let promiseShowUserInfo = (id) => new Promise((resolve, reject) => {
+		query.ShowUserInfo(id, (error, result) => {
+			if(error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
+			if(!result) reject('Cannot fetch ShowUserInfo.');
+			else resolve(JSON.parse(result));
+		});
+	});
+
+	Promise.all([
+		Promise.all(req.body.to.map(id => promiseShowUserInfo(id))),
+		Promise.all(req.body.cc.map(id => promiseShowUserInfo(id))),
+		Promise.all(req.body.bcc.map(id => promiseShowUserInfo(id)))
+	])
+	.then(([toMails, ccMails, bccMails]) => {
+        let transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: require('../../../auth/nctu/mail_info').auth
+        });
+
+        let options = {
+            from:		'nctucsca@gmail.com',
+            to:			toMails.join(),
+            cc:			ccMails.join(),
+            bcc:		bccMails.join(),
+            subject:	req.body.subject, // Subject line
+            html:		req.body.content
+        };
+        
+        transporter.sendMail(options, (error, info){
+			if(error) return Promise.reject('Cannot send mail. Error message: ' + error);
+			res.status(200);
+			next();
+        });
+	})
+	.catch(error => {
+		console.log(error);
+		res.status(403);
+		next();
+	});
+};
+
+
+/*
 table.mailSend = function(req, res, next){
     if(req.session.profile){
         
@@ -27,14 +71,14 @@ table.mailSend = function(req, res, next){
             //主旨
             subject: req.body.title, // Subject line
             //純文字
-            /*text: 'Hello world2',*/ // plaintext body
+            /*text: 'Hello world2', // plaintext body
             //嵌入 html 的內文
             html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請聯絡：' + req.body.name +' () 先生/小姐 '+ req.body.sender_email +'謝謝。</p><p>This message is automatically sent by e3 system, please do not reply directly! If you have any questions, please contact with Mr/Ms. '+ req.body.name +'()'+req.body.sender_email+'.</p><p>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p><p>'+req.body.content+'</p>'
             //附件檔案
             /*attachments: [ {
                 filename: 'text01.txt',
                 content: '聯候家上去工的調她者壓工，我笑它外有現，血有到同，民由快的重觀在保導然安作但。護見中城備長結現給都看面家銷先然非會生東一無中；內他的下來最書的從人聲觀說的用去生我，生節他活古視心放十壓心急我我們朋吃，毒素一要溫市歷很爾的房用聽調就層樹院少了紀苦客查標地主務所轉，職計急印形。團著先參那害沒造下至算活現興質美是為使！色社影；得良灣......克卻人過朋天點招？不族落過空出著樣家男，去細大如心發有出離問歡馬找事'
-            }]*/
+            }]
         };
         
         transporter.sendMail(options, function(err, info){
@@ -55,7 +99,7 @@ table.mailSend = function(req, res, next){
     else
       res.redirect('/');
 }
-
+*/
 table.mailSent = function(req, res, next){
     if(req.session.profile){ 
         query.ShowMailSendList(req.body.id, function(err, result){
