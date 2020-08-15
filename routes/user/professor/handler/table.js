@@ -807,17 +807,18 @@ table.researchChangeTeacherList = function(req, res, next){
 	.then(records => {
 		records.forEach(record => {
 			let groupOfStudent = changeTeacherList.find(group => group.participants.some(participants => participants.student_id == record.student_id));
-			let studentData = {};
 			
 			if(!groupOfStudent){
-				studentData = {
+				groupOfStudent = {
 					research_title:	record.research_title,
 					year:			record.year,
 					first_second:	record.first_second,
 					participants:	record.participants
 				};
-				changeTeacherList.push(studentData);
-			}else studentData = groupOfStudent.participants.find(participant => participant.student_id == record.student_id);
+				changeTeacherList.push(groupOfStudent);
+			}
+
+			let studentData = groupOfStudent.participants.find(participant => participant.student_id == record.student_id);
 			
 			Object.assign(studentData, {
 				sname:			record.sname,
