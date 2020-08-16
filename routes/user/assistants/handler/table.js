@@ -1204,7 +1204,7 @@ table.researchSetCPEStatus = function(req, res, next) {
             .then(([applyForm, teacherIdList, _]) => {
                 var teacher = teacherIdList.find(teacher => teacher.tname == applyForm.tname);
                 return Promise.all([
-                    promiseShowTeacherResearchApplyFormList(teacher.teacherId),
+                    promiseShowTeacherResearchApplyFormList(teacher.teacher_id),
                     promiseSetResearchApplyFormStatus(applyForm.title, teacher.tname, applyForm.first_second, applyForm.semester)
                 ]);
             })
