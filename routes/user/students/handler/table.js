@@ -1059,7 +1059,7 @@ table.researchApplyCreate = function(req, res, next) {
                     if (result == 'wrong') {
                         return Promise.reject('Cannot create research apply form.');
                     } else {
-                        let emails = students.map(student => student.student_email).join();
+                        let emails = students.map(student => student.email).join();
                         return {
                             student_emails: emails,
                             type: 'create'
@@ -1109,7 +1109,7 @@ table.researchApplyCreate = function(req, res, next) {
     Promise.all(promiseList(req.body.members))
         .then(result => {
             if (result.every(r => r.type == 'create')) {
-                let emails = result.student_emails;
+                let emails = result[0].student_emails;
 
                 let options = {
                     from: 'nctucsca@gmail.com',
