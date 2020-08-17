@@ -763,8 +763,9 @@ table.researchProfessorList = function(req, res, next) {
         })
         .then((result) => {
             let research_index = {};
-            result.forEach((students_of_techer) => {
-                students_of_techer.forEach((student) => {
+            result.forEach((students_of_teacher) => {
+                if(students_of_teacher.length == 0) return;
+                students_of_teacher.forEach((student) => {
                     if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ((student.first_second == '3') && (req.body.first_second == '1')))) {
                         if (research_index[student.unique_id] == null) {
                             let project = {
@@ -799,8 +800,9 @@ table.researchProfessorList = function(req, res, next) {
         })
         .then((result) => {
             let research_index = {};
-            result.forEach((students_of_techer) => {
-                students_of_techer.forEach((student) => {
+            result.forEach((students_of_teacher) => {
+                if(students_of_teacher.length == 0) return;
+                students_of_teacher.forEach((student) => {
                     if ((student.semester == year_semester) && ((student.first_second == req.body.first_second) || ((student.first_second == '3') && (req.body.first_second == '1')))) {
                         if (research_index[student.unique_id] == null) {
                             let project = {
