@@ -994,6 +994,17 @@ table.researchApplyCreate = function(req, res, next) {
         });
     });
 
+	let promiseSendMail = (options) => new Promise((resolve, reject) => {
+			let transporter = nodemailer.createTransport({
+				service: 'Gmail',
+				auth: mail_info.auth
+			});
+			transporter.sendMail(options, (error, result) => {
+				if (error) reject('Cannot send email. Error message: ' + error);
+				resolve();
+			});
+	});
+
     let promiseCreate = (students) => {
         /*return promiseShowResearchTitleNumber()
         .then(result => {
@@ -1099,10 +1110,6 @@ table.researchApplyCreate = function(req, res, next) {
         .then(result => {
             if (result.every(r => r.type == 'create')) {
                 let emails = result.student_emails;
-                let transporter = nodemailer.createTransport({
-                    service: 'Gmail',
-                    auth: mail_info.auth
-                });
 
                 let options = {
                     from: 'nctucsca@gmail.com',
@@ -1113,15 +1120,8 @@ table.researchApplyCreate = function(req, res, next) {
                     html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + req.body.teacher_email + ',學生：' + emails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
                 };
 
-                transporter.sendMail(options, (error, result) => {
-                    if (error) return Promise.reject('Cannot send email. Error message: ' + error);
-                });
+				return promiseSendMail(options);
             } else {
-                let transporter = nodemailer.createTransport({
-                    service: 'Gmail',
-                    auth: mail_info.auth
-                });
-
                 result.filter(info => info.type == 'replace').forEach(info => {
                     let options = {
                         from: 'nctucsca@gmail.com',
@@ -1132,9 +1132,7 @@ table.researchApplyCreate = function(req, res, next) {
                         html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 學生：' + info.student_email + ' 謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
                     };
 
-                    transporter.sendMail(options, (error, result) => {
-                        if (error) return Promise.reject('Cannot send email. Error message: ' + error);
-                    });
+					return promiseSendMail(options);
                 });
             }
         })
