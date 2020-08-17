@@ -1318,11 +1318,21 @@ table.researchApplyDelete = function(req, res, next) {
         });
     });
 
+	let promiseShowResearchGroupByUniqueID = (uid) => new Promise((resolve, reject) => {
+		query.ShowResearchGroupByUniqueID({unique_id: uid}, (error, result) => {
+            if (error) reject('Cannot fetch ShowResearchGroupByUniqueID. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowResearchGroupByUniqueID.');
+            else resolve(JSON.parse(result));
+		});
+	});
+
     promiseShowTeacherIdList()
         .then(result => result.find(r => r.tname == req.body.tname).teacher_id)
         .then(teacherId => promiseShowTeacherResearchApplyFormList(teacherId))
         .then(applyFormList => applyFormList.find(applyForm => applyForm.student_id == req.body.student_id).unique_id)
-        .then(unique_id => applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id))
+		.then(uid => promiseShowResearchGroupBtUniqueID(uid))
+		.then(result => result.map(r => r.student_id))
+        //.then(unique_id => applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id))
         .then(studentIdList => Promise.all(studentIdList.map(studentId => promiseSetResearchReplace(studentId, 0))))
         .then(_ => promiseDeleteResearchApplyForm())
         .then(_ => {
