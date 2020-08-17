@@ -1328,7 +1328,7 @@ table.researchApplyDelete = function(req, res, next) {
         .then(result => result.find(r => r.tname == req.body.tname).teacher_id)
         .then(teacherId => promiseShowTeacherResearchApplyFormList(teacherId))
         .then(applyFormList => applyFormList.find(applyForm => applyForm.student_id == req.body.student_id).unique_id)
-		.then(uid => promiseShowResearchGroupBtUniqueID(uid))
+		.then(uid => promiseShowResearchGroupByUniqueID(uid))
 		.then(result => result.map(r => r.student_id))
         //.then(unique_id => applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id))
         .then(studentIdList => Promise.all(studentIdList.map(studentId => promiseSetResearchReplace(studentId, 0))))
