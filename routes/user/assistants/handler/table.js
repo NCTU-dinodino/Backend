@@ -1211,7 +1211,7 @@ table.researchSetCPEStatus = function(req, res, next) {
                 ]);
             })
             .then(([applyFormList, _]) => {
-                var unique_id = applyFormList.find(applyForm => applyForm.student_id == studentId).unique_id;
+                var unique_id = applyFormList.find(applyForm => applyForm.student_id == req.body.student_id).unique_id;
                 let memberIdList = applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id)
                 let memberEmailList = applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.email)
                 return [memberIdList, memberEmailList]
