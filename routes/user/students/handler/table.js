@@ -1000,8 +1000,9 @@ table.researchApplyCreate = function(req, res, next) {
 				auth: mail_info.auth
 			});
 			transporter.sendMail(options, (error, result) => {
-				if (error) reject('Cannot send email. Error message: ' + error);
-				resolve();
+				/*if (error) reject('Cannot send email. Error message: ' + error);
+				resolve();*/
+				resolve(error);
 			});
 	});
 
@@ -1136,8 +1137,9 @@ table.researchApplyCreate = function(req, res, next) {
                 });
             }
         })
-        .then(_ => {
-            res.status(204);
+        .then(mailSendStatus => {
+            if(mailSendStatus) res.status(400);
+			else res.status(204);
             next();
         })
         .catch((error) => {
