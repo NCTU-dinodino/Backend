@@ -492,11 +492,21 @@ table.researchStudentListDownload = function(req, res, next) {
             if (!result)
                 res.redirect('/');
             result = JSON.parse(result)
+            var teamIdList = [];
+            var cnt = 0;
             var studentListDownload = result.map((student) => {
+                if (teamIdList[student.unique_id] == null) {
+                    teamIdList[student.unique_id] = cnt;
+                    cnt++;
+                }
+                student['team_idx'] = teamIdList[student.unique_id];
+                student['cos_cname'] = first_second == 1 ? '資訊工程專題(ㄧ)' : '資訊工程專題(二)';
+
+                delete student['unique_id'];
                 delete student['phone'];
                 delete student['email'];
                 delete student['first_second'];
-                student['cos_cname'] = first_second == 1 ? '資訊工程專題(ㄧ)' : '資訊工程專題(二)';
+
                 return student;
             })
             req.studentListDownload = studentListDownload;
@@ -972,6 +982,8 @@ table.researchSetScore = function(req, res, next) {
 table.researchDelete = function(req, res, next) {
     if (req.session.profile) {
 
+        var type = req.body.type;
+
         let promiseDeleteResearch = (info) => new Promise((resolve, reject) => {
             query.DeleteResearch(info, (error, result) => {
                 if (error) reject('Cannot fetch DeleteResearch. Error message: ' + error);
@@ -1020,22 +1032,22 @@ table.researchDelete = function(req, res, next) {
             });
         });
 
-        let promiseDelete = (first_second) => {
-            if (first_second == '1') {
+        let promiseDelete = (type) => {
+            if (type == '0') {
                 Promise.all([promiseShowStudentResearchApplyForm(req.body.student_id), promiseShowTeacherIdList()])
                     .then(([researchApplyInfo, teacherIdList]) => {
                         let tname = researchApplyInfo.tname;
                         var teacher = teacherIdList.find(teacher => teacher.tname == tname);
                         let teacherEmail = teacher.email;
                         let studentEmail = researchApplyInfo.email;
-                        let info = { research_title: researchApplyInfo.research_title, tname: tname, first_second: 1, semester: researchApplyInfo.semester}
+                        let info = { semester: researchApplyInfo.semester, unique_id: researchApplyInfo.unique_id}
                         return Promise.all([
                             teacherEmail,
                             studentEmail,
                             promiseDeleteResearchApplyForm(info)
                         ])
                     });
-            } else if (first_second == '2') {
+            } else if (type == '1') {
                 Promise.all([promiseShowStudentResearchInfo(req.body.student_id), promiseShowUserInfo(req.body.student_id), promiseShowTeacherIdList()])
                     .then(([researchInfo, userInfo, teacherIdList]) => {
                         let tname = researchInfo.tname;
