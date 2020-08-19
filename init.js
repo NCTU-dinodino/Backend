@@ -41,7 +41,11 @@ module.exports.init = function(){
 
 	/*add test route here*/
 	if(process.env.__ENV__ == 'DEV'){
-  		app.use(require('./routes/BackendTest/TestPage.js'));
+  		try{
+			app.use(require('./routes/BackendTest/TestPage.js'));
+		} catch(e) {
+			console.log(e);
+		}
 	}
 
 
