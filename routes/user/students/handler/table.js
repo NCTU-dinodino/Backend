@@ -1287,7 +1287,7 @@ table.researchApplyDelete = function(req, res, next) {
         });
     });
 
-    let promiseDeleteResearchApplyForm = (semster, uid) => new Promise((resolve, reject) => {
+    let promiseDeleteResearchApplyForm = (semester, uid) => new Promise((resolve, reject) => {
         let queryData = {
             semester: semester,
 			unique_id: uid
