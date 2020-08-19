@@ -513,6 +513,187 @@ table.researchList = function(req, res, next){
 }
 
 table.researchSetReplace = function(req, res, next) {
+    let promiseShowUserInfo = (studentId) => new Promise((resolve, reject) => {
+        query.ShowUserInfo(studentId, (error, result) => {
+            if (error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowUserInfo.');
+            else resolve(JSON.parse(result)[0]);
+        });
+    });
+
+    let promiseShowStudentResearchInfo = (studentId) => new Promise((resolve, reject) => {
+        query.ShowStudentResearchInfo(studentId, (error, result) => {
+            if (error) reject('Cannot fetch ShowStudentResearchInfo. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowStudentResearchInfo.');
+            else resolve(JSON.parse(result));
+        });
+    });
+
+    let promiseShowStudentResearchApplyForm = (studentId) => new Promise((resolve, reject) => {
+        query.ShowStudentResearchApplyForm(studentId, (error, result) => {
+            if (error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
+            else resolve(JSON.parse(result));
+        });
+    });
+
+    let promiseShowTeacherIdList = () => new Promise((resolve, reject) => {
+        query.ShowTeacherIdList((error, result) => {
+            if (error) reject('Cannot fetch ShowTeacherIdList. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowTeacherIdList.');
+            else resolve(JSON.parse(result));
+        });
+    });
+
+    let promiseShowTeacherResearchApplyFormList = (teacherId) => new Promise((resolve, reject) => {
+        query.ShowTeacherResearchApplyFormList(teacherId, '', (error, result) => {
+            if (error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
+            if (!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
+            else resolve(JSON.parse(result));
+        });
+    });
+
+    let promiseDeleteResearch = (studentId, firstSecond, semester) => new Promise((resolve, reject) => {
+        let info = {
+            student_id: studentId,
+            first_second: firstSecond,
+            semester: semester
+        };
+        query.DeleteResearch(info, (error, result) => {
+            if (error) reject('Cannot fetch DeleteResearch. Error message: ' + error);
+            resolve();
+        });
+    });
+
+    let promiseSetResearchReplace = (studentId, firstSecond, semester) => new Promise((resolve, reject) => {
+        let deleteInfo = {
+            student_id: studentId,
+            first_second: firstSecond,
+            semester: semester
+        };
+        query.SetResearchReplace(deleteInfo, (error, result) => {
+            if (error) reject('Cannot fetch SetResearchReplace. Error message: ' + error);
+            resolve();
+        });
+    });
+
+    let promiseDeleteResearchApplyForm = (semester, unique_id) => new Promise((resolve, reject) => {
+        let info = {
+            semester: semester,
+            unique_id: unique_id
+        };
+
+        query.DeleteResearchApplyForm(info, (error, result) => {
+            if (error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
+            resolve();
+        });
+    });
+
+    let promiseGetStudentsInSameApplyForm = (studentId, semester) => promiseShowStudentResearchApplyForm(studentId)
+        .then(applyFormList => applyFormList.find(applyForm => applyForm.semester == semester))
+        .then(applyForm => Promise.all([
+            Promise.resolve(applyForm.tname),
+            promiseShowTeacherIdList(),
+            Promise.resolve(applyForm.student_id)
+        ]))
+        .then(([tname, teacherIdList, studentId]) => [teacherIdList.find(teacher => teacher.tname == tname).teacher_id, teacherIdList.find(teacher => teacher.tname == tname).email, tname, studentId])
+        .then(([teacherId, teacherEmail, tname, studentId]) => Promise.all([
+            promiseShowTeacherResearchApplyFormList(teacherId),
+            Promise.resolve(teacherEmail),
+            Promise.resolve(tname),
+            Promise.resolve(studentId)
+        ]))
+        .then(([applyFormList, teacherEmail, tname, studentId]) => {
+            var unique_id = applyFormList.find(applyForm => applyForm.student_id == studentId).unique_id;
+            return {
+                title: title,
+                teacher_email: teacherEmail,
+                tname: tname,
+                student_id: applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id),
+                student_email: applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.email),
+                unique_id: unique_id
+            };
+        });
+
+    promiseShowUserInfo(req.body.student_id)
+        .then(result => result.email)
+        .then(email => {
+            if (req.body.agree_replace == 0)
+                return promiseGetStudentsInSameApplyForm(req.body.student_id, req.body.semester)
+                    .then(result => Promise.all([
+                        ...result.student_id.map(studentId => promiseSetResearchReplace(studentId, 0)),
+                        promiseDeleteResearchApplyForm(req.body.semester, result.unique_id)
+                    ]))
+                    .then(_ => [false, email]);
+            else if (req.body.agree_replace == 1)
+                return promiseSetResearchReplace(req.body.student_id, 0)
+                    .then(_ => promiseGetStudentsInSameApplyForm(req.body.student_id, req.body.semester))
+                    .then(result => Promise.all([
+                        Promise.all(result.student_id.map(studentId => promiseShowStudentResearchInfo(studentId))),
+                        Promise.resolve(result.student_email),
+                        Promise.resolve(result.teacher_email),
+                        promiseDeleteResearch(req.body.student_id, req.body.first_second, req.body.semester)
+                    ]))
+                    .then(([studentResearchInfos, studentEmails, teacherEmail, _]) => {
+                        if (studentResearchInfos.every(researchInfo => researchInfo.every(info => info.replace_pro == '0'))) {
+                            let emails = studentEmails.join();
+                            let transporter = nodemailer.createTransport({
+                                service: 'Gmail',
+                                auth: mail_info.auth
+                            });
+
+                            let options = {
+                                from: 'nctucsca@gmail.com',
+                                to: (process.env.__ENV__ == 'DEV' ? '' : teacherEmail),
+                                cc: emails,
+                                bcc: '',
+                                subject: '[交大資工線上助理]專題申請郵件通知',
+                                html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + teacherEmail + ',學生：' + emails + '謝謝。</p><br/><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+                            };
+
+                            transporter.sendMail(options, (error, result) => {
+                                if (error) return Promise.reject('Cannot send email. Error message: ' + error);
+                            });
+                        }
+                    })
+                    .then(_ => [true, email]);
+        })
+        .then(([status, email]) => {
+            let transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: mail_info.auth
+            });
+
+            let options = {
+                from: 'nctucsca@gmail.com',
+                to: email,
+                cc: '',
+                bcc: '',
+                subject: '[交大資工線上助理]專題申請狀態改變通知', // Subject line
+                html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡您的老師，謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+            };
+
+            if (status) {
+                options.subject = '[交大資工線上助理]同意教授更換申請郵件通知';
+            } else {
+                options.subject = '[交大資工線上助理]不同意教授更換申請郵件通知';
+            }
+
+            transporter.sendMail(options, (error, info) => {
+                if (error) return Promise.reject(error);
+            });
+        })
+        .then(_ => {
+            res.status(203);
+            next();
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(403);
+            next();
+        });
+
+/*table.researchSetReplace = function(req, res, next) {
 	let promiseShowUserInfo = (studentId) => new Promise((resolve, reject) => {
 		query.ShowUserInfo(studentId, (error, result) => {
 			if(error) reject('Cannot fetch ShowUserInfo. Error message: ' + error);
@@ -692,7 +873,7 @@ table.researchSetReplace = function(req, res, next) {
 		console.log(error);
 		res.status(403);
 		next();
-	});
+	});*/
 
 
     /*if (req.session.profile) {
@@ -922,87 +1103,101 @@ table.researchChangeTeacherList = function(req, res, next){
 table.researchApplySetAgree = function(req, res, next) {
     if (req.session.profile) {
         var info = req.body;
-        if (info.agree =='1') {
-			let data = {
-				student_id:		info.student.map(student => student.student_id),
-				tname:			info.tname,
-				research_title:	info.research_title,
-				first_second:	info.first_second,
-				semester:		info.year
-			};
-			query.CreateNewGroupResearch(data, (error) => {
-				if(error) {
-					throw error;
-					res.redirect('/');
-				}
-			});
-            var formInfo = {research_title:info.research_title, tname : info.tname, first_second:info.first_second, semester:info.year};
-            query.DeleteResearchApplyForm(formInfo, () => {});
-            
-            setTimeout(function(){
-                var mailString= '';
-                var nameString='';
-                for(var j = 0; j< info.student.length; j++){
+        if (info.agree == '1') {
+            let data = {
+                student_id: info.student.map(student => student.student_id),
+                tname: info.tname,
+                research_title: info.research_title,
+                first_second: info.first_second,
+                semester: info.year
+            };
+            query.CreateNewGroupResearch(data, (error) => {
+                if (error) {
+                    throw error;
+                    res.redirect('/');
+                }
+            });
+
+            let promiseShowStudentResearchApplyForm = (studentId) => new Promise((resolve, reject) => {
+                query.ShowStudentResearchApplyForm(studentId, (error, result) => {
+                    if (error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
+                    if (!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
+                    else resolve(JSON.parse(result));
+                });
+            });
+
+            promiseShowStudentResearchApplyForm(info.student[0])
+                .then((applyForm) => {
+                    Promise.resolve(applyForm.unique_id);
+                })
+                .then((unique_id) => {
+                    var formInfo = { semester: info.year, unique_id: unique_id};
+                    query.DeleteResearchApplyForm(formInfo, () => {});
+                });
+
+            setTimeout(function() {
+                var mailString = '';
+                var nameString = '';
+                for (var j = 0; j < info.student.length; j++) {
                     mailString = mailString + info.student[j].mail + ',';
                     nameString = nameString + info.student[j].student_id + ',';
                 }
                 var transporter = nodemailer.createTransport({
-                service: 'Gmail',
-                auth: mail_info.auth
+                    service: 'Gmail',
+                    auth: mail_info.auth
                 });
-                
+
                 var options = {
                     //寄件者
                     from: 'nctucsca@gmail.com',
                     //收件者
-                    to: mailString, 
+                    to: mailString,
                     //副本
                     cc: '',
                     //密件副本
                     bcc: '',
                     //主旨
                     subject: '[交大資工線上助理]專題申請狀態改變通知', // Subject line
-                    
+
                     html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡您的老師跟同學,謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
                     //附件檔案
-                    
+
                 };
-                
-                transporter.sendMail(options, function(error, info){
-                    if(error){
+
+                transporter.sendMail(options, function(error, info) {
+                    if (error) {
                         console.log(error);
                     }
                 });
-                req.setAgree = {signal: 1};           
-                if(req.setAgree)
+                req.setAgree = { signal: 1 };
+                if (req.setAgree)
                     next();
                 else
                     return;
-            },800);
-                
-        }
-        else{
-            var formInfo = {research_title : info.research_title, tname:info.tname, first_second:info.first_second, agree:info.agree, semester:info.year};
+            }, 800);
+
+        } else {
+            var formInfo = { research_title: info.research_title, tname: info.tname, first_second: info.first_second, agree: info.agree, semester: info.year };
             query.SetResearchApplyFormStatus(formInfo);
-            setTimeout(function(){
-                var mailString= '';
-                var nameString='';
-                for(var j = 0; j< info.student.length; j++){
+            setTimeout(function() {
+                var mailString = '';
+                var nameString = '';
+                for (var j = 0; j < info.student.length; j++) {
                     mailString = mailString + info.student[j].mail + ',';
                     nameString = nameString + info.student[j].student_id + ',';
                 }
                 var transporter = nodemailer.createTransport({
-                service: 'Gmail',
-                auth: mail_info.auth
+                    service: 'Gmail',
+                    auth: mail_info.auth
                 });
-                
+
                 var options = {
                     //寄件者
                     from: 'nctucsca@gmail.com',
                     //收件者
-                    to: mailString /*'joying62757@gmail.com'*/, 
+                    to: mailString /*'joying62757@gmail.com'*/ ,
                     //副本
-                    cc: /*req.body.sender_email*/'',
+                    cc: /*req.body.sender_email*/ '',
                     //密件副本
                     bcc: '',
                     //主旨
@@ -1010,28 +1205,27 @@ table.researchApplySetAgree = function(req, res, next) {
                     //純文字
                     /*text: 'Hello world2',*/ // plaintext body
                     //嵌入 html 的內文
-                    html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + ',學生：' + mailString +'謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+                    html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡 老師：' + ',學生：' + mailString + '謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
                     //附件檔案
                     /*attachments: [ {
                         filename: 'text01.txt',
                         content: '聯候家上去工的調她者壓工，我笑它外有現，血有到同，民由快的重觀在保導然安作但。護見中城備長結現給都看面家銷先然非會生東一無中；內他的下來最書的從人聲觀說的用去生我，生節他活古視心放十壓心急我我們朋吃，毒素一要溫市歷很爾的房用聽調就層樹院少了紀苦客查標地主務所轉，職計急印形。團著先參那害沒造下至算活現興質美是為使！色社影；得良灣......克卻人過朋天點招？不族落過空出著樣家男，去細大如心發有出離問歡馬找事'
                     }]*/
                 };
-                
-                transporter.sendMail(options, function(error, info){
-                    if(error){
+
+                transporter.sendMail(options, function(error, info) {
+                    if (error) {
                         console.log(error);
                     }
                 });
-                req.setAgree = {signal: 1};           
-                if(req.setAgree)
+                req.setAgree = { signal: 1 };
+                if (req.setAgree)
                     next();
                 else
                     return;
-            },800);    
+            }, 800);
         }
-    }
-    else
+    } else
         res.redirect('/');
 }
 
