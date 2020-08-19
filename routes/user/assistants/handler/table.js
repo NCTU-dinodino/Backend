@@ -482,6 +482,35 @@ table.researchStudentList = function(req, res, next) {
 /* 列出所有學生的專題資訊 */
 table.researchStudentListDownload = function(req, res, next) {
     if (req.session.profile) {
+        var semester = req.body.semester;
+        var first_second = parseInt(req.body.first_second);
+        query.ShowStudentResearchList({ first_second: first_second, semester: semester }, function(err, result) {
+            if (err) {
+                throw err;
+                res.redirect('/');
+            }
+            if (!result)
+                res.redirect('/');
+            result = JSON.parse(result)
+            var studentListDownload = result.map((student) => {
+                delete student['phone'];
+                delete student['email'];
+                delete student['first_second'];
+                student['cos_cname'] = first_second == 1 ? '資訊工程專題(ㄧ)' : '資訊工程專題(二)';
+                return student;
+            })
+            req.studentListDownload = studentListDownload;
+            if (req.studentListDownload)
+                next();
+            else
+                return;
+        });
+    } else
+        res.redirect('/');
+}
+
+/*table.researchStudentListDownload = function(req, res, next) {
+    if (req.session.profile) {
         req.body.grade = '';
         var accept_num_semester = req.body.semester.substring(0, 3);
         var tid = { teacher_id: '' };
@@ -678,7 +707,7 @@ table.researchStudentListDownload = function(req, res, next) {
         });
     } else
         res.redirect('/');
-}
+}*/
 
 /* 列出該教授的專題學生資訊 */
 table.researchProfessorList = function(req, res, next) {
