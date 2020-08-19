@@ -1470,6 +1470,99 @@ table.researchGetCPEStatus = function(req, res, next) {
         res.redirect('/');
 }
 
+table.researchWithdrawList = function(req, res, next) {
+    if (req.session.profile) {
+        var semester = req.body.semester;
+        var first_second = req.body.first_second;
+        var tidInput = { teacher_id: '' };
+        var withdrawList = [];
+
+        let promiseShowTeacherInfoResearchCnt = (tid) => new Promise((resolve, reject) => {
+            query.ShowTeacherInfoResearchCnt(tid, (error, result) => {
+                if (error) reject('Cannot fetch ShowTeacherInfoResearchCnt. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowTeacherInfoResearchCnt.');
+                else resolve(JSON.parse(result));
+            });
+        });
+
+        let promiseShowGradeTeacherResearchStudent = (tid) => new Promise((resolve, reject) => {
+            query.ShowGradeTeacherResearchStudent(tid, '', (error, result) => {
+                if (error) reject('Cannot fetch ShowGradeTeacherResearchStudent. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowGradeTeacherResearchStudent.');
+                else resolve(JSON.parse(result));
+            });
+        });
+
+        let promiseShowTeacherResearchApplyFormList = (tid) => new Promise((resolve, reject) => {
+            query.ShowTeacherResearchApplyFormList(tid, (error, result) => {
+                if (error) reject('Cannot fetch ShowTeacherResearchApplyFormList. Error message: ' + error);
+                else if (!result) reject('Cannot fetch ShowTeacherResearchApplyFormList.');
+                else resolve(JSON.parse(result));
+            });
+        });
+
+        var promiseResearchList = [];
+        var promiseApplyFormList = [];
+
+        promiseShowTeacherInfoResearchCnt(tidInput)
+            .then((teacherList) => {
+                let tidList = teacherList.map((teacher) => teacher.teacher_id);
+                promiseResearchList = tidList.map((tid) => promiseShowGradeTeacherResearchStudent(tid));
+                promiseApplyFormList = tidList.map((tid) => promiseShowTeacherResearchApplyFormList(tid));
+                return Promise.all(promiseResearchList);
+            })
+            .then((allTeacherResearchList) => {
+                allTeacherResearchList.forEach((oneTeacherResearchList) => {
+                    if (oneTeacherResearchList.length == 0) return;
+                    oneTeacherResearchList.forEach((student) => {
+                        if (student.semester != semester || student.add_status == '1' || student.first_second != first_second)
+                            return;
+                        var researchStudent = {
+                            id: "",
+                            name: "",
+                            research_title: "",
+                            type: ""
+                        }
+                        researchStudent.id = student.student_id;
+                        researchStudent.name = student.sname;
+                        researchStudent.research_title = student.research_title;
+                        researchStudent.type = '1';
+                        withdrawList.push(researchStudent);
+                    })
+                })
+                return Promise.all(promiseApplyFormList);
+            })
+            .then((allTeacherApplyFormList) => {
+                allTeacherApplyFormList.forEach((oneTeacherApplyFormList) => {
+                    if (oneTeacherApplyFormList.length == 0) return;
+                    oneTeacherApplyFormList.forEach((student) => {
+                        if (student.semester != semester || student.first_second != first_second)
+                            return;
+                        var applyStudent = {
+                            id: "",
+                            name: "",
+                            research_title: "",
+                            type: ""
+                        }
+                        applyStudent.id = student.student_id;
+                        applyStudent.name = student.sname;
+                        applyStudent.research_title = student.research_title;
+                        applyStudent.type = '0';
+                        withdrawList.push(applyStudent);
+                    })
+                })
+                req.withdrawList = withdrawList;
+                if (req.withdrawList)
+                    next();
+            })
+            .catch((error) => {
+                console.log(error);
+                res.redirect('/');
+            });
+    } else
+        res.redirect('/');
+}
+
 // --------------------------------------------------------------------research table
 
 // graduate table--------------------------------------------------------------------

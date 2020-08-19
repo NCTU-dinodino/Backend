@@ -19,6 +19,7 @@ var researchSendWarningEmail = table.table.researchSendWarningEmail;
 var researchNotInSystemList = table.table.researchNotInSystemList;
 var researchNotOnCosList = table.table.researchNotOnCosList;
 var researchGetCPEStatus = table.table.researchGetCPEStatus;
+var researchWithdrawList = table.table.researchWithdrawList;
 
 router.post('/assistants/research/studentList', csrfProtection, researchStudentList, function(req, res) {
 // router.post('/assistants/project/StudentResearchList', csrfProtection, researchStudentList, function(req, res) {
@@ -79,6 +80,10 @@ router.post('/assistants/research/notOnCosList', csrfProtection, researchNotOnCo
 
 router.post('/assistants/research/getCPEStatus', csrfProtection, researchGetCPEStatus, function(req, res) {
     res.send(req.getCPEStatus);
+});
+
+router.post('/assistants/research/withdrawList', csrfProtection, researchWithdrawList, function(req, res) {
+    res.send(req.withdrawList);
 });
 
 module.exports = router;
