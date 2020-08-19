@@ -1287,12 +1287,10 @@ table.researchApplyDelete = function(req, res, next) {
         });
     });
 
-    let promiseDeleteResearchApplyForm = () => new Promise((resolve, reject) => {
+    let promiseDeleteResearchApplyForm = (semster, uid) => new Promise((resolve, reject) => {
         let queryData = {
-            research_title: req.body.title,
-            tname: req.body.tname,
-            first_second: req.body.first_second,
-            semester: req.body.semester
+            semester: semester,
+			unique_id: uid
         };
 
         query.DeleteResearchApplyForm(queryData, (error, result) => {
@@ -1330,11 +1328,9 @@ table.researchApplyDelete = function(req, res, next) {
         .then(result => result.find(r => r.tname == req.body.tname).teacher_id)
         .then(teacherId => promiseShowTeacherResearchApplyFormList(teacherId))
         .then(applyFormList => applyFormList.find(applyForm => applyForm.student_id == req.body.student_id).unique_id)
-		.then(uid => promiseShowResearchGroupByUniqueID(uid))
-		.then(result => result.map(r => r.student_id))
         //.then(unique_id => applyFormList.filter(applyForm => applyForm.unique_id == unique_id).map(applyForm => applyForm.student_id))
-        .then(studentIdList => Promise.all(studentIdList.map(studentId => promiseSetResearchReplace(studentId, 0))))
-        .then(_ => promiseDeleteResearchApplyForm())
+        //.then(studentIdList => Promise.all(studentIdList.map(studentId => promiseSetResearchReplace(studentId, 0))))
+        .then(uid => promiseDeleteResearchApplyForm(req.body.semester, uid))
         .then(_ => {
             res.status(204);
             next();
