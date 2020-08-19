@@ -493,7 +493,7 @@ table.researchStudentListDownload = function(req, res, next) {
                 res.redirect('/');
             result = JSON.parse(result)
             var teamIdList = [];
-            var cnt = 0;
+            var cnt = 1;
             var studentListDownload = result.map((student) => {
                 if (teamIdList[student.unique_id] == null) {
                     teamIdList[student.unique_id] = cnt;
