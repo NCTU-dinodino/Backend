@@ -1122,59 +1122,68 @@ table.researchApplySetAgree = function(req, res, next) {
                 query.ShowStudentResearchApplyForm(studentId, (error, result) => {
                     if (error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
                     if (!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
-                    else resolve(JSON.parse(result));
+                    else resolve(JSON.parse(result)[0]);
                 });
             });
 
-            promiseShowStudentResearchApplyForm(info.student[0])
+            let promiseDeleteResearchApplyForm = (formInfo) => new Promise((resolve, reject) => {
+                query.DeleteResearchApplyForm(formInfo, (error, result) => {
+                    if (error) reject('Cannot fetch DeleteResearchApplyForm. Error message: ' + error);
+                    if (!result) reject('Cannot fetch DeleteResearchApplyForm.');
+                    else resolve();
+                });
+            });
+
+            promiseShowStudentResearchApplyForm(info.student[0].student_id)
                 .then((applyForm) => {
-                    Promise.resolve(applyForm.unique_id);
+                    return Promise.resolve(applyForm.unique_id);
                 })
                 .then((unique_id) => {
-                    var formInfo = { semester: info.year, unique_id: unique_id};
-                    query.DeleteResearchApplyForm(formInfo, () => {});
-                });
-
-            setTimeout(function() {
-                var mailString = '';
-                var nameString = '';
-                for (var j = 0; j < info.student.length; j++) {
-                    mailString = mailString + info.student[j].mail + ',';
-                    nameString = nameString + info.student[j].student_id + ',';
-                }
-                var transporter = nodemailer.createTransport({
-                    service: 'Gmail',
-                    auth: mail_info.auth
-                });
-
-                var options = {
-                    //寄件者
-                    from: 'nctucsca@gmail.com',
-                    //收件者
-                    to: mailString,
-                    //副本
-                    cc: '',
-                    //密件副本
-                    bcc: '',
-                    //主旨
-                    subject: '[交大資工線上助理]專題申請狀態改變通知', // Subject line
-
-                    html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡您的老師跟同學,謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
-                    //附件檔案
-
-                };
-
-                transporter.sendMail(options, function(error, info) {
-                    if (error) {
-                        console.log(error);
+                    var formInfo = { semester: info.year, unique_id: unique_id };
+                    return promiseDeleteResearchApplyForm(formInfo);
+                })
+                .then(() => {
+                    var mailString = '';
+                    var nameString = '';
+                    for (var j = 0; j < info.student.length; j++) {
+                        mailString = mailString + info.student[j].mail + ',';
+                        nameString = nameString + info.student[j].student_id + ',';
                     }
-                });
-                req.setAgree = { signal: 1 };
-                if (req.setAgree)
+                    var transporter = nodemailer.createTransport({
+                        service: 'Gmail',
+                        auth: mail_info.auth
+                    });
+
+                    var options = {
+                        //寄件者
+                        from: 'nctucsca@gmail.com',
+                        //收件者
+                        to: mailString,
+                        //副本
+                        cc: '',
+                        //密件副本
+                        bcc: '',
+                        //主旨
+                        subject: '[交大資工線上助理]專題申請狀態改變通知', // Subject line
+
+                        html: '<p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請直接聯絡您的老師跟同學,謝謝。</p><br/><p>申請狀態已變更, 請進入交大資工線上助理確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p>'
+                        //附件檔案
+
+                    };
+                    
+                    transporter.sendMail(options, function(error, info) {
+                        if (error) {
+                            return Promise.reject('Error sending emails.');
+                        }
+                    });
+                    req.setAgree = { signal: 1 };
                     next();
-                else
-                    return;
-            }, 800);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    req.setAgree = { signal: 0 };
+                    next();
+                });
 
         } else {
             var formInfo = { research_title: info.research_title, tname: info.tname, first_second: info.first_second, agree: info.agree, semester: info.year };
