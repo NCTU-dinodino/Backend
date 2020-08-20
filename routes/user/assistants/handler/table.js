@@ -1069,8 +1069,8 @@ table.researchDelete = function(req, res, next) {
             .then(([teacherEmail, studentEmail, _]) => {
                 let options = {
                     from: 'nctucsca@gmail.com',
-                    to: 'nctudinodino@gmail.com',//studentEmail,
-                    cc: '',//teacherEmail,
+                    to: studentEmail,
+                    cc: teacherEmail,
                     bcc: '',
                     subject: '[交大資工線上助理]專題郵件通知', // Subject line
                     html: '同學好,<p><br/>您的專題申請被退回。原因如下：<p>1.      本學期未完成專題選課。<p><br/>如有任何問題請儘速與系辦聯繫。<p><br/><br/>資工系辦　敬啟</p><p>-----------------------------------------------</p><p>此信件由系統自動發送，請勿直接回信！若有任何疑問，請至系辦詢問助理，謝謝。</p><p>請進入交大資工線上助理核可申請表/確認申請表狀態：<a href = "https://dinodino.nctu.edu.tw"> 點此進入系統</a></p><br/><p>Best Regards,</p><p>交大資工線上助理 NCTU CSCA</p><p>-----------------------------------------------</p>'
@@ -1267,7 +1267,7 @@ table.researchSetCPEStatus = function(req, res, next) {
 
                 let options = {
                     from: 'nctucsca@gmail.com',
-                    to: 'nctudinodino@gmail.com',//memberEmails,
+                    to: memberEmails,
                     cc: '',
                     bcc: '',
                     subject: '[交大資工線上助理]專題申請郵件通知',
