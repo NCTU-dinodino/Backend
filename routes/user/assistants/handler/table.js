@@ -509,6 +509,7 @@ table.researchStudentListDownload = function(req, res, next) {
 
                 return student;
             })
+            studentListDownload = studentListDownload.sort((a, b) => a.team_idx - b.team_idx);
             req.studentListDownload = studentListDownload;
             if (req.studentListDownload)
                 next();
@@ -1034,7 +1035,7 @@ table.researchDelete = function(req, res, next) {
 
         let promiseDelete = (type) => {
             if (type == '0') {
-                Promise.all([promiseShowStudentResearchApplyForm(req.body.student_id), promiseShowTeacherIdList()])
+                return Promise.all([promiseShowStudentResearchApplyForm(req.body.student_id), promiseShowTeacherIdList()])
                     .then(([researchApplyInfo, teacherIdList]) => {
                         let tname = researchApplyInfo.tname;
                         var teacher = teacherIdList.find(teacher => teacher.tname == tname);
@@ -1048,7 +1049,7 @@ table.researchDelete = function(req, res, next) {
                         ])
                     });
             } else if (type == '1') {
-                Promise.all([promiseShowStudentResearchInfo(req.body.student_id), promiseShowUserInfo(req.body.student_id), promiseShowTeacherIdList()])
+                return Promise.all([promiseShowStudentResearchInfo(req.body.student_id), promiseShowUserInfo(req.body.student_id), promiseShowTeacherIdList()])
                     .then(([researchInfo, userInfo, teacherIdList]) => {
                         let tname = researchInfo.tname;
                         var teacher = teacherIdList.find(teacher => teacher.tname == tname);
@@ -1064,7 +1065,7 @@ table.researchDelete = function(req, res, next) {
             }
         }
 
-        Promise.all(promiseDelete(req.body.first_second))
+        Promise.all(promiseDelete(type))
             .then(([teacherEmail, studentEmail, _]) => {
                 let options = {
                     from: 'nctucsca@gmail.com',
