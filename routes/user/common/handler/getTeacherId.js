@@ -21,7 +21,7 @@ getTeacherId.teacherId = function(req, res, next){
             }
         }
 
-		if(process.env.__ENV__ == 'DEV')
+		if(process.env.__ENV__ == 'DEV'){
 			const fs = require('fs');
 			let setting = fs.readFileSync('../../../../setting.json');
 			try{
