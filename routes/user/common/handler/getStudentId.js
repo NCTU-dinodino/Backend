@@ -26,10 +26,11 @@ getStudentId.studentId = function(req, res, next){
 
 		if(process.env.__ENV__ == 'DEV'){
 			const fs = require('fs');
-			let setting = fs.readFileSync('../../../../setting.json');
+			let setting = fs.readFileSync(__dirname +'/../../../../setting.json');
 			try{
 				setting = JSON.parse(setting);
 			} catch(e) {
+				console.log(e);
 				setting = {
 					student_id: 'undefined',
 					teacher_id: 'undefined'

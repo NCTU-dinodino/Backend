@@ -44,7 +44,7 @@ module.exports.init = function(){
   		try{
 			app.use(require('./routes/BackendTest/TestPage.js'));
 		} catch(e) {
-			console.log(e);
+			console.log('Test file ignored.');
 		}
 	}
 
