@@ -24,8 +24,22 @@ getStudentId.studentId = function(req, res, next){
             res.locals.studentId = req.query.student_id;
         }
 
+		if(process.env.__ENV__ == 'DEV')
+			const fs = require('fs');
+			let setting = fs.readFileSync('../../../../setting.json');
+			try{
+				setting = JSON.parse(setting);
+			} catch(e) {
+				setting = {
+					student_id: 'undefined',
+					teacher_id: 'undefined'
+				};
+			}
+			if(setting.student_id != 'undefined') res.locals.studentId = setting.student_id;
+		}
+
         //res.locals.studentId = '';
-	req.csca.student_id = res.locals.studentId;
+		req.csca.student_id = res.locals.studentId;
 
         next();
     }
