@@ -1186,8 +1186,29 @@ table.researchApplySetAgree = function(req, res, next) {
                 });
 
         } else {
+            let promiseShowStudentResearchApplyForm = (studentId) => new Promise((resolve, reject) => {
+                query.ShowStudentResearchApplyForm(studentId, (error, result) => {
+                    if (error) reject('Cannot fetch ShowStudentResearchApplyForm. Error message: ' + error);
+                    if (!result) reject('Cannot fetch ShowStudentResearchApplyForm.');
+                    else resolve(JSON.parse(result)[0]);
+                });
+            });
+
+			let promiseSetResearchApplyFormStatus(semester, uid, agree) => new Promise((resolve, reject) => {
+				query.SetResearchApplyFormStatus({semester: semester, unique_id: uid, agree: agree}, (error, result) => {
+					if (error) reject('Cannot fetch SetResearchApplyFormStatus. Error message: ' + error);
+					if (!result) reject('Cannot fetch SetResearchApplyFormStatus.');
+					else resolve();
+				});
+			});
+
             var formInfo = { research_title: info.research_title, tname: info.tname, first_second: info.first_second, agree: info.agree, semester: info.year };
-            query.SetResearchApplyFormStatus(formInfo);
+            promiseShowStudentResearchApplyForm(info.student_id)
+			.then(applyForm => promiseSetResearchApplyFormStatus(applyForm.semester, applyForm.unique_id, info.agree))
+			.catch((error) => {
+				console.log(err);
+			});
+
             setTimeout(function() {
                 var mailString = '';
                 var nameString = '';

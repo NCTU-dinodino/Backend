@@ -1226,8 +1226,8 @@ table.researchSetCPEStatus = function(req, res, next) {
             });
         });
 
-        let promiseSetResearchApplyFormStatus = (title, tname, first_second, semester) => new Promise((resolve, reject) => {
-            query.SetResearchApplyFormStatus({ research_title: title, tname: tname, first_second: first_second, agree: 3, semester: semester })
+        let promiseSetResearchApplyFormStatus = (semester, uniqueId) => new Promise((resolve, reject) => {
+            query.SetResearchApplyFormStatus({ semester: semester, agree: 3, unique_id: uniqueId });
             resolve();
         });
 
@@ -1249,7 +1249,7 @@ table.researchSetCPEStatus = function(req, res, next) {
                 var teacher = teacherIdList.find(teacher => teacher.tname == applyForm.tname);
                 return Promise.all([
                     promiseShowTeacherResearchApplyFormList(teacher.teacher_id),
-                    promiseSetResearchApplyFormStatus(applyForm.title, teacher.tname, applyForm.first_second, applyForm.semester)
+                    promiseSetResearchApplyFormStatus(applyForm.semester, applyForm.unique_id)
                 ]);
             })
             .then(([applyFormList, _]) => {
