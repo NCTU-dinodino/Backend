@@ -3,8 +3,8 @@ var fs= require('fs');
 var Readable = require('stream').Readable;
 var nodemailer = require('nodemailer');
 var query = require('../../../../db/msql');
-var data_path = "/home/nctuca/dinodino-extension/automation/data";
-var sample_path = "/home/nctuca/dinodino-extension/automation/sample";
+var data_path = "../../../../../dinodino-extension/automation/data";
+var sample_path = "../../../../../dinodino-extension/automation/sample";
 var XLSX = require('xlsx')
 
 table.mailSend = (req, res, next) => {
