@@ -1194,7 +1194,7 @@ table.researchApplySetAgree = function(req, res, next) {
                 });
             });
 
-			let promiseSetResearchApplyFormStatus(semester, uid, agree) => new Promise((resolve, reject) => {
+			let promiseSetResearchApplyFormStatus = (semester, uid, agree) => new Promise((resolve, reject) => {
 				query.SetResearchApplyFormStatus({semester: semester, unique_id: uid, agree: agree}, (error, result) => {
 					if (error) reject('Cannot fetch SetResearchApplyFormStatus. Error message: ' + error);
 					if (!result) reject('Cannot fetch SetResearchApplyFormStatus.');
