@@ -297,7 +297,7 @@ table.dataFormDownload = function(req, res, next){
         var fileName = req.body.data_type;
         fs.readFile(sample_path + '/' + fileName + '範例.xlsx', function(err, result){
 			if(err) {
-				console.log('Cannot open sample file:', filename + '範例.xlsx');
+				console.log('Cannot open sample file:', fileName + '範例.xlsx');
 				console.log(err);
 				res.redirect('/');
 			} else {
