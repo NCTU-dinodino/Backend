@@ -1276,7 +1276,7 @@ table.researchSetCPEStatus = function(req, res, next) {
                 };
 
                 transporter.sendMail(options, (error, result) => {
-                    if (error) return Promise.reject('Cannot send email. Error message: ' + error);
+                    if (error) return console.log('Cannot send email. Error message: ' + error);
                 });
             })
             .then(_ => {
