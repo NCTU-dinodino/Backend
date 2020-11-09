@@ -4,7 +4,7 @@ var Readable = require('stream').Readable;
 var nodemailer = require('nodemailer');
 var query = require('../../../../db/msql');
 
-var db_automation_path = process.env.__ENV__ == 'DEV' ? "~/dinodino-extension/automation" : "~/automation";
+var db_automation_path = "../automation";
 var sample_path = db_automation_path + "/automation_sample";
 var data_path = db_automation_path + "/data";
 var XLSX = require('xlsx')
