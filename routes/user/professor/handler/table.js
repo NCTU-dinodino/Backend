@@ -1203,7 +1203,7 @@ table.researchApplySetAgree = function(req, res, next) {
 			});
 
             var formInfo = { research_title: info.research_title, tname: info.tname, first_second: info.first_second, agree: info.agree, semester: info.year };
-            promiseShowStudentResearchApplyForm(info.student_id)
+            promiseShowStudentResearchApplyForm(info.student[0].student_id)
 			.then(applyForm => promiseSetResearchApplyFormStatus(applyForm.semester, applyForm.unique_id, info.agree))
 			.catch((error) => {
 				console.log(err);
